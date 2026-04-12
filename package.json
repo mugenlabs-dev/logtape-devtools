@@ -1,0 +1,52 @@
+{
+  "name": "logtape-devtools",
+  "private": true,
+  "scripts": {
+    "build": "pnpm --filter ./packages/core run build",
+    "dev": "pnpm --filter ./packages/core run dev",
+    "dev:demo": "pnpm --filter demo run dev",
+    "typecheck": "pnpm build && tsc -p packages/core --noEmit && tsc -p apps/demo --noEmit",
+    "clean": "pnpm -r run clean",
+    "test": "vitest --project=unit",
+    "test:ci": "vitest run --project=unit --passWithNoTests",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "audit": "pnpm audit --audit-level=moderate",
+    "storybook": "pnpm --filter ./packages/core run storybook",
+    "build-storybook": "pnpm --filter ./packages/core run build-storybook",
+    "test-storybook": "vitest run --project=storybook",
+    "test:e2e": "playwright test",
+    "generate:og": "tsx scripts/generate-og-image.tsx",
+    "changeset": "changeset"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.4",
+    "@changesets/changelog-github": "^0.6.0",
+    "@changesets/cli": "^2.30.0",
+    "@playwright/test": "^1.58.2",
+    "@resvg/resvg-js": "^2.6.2",
+    "@storybook/addon-vitest": "^10.2.19",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitest/browser": "^4.1.0",
+    "@vitest/browser-playwright": "^4.1.0",
+    "jsdom": "^26.0.0",
+    "satori": "^0.26.0",
+    "tsup": "^8.4.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.7.0",
+    "ultracite": "^7.2.3",
+    "vitest": "^4.0.18"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=10.0.0"
+  },
+  "packageManager": "pnpm@10.6.5",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
+}

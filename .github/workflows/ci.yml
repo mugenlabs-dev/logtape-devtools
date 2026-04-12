@@ -1,0 +1,256 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  # ─────────────────────────────────────────────
+  # Job 1: Lint, Format & Unit Tests
+  # ─────────────────────────────────────────────
+  check:
+    name: Lint & Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Lint & Format
+        run: pnpm lint
+
+      - name: Run unit tests
+        run: pnpm test:ci
+
+  # ─────────────────────────────────────────────
+  # Job 2: Storybook interaction tests
+  # ─────────────────────────────────────────────
+  storybook:
+    name: Storybook Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Install Playwright deps (cached)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps chromium
+
+      - name: Run Storybook tests
+        run: pnpm test-storybook
+
+  # ─────────────────────────────────────────────
+  # Job 3: Build, Typecheck & Deploy artifacts
+  # ─────────────────────────────────────────────
+  build:
+    name: Build & Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build all packages
+        run: pnpm build
+
+      - name: Typecheck
+        run: pnpm exec tsgo -p packages/core --noEmit && pnpm exec tsgo -p apps/demo --noEmit
+
+      - name: Build demo for GitHub Pages
+        if: github.event_name == 'push'
+        run: pnpm --filter demo run build
+        env:
+          VITE_BASE_PATH: /logtape-devtools/
+
+      - name: Copy index.html to 404.html for SPA routing
+        if: github.event_name == 'push'
+        run: cp apps/demo/dist/client/index.html apps/demo/dist/client/404.html
+
+      - name: Upload demo build artifact (for rollback)
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: demo-build
+          path: apps/demo/dist/client
+          retention-days: 7
+
+      - name: Configure GitHub Pages
+        if: github.event_name == 'push'
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        if: github.event_name == 'push'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/demo/dist/client
+
+  # ─────────────────────────────────────────────
+  # Job 4: Deploy to GitHub Pages
+  # ─────────────────────────────────────────────
+  deploy:
+    name: Deploy
+    if: github.event_name == 'push'
+    needs: [check, storybook, build]
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  # ─────────────────────────────────────────────
+  # Job 5: E2E tests against deployed site
+  # ─────────────────────────────────────────────
+  e2e:
+    name: E2E Tests
+    needs: deploy
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.58.2-noble
+      options: --user 1001
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Run E2E tests against GitHub Pages
+        run: pnpm test:e2e
+        env:
+          CI: true
+          BASE_URL: ${{ needs.deploy.outputs.page_url }}
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
+  # ─────────────────────────────────────────────
+  # Job 6: Rollback if E2E fails
+  # ─────────────────────────────────────────────
+  rollback:
+    name: Rollback
+    needs: e2e
+    if: failure()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+      actions: read
+    environment:
+      name: github-pages
+    steps:
+      - name: Find last successful build artifact
+        id: find_artifact
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const runs = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'ci.yml',
+              branch: 'main',
+              status: 'success',
+              per_page: 5,
+            });
+
+            const previousRun = runs.data.workflow_runs.find(
+              run => run.id !== context.runId
+            );
+
+            if (!previousRun) {
+              core.setFailed('No previous successful run found for rollback');
+              return;
+            }
+
+            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: previousRun.id,
+            });
+
+            const demoBuild = artifacts.data.artifacts.find(
+              a => a.name === 'demo-build'
+            );
+
+            if (!demoBuild) {
+              core.setFailed('No demo-build artifact found in previous run');
+              return;
+            }
+
+            core.setOutput('run_id', previousRun.id.toString());
+            core.info(`Rolling back to run #${previousRun.run_number} (${previousRun.id})`);
+
+      - name: Download previous build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: demo-build
+          path: rollback-dist
+          run-id: ${{ steps.find_artifact.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload as Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: rollback-dist
+
+      - name: Re-deploy previous version
+        uses: actions/deploy-pages@v4
