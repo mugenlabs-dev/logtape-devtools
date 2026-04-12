@@ -118,7 +118,7 @@ importers:
   packages/core:
     dependencies:
       '@base-ui-components/react':
-        specifier: 1.0.0-rc.0
+        specifier: ^1.0.0-rc.0
         version: 1.0.0-rc.0(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@tanstack/pacer':
         specifier: ^0.19.0
