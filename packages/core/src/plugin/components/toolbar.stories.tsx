@@ -60,6 +60,8 @@ export const SearchFilter: Story = {
     await step("Type in search input", async () => {
       const searchInput = canvas.getByTestId("search-input");
       await userEvent.type(searchInput, "error");
+      // Wait for the 200ms debounce to fire
+      await new Promise((resolve) => setTimeout(resolve, 300));
       await expect(args.onSearchTextChange).toHaveBeenCalled();
     });
   },
