@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:logtape.org)",
+      "WebFetch(domain:jsr.io)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(git:*)",
+      "Bash(grep:*)"
+    ]
+  }
+}
