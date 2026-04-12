@@ -80,7 +80,7 @@ Creates a standalone log store for advanced use cases.
 
 ## Demo
 
-See the live demo and full documentation at [yagogc.github.io/logtape-devtools](https://yagogc.github.io/logtape-devtools/).
+See the live demo and full documentation at [logtape-devtools.mugenlabs.dev](https://logtape-devtools.mugenlabs.dev/).
 
 ## License
 
