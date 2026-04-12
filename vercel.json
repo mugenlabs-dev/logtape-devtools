@@ -3,7 +3,7 @@
   "framework": null,
   "installCommand": "pnpm install --frozen-lockfile",
   "buildCommand": "pnpm build && pnpm --filter demo run build",
-  "outputDirectory": "apps/demo/dist/client",
+  "outputDirectory": "apps/demo/dist",
   "rewrites": [
     {
       "source": "/((?!assets).*)",
