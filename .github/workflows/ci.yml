@@ -6,14 +6,9 @@ on:
   pull_request:
     branches: [main]
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
 concurrency:
-  group: pages
-  cancel-in-progress: false
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   # ─────────────────────────────────────────────
@@ -77,7 +72,7 @@ jobs:
         run: pnpm test-storybook
 
   # ─────────────────────────────────────────────
-  # Job 3: Build, Typecheck & Deploy artifacts
+  # Job 3: Build & Typecheck
   # ─────────────────────────────────────────────
   build:
     name: Build & Typecheck
@@ -100,58 +95,47 @@ jobs:
       - name: Typecheck
         run: pnpm exec tsgo -p packages/core --noEmit && pnpm exec tsgo -p apps/demo --noEmit
 
-      - name: Build demo for GitHub Pages
-        if: github.event_name == 'push'
-        run: pnpm --filter demo run build
-        env:
-          VITE_BASE_PATH: /logtape-devtools/
-
-      - name: Copy index.html to 404.html for SPA routing
-        if: github.event_name == 'push'
-        run: cp apps/demo/dist/client/index.html apps/demo/dist/client/404.html
-
-      - name: Upload demo build artifact (for rollback)
-        if: github.event_name == 'push'
-        uses: actions/upload-artifact@v4
-        with:
-          name: demo-build
-          path: apps/demo/dist/client
-          retention-days: 7
-
-      - name: Configure GitHub Pages
-        if: github.event_name == 'push'
-        uses: actions/configure-pages@v5
-
-      - name: Upload Pages artifact
-        if: github.event_name == 'push'
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: apps/demo/dist/client
-
   # ─────────────────────────────────────────────
-  # Job 4: Deploy to GitHub Pages
+  # Job 4: Deploy Preview to Vercel
   # ─────────────────────────────────────────────
-  deploy:
-    name: Deploy
-    if: github.event_name == 'push'
-    needs: [check, storybook, build]
+  deploy-preview:
+    name: Deploy Preview
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    needs: [check, storybook, build]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     outputs:
-      page_url: ${{ steps.deployment.outputs.page_url }}
+      preview-url: ${{ steps.deploy.outputs.preview-url }}
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm add -g vercel
+
+      - run: vercel pull --yes --token=${{ secrets.VERCEL_TOKEN }}
+      - run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy preview (skip production alias)
+        id: deploy
+        run: |
+          url=$(vercel deploy --prebuilt --prod --skip-domain --token=${{ secrets.VERCEL_TOKEN }})
+          echo "preview-url=$url" >> "$GITHUB_OUTPUT"
 
   # ─────────────────────────────────────────────
-  # Job 5: E2E tests against deployed site
+  # Job 5: E2E tests against preview
   # ─────────────────────────────────────────────
   e2e:
     name: E2E Tests
-    needs: deploy
+    needs: deploy-preview
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.58.2-noble
@@ -168,11 +152,12 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Run E2E tests against GitHub Pages
+      - name: Run E2E tests against preview
         run: pnpm test:e2e
         env:
           CI: true
-          BASE_URL: ${{ needs.deploy.outputs.page_url }}
+          BASE_URL: ${{ needs.deploy-preview.outputs.preview-url }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
@@ -183,74 +168,13 @@ jobs:
           retention-days: 30
 
   # ─────────────────────────────────────────────
-  # Job 6: Rollback if E2E fails
+  # Job 6: Promote to Production
   # ─────────────────────────────────────────────
-  rollback:
-    name: Rollback
-    needs: e2e
-    if: failure()
+  promote:
+    name: Promote to Production
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-      actions: read
-    environment:
-      name: github-pages
+    needs: [e2e, deploy-preview]
     steps:
-      - name: Find last successful build artifact
-        id: find_artifact
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const runs = await github.rest.actions.listWorkflowRuns({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'ci.yml',
-              branch: 'main',
-              status: 'success',
-              per_page: 5,
-            });
-
-            const previousRun = runs.data.workflow_runs.find(
-              run => run.id !== context.runId
-            );
-
-            if (!previousRun) {
-              core.setFailed('No previous successful run found for rollback');
-              return;
-            }
-
-            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: previousRun.id,
-            });
-
-            const demoBuild = artifacts.data.artifacts.find(
-              a => a.name === 'demo-build'
-            );
-
-            if (!demoBuild) {
-              core.setFailed('No demo-build artifact found in previous run');
-              return;
-            }
-
-            core.setOutput('run_id', previousRun.id.toString());
-            core.info(`Rolling back to run #${previousRun.run_number} (${previousRun.id})`);
-
-      - name: Download previous build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: demo-build
-          path: rollback-dist
-          run-id: ${{ steps.find_artifact.outputs.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload as Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: rollback-dist
-
-      - name: Re-deploy previous version
-        uses: actions/deploy-pages@v4
+      - run: npm add -g vercel
+      - name: Promote preview to production
+        run: vercel promote ${{ needs.deploy-preview.outputs.preview-url }} --yes --scope=${{ secrets.VERCEL_ORG_ID }} --token=${{ secrets.VERCEL_TOKEN }}
