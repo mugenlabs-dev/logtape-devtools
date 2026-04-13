@@ -58,7 +58,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
             </NavLink>
             <a
               className="ml-2 flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-text-muted transition-colors hover:text-text-primary"
-              href="https://github.com/Yagogc/logtape-devtools"
+              href="https://github.com/mugenlabs-dev/logtape-devtools"
               rel="noopener noreferrer"
               target="_blank"
             >

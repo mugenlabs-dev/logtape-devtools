@@ -10,15 +10,15 @@
     "react",
     "debugging"
   ],
-  "homepage": "https://github.com/Yagogc/logtape-devtools",
+  "homepage": "https://github.com/mugenlabs-dev/logtape-devtools",
   "bugs": {
-    "url": "https://github.com/Yagogc/logtape-devtools/issues"
+    "url": "https://github.com/mugenlabs-dev/logtape-devtools/issues"
   },
   "license": "MIT",
   "author": "Yago Gonzalez",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Yagogc/logtape-devtools.git",
+    "url": "https://github.com/mugenlabs-dev/logtape-devtools.git",
     "directory": "packages/core"
   },
   "files": [
