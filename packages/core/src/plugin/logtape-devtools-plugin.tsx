@@ -3,6 +3,7 @@ import type { LogStore } from "../store";
 import type { DevtoolsLogRecord, LogLevel } from "../types";
 import { LogList } from "./components/log-list";
 import { Toolbar } from "./components/toolbar";
+import { PanelLeftCloseIcon, PanelLeftOpenIcon, PauseIcon, PlayIcon, Trash2Icon } from "./icons";
 import { theme } from "./theme";
 
 interface Props {
@@ -137,7 +138,10 @@ export const LogTapeDevtoolsPlugin = ({ store }: Props) => {
             title={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
             type="button"
           >
-            {sidebarOpen ? "◀ Hide controls" : "▶ Show controls"}
+            <span style={{ alignItems: "center", display: "inline-flex", gap: "6px" }}>
+              {sidebarOpen ? <PanelLeftCloseIcon size={14} /> : <PanelLeftOpenIcon size={14} />}
+              {sidebarOpen ? "Hide controls" : "Show controls"}
+            </span>
           </button>
 
           {!sidebarOpen && (
@@ -172,7 +176,7 @@ export const LogTapeDevtoolsPlugin = ({ store }: Props) => {
                 title={paused ? "Resume" : "Pause"}
                 type="button"
               >
-                {paused ? "▶" : "⏸"}
+                {paused ? <PlayIcon size={12} /> : <PauseIcon size={12} />}
               </button>
               <button
                 data-lt-interactive=""
@@ -191,7 +195,7 @@ export const LogTapeDevtoolsPlugin = ({ store }: Props) => {
                 title="Clear"
                 type="button"
               >
-                ✕
+                <Trash2Icon size={12} />
               </button>
             </>
           )}

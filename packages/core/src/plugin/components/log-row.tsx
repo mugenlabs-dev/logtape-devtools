@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import type { DevtoolsLogRecord } from "../../types";
+import { ChevronRightIcon } from "../icons";
 import { theme } from "../theme";
 import { LevelBadge } from "./level-badge";
 import { LogDetail } from "./log-detail";
@@ -117,13 +118,13 @@ export const LogRow = ({ record, expanded, onToggle }: LogRowProps) => {
         <span
           style={{
             color: theme.colors.textDimmed,
+            display: "flex",
             flexShrink: 0,
-            fontSize: theme.fontSize.sm,
             transform: expanded ? "rotate(90deg)" : "rotate(0deg)",
             transition: "transform 0.15s",
           }}
         >
-          ▶
+          <ChevronRightIcon size={12} />
         </span>
       </button>
 
