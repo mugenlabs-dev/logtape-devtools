@@ -3,6 +3,7 @@ import { Popover } from "@base-ui-components/react/popover";
 import { Debouncer } from "@tanstack/pacer";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { LOG_LEVELS, type LogLevel } from "../../types";
+import { CheckIcon, PauseIcon, PlayIcon, Trash2Icon, XIcon } from "../icons";
 import { theme } from "../theme";
 
 interface ToolbarProps {
@@ -220,7 +221,10 @@ export const Toolbar = ({
           title={paused ? "Resume live updates" : "Pause live updates"}
           type="button"
         >
-          {paused ? "▶ Resume" : "⏸ Pause"}
+          <span style={{ alignItems: "center", display: "inline-flex", gap: "6px" }}>
+            {paused ? <PlayIcon size={12} /> : <PauseIcon size={12} />}
+            {paused ? "Resume" : "Pause"}
+          </span>
         </button>
 
         <button
@@ -230,7 +234,10 @@ export const Toolbar = ({
           title="Clear all logs"
           type="button"
         >
-          ✕ Clear
+          <span style={{ alignItems: "center", display: "inline-flex", gap: "6px" }}>
+            <Trash2Icon size={12} />
+            Clear
+          </span>
         </button>
       </div>
 
@@ -395,7 +402,7 @@ export const Toolbar = ({
                     title={`Remove ${cat}`}
                     type="button"
                   >
-                    ✕
+                    <XIcon size={7} />
                   </button>
                 </span>
               ))}
@@ -452,14 +459,7 @@ export const Toolbar = ({
                           {String(item)}
                         </span>
                         <Combobox.ItemIndicator>
-                          <span
-                            style={{
-                              color: theme.colors.accent,
-                              fontSize: theme.fontSize.md,
-                            }}
-                          >
-                            ✓
-                          </span>
+                          <CheckIcon color={theme.colors.accent} size={14} />
                         </Combobox.ItemIndicator>
                       </Combobox.Item>
                     )}
