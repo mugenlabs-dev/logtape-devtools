@@ -1,5 +1,5 @@
 import { configure, getLogger, reset } from "@logtape/logtape";
-import { createDevtoolsSink, createLogTapeDevtoolsPlugin } from "@mugenlabs/logtape-devtools";
+import { createLogTapeDevtools } from "@mugenlabs/logtape-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -8,16 +8,16 @@ import { CodeBlock } from "../docs/code-block";
 // --- Source code shown to the user ---
 const EXAMPLE_CODE = `import { configure, getLogger } from "@logtape/logtape";
 import { TanStackDevtools } from "@tanstack/react-devtools";
-import {
-  createDevtoolsSink,
-  createLogTapeDevtoolsPlugin,
-} from "@mugenlabs/logtape-devtools";
+import { createLogTapeDevtools } from "@mugenlabs/logtape-devtools";
 
-// 1. Configure LogTape with the devtools sink
+// 1. Create the sink and the panel plugin, wired to the same store
+const { sink, plugin } = createLogTapeDevtools();
+
+// 2. Configure LogTape with the devtools sink
 //    This captures all log records and forwards them to the panel.
 await configure({
   sinks: {
-    devtools: createDevtoolsSink(),
+    devtools: sink,
   },
   loggers: [
     {
@@ -28,7 +28,7 @@ await configure({
   ],
 });
 
-// 2. Use LogTape's getLogger to emit structured logs
+// 3. Use LogTape's getLogger to emit structured logs
 //    Categories are arrays — e.g. ["app", "auth"] becomes "app.auth"
 const logger = getLogger(["app", "auth"]);
 
@@ -39,20 +39,23 @@ logger.error("Failed to fetch {url}: {status}", {
   status: 500,
 });
 
-// 3. Mount TanStack DevTools with the LogTape plugin
+// 4. Mount TanStack DevTools with the LogTape plugin
 //    This renders the log viewer panel in your app.
 function App() {
   return (
     <>
       <YourApp />
-      <TanStackDevtools
-        plugins={[createLogTapeDevtoolsPlugin()]}
-      />
+      <TanStackDevtools plugins={[plugin]} />
     </>
   );
 }`;
 
 // --- LogTape setup ---
+// One call wires a sink and the devtools plugin to the same store.
+const { sink: devtoolsSink, plugin: devtoolsPlugin } = createLogTapeDevtools({
+  sink: { captureStackTrace: true },
+});
+
 let configured = false;
 
 async function setupLogTape() {
@@ -61,7 +64,7 @@ async function setupLogTape() {
   }
   await configure({
     sinks: {
-      devtools: createDevtoolsSink({ experimentalCaptureStackTrace: true }),
+      devtools: devtoolsSink,
     },
     loggers: [{ category: [], lowestLevel: "trace", sinks: ["devtools"] }],
   });
@@ -116,55 +119,46 @@ function randomItem<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-function randomProps(): Record<string, unknown> {
+// A value generator per placeholder name, so every `{placeholder}` in a
+// message template gets a plausible value instead of `undefined`.
+const propValues: Record<string, () => unknown> = {
+  component: () => randomItem(["AuthProvider", "DashboardView", "SearchBar", "RouteGuard"]),
+  count: () => Math.floor(Math.random() * 200) + 1,
+  current: () => Math.floor(Math.random() * 900) + 50,
+  endpoint: () => randomItem(["/api/users", "/api/posts", "/api/session", "/api/v1/legacy"]),
+  i: () => Math.floor(Math.random() * 50) + 1,
+  key: () => randomItem(["user:1042", "posts:recent", "session:abc123", "flags:beta"]),
+  max: () => 1000,
+  ms: () => Math.floor(Math.random() * 2000) + 5,
+  route: () => randomItem(["/dashboard", "/settings", "/login", "/reports/monthly"]),
+  service: () => randomItem(["redis-primary", "auth-service", "postgres-main", "mailer"]),
+  status: () => randomItem([400, 404, 500, 503]),
+  statusText: () =>
+    randomItem(["Bad Request", "Not Found", "Internal Server Error", "Service Unavailable"]),
+  table: () => randomItem(["users", "posts", "sessions", "audit_log"]),
+  total: () => 50,
+  url: () => randomItem(["/api/data", "/api/profile", "/api/orders", "/api/search?q=logs"]),
+  userId: () => `usr_${Math.random().toString(36).slice(2, 8)}`,
+  username: () => randomItem(["john_doe", "ada", "grace_h", "linus"]),
+};
+
+const statusTexts: Record<number, string> = {
+  400: "Bad Request",
+  404: "Not Found",
+  500: "Internal Server Error",
+  503: "Service Unavailable",
+};
+
+const placeholderRe = /\{(\w+)\}/g;
+
+function randomProps(template: string): Record<string, unknown> {
   const props: Record<string, unknown> = {};
-  const keys = [
-    "userId",
-    "username",
-    "endpoint",
-    "ms",
-    "route",
-    "key",
-    "count",
-    "url",
-    "status",
-    "statusText",
-    "table",
-    "current",
-    "max",
-    "component",
-    "service",
-    "i",
-    "total",
-  ];
-  const count = Math.floor(Math.random() * 3) + 1;
-  for (let n = 0; n < count; n++) {
-    const key = randomItem(keys);
-    if (
-      key === "ms" ||
-      key === "count" ||
-      key === "current" ||
-      key === "max" ||
-      key === "status" ||
-      key === "i" ||
-      key === "total"
-    ) {
-      props[key] = Math.floor(Math.random() * 1000);
-    } else if (key === "userId") {
-      props[key] = `usr_${Math.random().toString(36).slice(2, 8)}`;
-    } else {
-      props[key] = randomItem([
-        "users",
-        "posts",
-        "/api/data",
-        "/dashboard",
-        "AuthProvider",
-        "redis-primary",
-        "john_doe",
-        "200",
-        "500",
-      ]);
-    }
+  for (const [, key] of template.matchAll(placeholderRe)) {
+    props[key] = propValues[key]?.() ?? key;
+  }
+  // Keep the status code and its text consistent when both are interpolated.
+  if (typeof props.status === "number" && typeof props.statusText === "string") {
+    props.statusText = statusTexts[props.status];
   }
   return props;
 }
@@ -187,7 +181,7 @@ function emitRandomLog() {
   const category = randomItem(categories);
   const logger = getLogger(category);
   const msgTemplate = randomItem(messages[level]);
-  const props = randomProps();
+  const props = randomProps(msgTemplate);
 
   logger[level === "warning" ? "warn" : level](msgTemplate, props);
 }
@@ -222,7 +216,7 @@ export const PlaygroundPage = () => {
       const category = randomItem(categories);
       const logger = getLogger(category);
       const msgTemplate = randomItem(messages[level]);
-      const props = randomProps();
+      const props = randomProps(msgTemplate);
       logger[level === "warning" ? "warn" : level](msgTemplate, props);
     },
     [ready]
@@ -313,7 +307,7 @@ export const PlaygroundPage = () => {
       )}
 
       {/* TanStack Devtools */}
-      <TanStackDevtools config={{ defaultOpen: false }} plugins={[createLogTapeDevtoolsPlugin()]} />
+      <TanStackDevtools config={{ defaultOpen: false }} plugins={[devtoolsPlugin]} />
     </div>
   );
 };

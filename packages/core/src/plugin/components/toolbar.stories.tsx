@@ -25,7 +25,6 @@ const meta: Meta<typeof Toolbar> = {
     onResume: fn(),
     onSearchTextChange: fn(),
     paused: false,
-    searchText: "",
     totalCount: 5,
   },
 };

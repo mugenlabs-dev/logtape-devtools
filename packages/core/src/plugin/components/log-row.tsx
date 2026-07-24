@@ -1,25 +1,75 @@
 import { useCallback } from "react";
 import type { DevtoolsLogRecord } from "../../types";
+import { formatTime } from "../format";
 import { ChevronRightIcon } from "../icons";
 import { theme } from "../theme";
 import { LevelBadge } from "./level-badge";
 import { LogDetail } from "./log-detail";
-
-function formatTime(ts: number): string {
-  const d = new Date(ts);
-  return d.toLocaleTimeString(undefined, {
-    hour12: false,
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
-}
 
 interface LogRowProps {
   expanded: boolean;
   onToggle: (id: string | null) => void;
   record: DevtoolsLogRecord;
 }
+
+const rowStyle = {
+  alignItems: "center",
+  border: "none",
+  borderBottom: `1px solid ${theme.colors.border}`,
+  cursor: "pointer",
+  display: "flex",
+  gap: theme.spacing.lg,
+  padding: `${theme.spacing.md} ${theme.spacing.xl}`,
+  textAlign: "left",
+  transition: "background 0.1s, filter 0.1s",
+  width: "100%",
+} as const;
+
+const timestampStyle = {
+  color: theme.colors.textDimmed,
+  flexShrink: 0,
+  fontFamily: theme.fontFamily.mono,
+  fontSize: theme.fontSize.md,
+} as const;
+
+const categoryStyle = {
+  color: theme.colors.accent,
+  flexShrink: 0,
+  fontFamily: theme.fontFamily.mono,
+  fontSize: theme.fontSize.md,
+  maxWidth: "180px",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+} as const;
+
+const messageStyle = {
+  color: theme.colors.textPrimary,
+  flex: 1,
+  fontSize: theme.fontSize.base,
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+} as const;
+
+const callerStyle = {
+  color: theme.colors.textDimmed,
+  flexShrink: 0,
+  fontFamily: theme.fontFamily.mono,
+  fontSize: theme.fontSize.sm,
+  maxWidth: "200px",
+  opacity: 0.7,
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+} as const;
+
+const chevronStyle = {
+  color: theme.colors.textDimmed,
+  display: "flex",
+  flexShrink: 0,
+  transition: "transform 0.15s",
+} as const;
 
 export const LogRow = ({ record, expanded, onToggle }: LogRowProps) => {
   const levelColors = theme.colors.levels[record.level];
@@ -35,95 +85,26 @@ export const LogRow = ({ record, expanded, onToggle }: LogRowProps) => {
         data-lt-interactive=""
         data-testid="log-row"
         onClick={handleClick}
-        style={{
-          alignItems: "center",
-          background: expanded ? levelColors.bg : "transparent",
-          border: "none",
-          borderBottom: `1px solid ${theme.colors.border}`,
-          cursor: "pointer",
-          display: "flex",
-          gap: theme.spacing.lg,
-          padding: `${theme.spacing.md} ${theme.spacing.xl}`,
-          textAlign: "left",
-          transition: "background 0.1s, filter 0.1s",
-          width: "100%",
-        }}
+        style={{ ...rowStyle, background: expanded ? levelColors.bg : "transparent" }}
         type="button"
       >
         {/* Timestamp */}
-        <span
-          style={{
-            color: theme.colors.textDimmed,
-            flexShrink: 0,
-            fontFamily: theme.fontFamily.mono,
-            fontSize: theme.fontSize.md,
-          }}
-        >
-          {formatTime(record.timestamp)}
-        </span>
+        <span style={timestampStyle}>{formatTime(record.timestamp)}</span>
 
         {/* Level badge */}
         <LevelBadge level={record.level} />
 
         {/* Category */}
-        <span
-          style={{
-            color: theme.colors.accent,
-            flexShrink: 0,
-            fontFamily: theme.fontFamily.mono,
-            fontSize: theme.fontSize.md,
-            maxWidth: "180px",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-          }}
-        >
-          {record.category.join(".")}
-        </span>
+        <span style={categoryStyle}>{record.category.join(".")}</span>
 
         {/* Message */}
-        <span
-          style={{
-            color: theme.colors.textPrimary,
-            flex: 1,
-            fontSize: theme.fontSize.base,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-          }}
-        >
-          {record.messageText}
-        </span>
+        <span style={messageStyle}>{record.messageText}</span>
 
         {/* Caller (right-aligned) */}
-        {record.caller && (
-          <span
-            style={{
-              color: theme.colors.textDimmed,
-              flexShrink: 0,
-              fontFamily: theme.fontFamily.mono,
-              fontSize: theme.fontSize.sm,
-              maxWidth: "200px",
-              opacity: 0.7,
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {record.caller}
-          </span>
-        )}
+        {record.caller && <span style={callerStyle}>{record.caller}</span>}
 
         {/* Expand indicator */}
-        <span
-          style={{
-            color: theme.colors.textDimmed,
-            display: "flex",
-            flexShrink: 0,
-            transform: expanded ? "rotate(90deg)" : "rotate(0deg)",
-            transition: "transform 0.15s",
-          }}
-        >
+        <span style={{ ...chevronStyle, transform: expanded ? "rotate(90deg)" : "rotate(0deg)" }}>
           <ChevronRightIcon size={12} />
         </span>
       </button>

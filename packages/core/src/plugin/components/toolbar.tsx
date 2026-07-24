@@ -16,9 +16,9 @@ interface ToolbarProps {
   onLevelFilterChange: (levels: Set<LogLevel>) => void;
   onPause: () => void;
   onResume: () => void;
+  /** Called with the debounced search term. The toolbar owns the input value. */
   onSearchTextChange: (value: string) => void;
   paused: boolean;
-  searchText: string;
   totalCount: number;
 }
 
@@ -136,14 +136,15 @@ export const Toolbar = ({
   categories,
   categoryFilter,
   onCategoryFilterChange,
-  searchText,
   onSearchTextChange,
   totalCount,
   filteredCount,
 }: ToolbarProps) => {
   useHoverStyles();
 
-  const [localSearch, setLocalSearch] = useState(searchText);
+  // The toolbar is the single source of truth for the search input; the parent
+  // only ever receives the debounced value.
+  const [search, setSearch] = useState("");
   const debouncedSearch = useMemo(
     () => new Debouncer(onSearchTextChange, { wait: 200 }),
     [onSearchTextChange]
@@ -154,18 +155,11 @@ export const Toolbar = ({
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
-      setLocalSearch(value);
+      setSearch(value);
       debouncedSearch.maybeExecute(value);
     },
     [debouncedSearch]
   );
-
-  // Sync local state when parent clears search
-  useEffect(() => {
-    if (searchText === "" && localSearch !== "") {
-      setLocalSearch("");
-    }
-  }, [searchText, localSearch]);
 
   const handleLevelToggle = useCallback(
     (level: LogLevel) => {
@@ -482,7 +476,7 @@ export const Toolbar = ({
           placeholder="Search…"
           style={inputStyle}
           type="text"
-          value={localSearch}
+          value={search}
         />
       </div>
     </div>

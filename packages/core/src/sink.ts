@@ -1,4 +1,5 @@
 import type { LogRecord, Sink } from "@logtape/logtape";
+import { safeCloneProperties, safeStringify } from "./safe-json";
 import { defaultLogStore, type LogStore } from "./store";
 import type { DevtoolsLogRecord, LogLevel } from "./types";
 
@@ -11,30 +12,9 @@ function renderMessage(message: readonly unknown[]): string {
       if (part === null || part === undefined) {
         return String(part);
       }
-      try {
-        return JSON.stringify(part);
-      } catch {
-        return String(part);
-      }
+      return safeStringify(part);
     })
     .join("");
-}
-
-function safeCloneProperties(properties: Record<string, unknown>): Record<string, unknown> {
-  try {
-    return JSON.parse(JSON.stringify(properties));
-  } catch {
-    // Fallback: shallow copy with stringified values for non-serializable entries
-    const result: Record<string, unknown> = {};
-    for (const [key, value] of Object.entries(properties)) {
-      try {
-        result[key] = JSON.parse(JSON.stringify(value));
-      } catch {
-        result[key] = String(value);
-      }
-    }
-    return result;
-  }
 }
 
 // ---------------------------------------------------------------------------
@@ -122,25 +102,27 @@ function isProductionEnv(): boolean {
   return false;
 }
 
+/** Options for {@link createDevtoolsSink}. */
 export interface DevtoolsSinkOptions {
   /**
    * Capture the source location of each log call via stack trace parsing.
    *
-   * **Experimental / dev-only** — relies on `new Error().stack` which is
-   * engine-dependent. Automatically disabled in production builds (when
-   * `process.env.NODE_ENV === "production"`) because minified bundles
-   * produce meaningless file/line references. Note that source maps do not
-   * help here — browsers do not apply source maps to `Error.stack`.
+   * Relies on `new Error().stack`, which is engine-dependent. Automatically
+   * disabled in production builds (when `process.env.NODE_ENV === "production"`)
+   * because minified bundles produce meaningless file/line references. Note that
+   * source maps do not help here — browsers do not apply source maps to
+   * `Error.stack`.
    *
-   * Set `forceStackTrace` to `true` to override the production guard — useful
-   * when your production build ships unminified code.
+   * Also skipped while no devtools panel is mounted (the store has no
+   * subscribers), unless `forceStackTrace` is `true`.
    *
+   * @experimental
    * @default true
    */
-  experimentalCaptureStackTrace?: boolean;
+  captureStackTrace?: boolean;
   /**
-   * Force stack trace capture even in production builds.
-   * Only has an effect when `experimentalCaptureStackTrace` is `true`.
+   * Force stack trace capture even in production builds and while the panel is
+   * closed. Only has an effect when `captureStackTrace` is `true`.
    *
    * @default false
    */
@@ -167,8 +149,9 @@ export interface DevtoolsSinkOptions {
  */
 export function createDevtoolsSink(options?: DevtoolsSinkOptions): Sink {
   const store = options?.store ?? defaultLogStore;
-  const wantsStack = options?.experimentalCaptureStackTrace ?? true;
-  const captureStack = wantsStack && (options?.forceStackTrace || !isProductionEnv());
+  const wantsStack = options?.captureStackTrace ?? true;
+  const forceStack = options?.forceStackTrace ?? false;
+  const captureStack = wantsStack && (forceStack || !isProductionEnv());
 
   // Per-sink counter, plus a random discriminator so that two sinks sharing a
   // single store cannot emit the same id for records with equal timestamps.
@@ -177,9 +160,12 @@ export function createDevtoolsSink(options?: DevtoolsSinkOptions): Sink {
 
   return (record: LogRecord) => {
     try {
+      // Stack capture is the most expensive part of normalization — skip it
+      // while nothing is watching the store (i.e. no panel is mounted).
+      const shouldCaptureStack = captureStack && (forceStack || store.hasListeners());
       const normalized = normalizeRecord(
         record,
-        captureStack,
+        shouldCaptureStack,
         `log-${sinkId}-${++counter}-${record.timestamp}`
       );
       store.addRecord(normalized);

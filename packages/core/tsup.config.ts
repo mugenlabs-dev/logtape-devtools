@@ -5,6 +5,7 @@ export default defineConfig({
   dts: true,
   entry: {
     index: "src/index.ts",
+    sink: "src/sink-entry.ts",
   },
   esbuildOptions(options) {
     options.alias = {

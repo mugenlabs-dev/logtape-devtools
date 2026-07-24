@@ -10,6 +10,69 @@ interface Props {
   store: LogStore;
 }
 
+const rootStyle = {
+  background: theme.colors.background,
+  color: theme.colors.textPrimary,
+  display: "flex",
+  flexDirection: "row",
+  fontFamily: theme.fontFamily.sans,
+  height: "100%",
+  overflow: "hidden",
+} as const;
+
+const sidebarStyle = {
+  flexShrink: 0,
+  overflow: "hidden",
+  transition: "width 0.2s ease, opacity 0.15s ease",
+} as const;
+
+const mainStyle = {
+  display: "flex",
+  flex: 1,
+  flexDirection: "column",
+  overflow: "hidden",
+} as const;
+
+const topBarStyle = {
+  alignItems: "center",
+  borderBottom: `1px solid ${theme.colors.border}`,
+  display: "flex",
+  flexShrink: 0,
+  gap: theme.spacing.lg,
+  padding: `${theme.spacing.sm} ${theme.spacing.lg}`,
+} as const;
+
+const sidebarToggleStyle = {
+  background: "none",
+  border: "none",
+  color: theme.colors.textMuted,
+  cursor: "pointer",
+  fontFamily: theme.fontFamily.sans,
+  fontSize: theme.fontSize.md,
+  padding: `${theme.spacing.xs} ${theme.spacing.sm}`,
+  transition: "color 0.1s",
+} as const;
+
+const iconLabelStyle = { alignItems: "center", display: "inline-flex", gap: "6px" } as const;
+
+const countStyle = {
+  color: theme.colors.textMuted,
+  fontFamily: theme.fontFamily.mono,
+  fontSize: theme.fontSize.sm,
+} as const;
+
+const compactButtonStyle = {
+  background: theme.colors.surfaceHover,
+  border: `1px solid ${theme.colors.border}`,
+  borderRadius: theme.radius.sm,
+  color: theme.colors.textPrimary,
+  cursor: "pointer",
+  fontFamily: theme.fontFamily.sans,
+  fontSize: theme.fontSize.sm,
+  padding: `${theme.spacing.xs} ${theme.spacing.sm}`,
+  transition: "filter 0.1s",
+} as const;
+
 export const LogTapeDevtoolsPlugin = ({ store }: Props) => {
   const allRecords = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
 
@@ -71,24 +134,12 @@ export const LogTapeDevtoolsPlugin = ({ store }: Props) => {
   }, [records, levelFilter, categoryFilter, searchText]);
 
   return (
-    <div
-      style={{
-        background: theme.colors.background,
-        color: theme.colors.textPrimary,
-        display: "flex",
-        flexDirection: "row",
-        fontFamily: theme.fontFamily.sans,
-        height: "100%",
-        overflow: "hidden",
-      }}
-    >
+    <div style={rootStyle}>
       <div
         style={{
+          ...sidebarStyle,
           borderRight: sidebarOpen ? `1px solid ${theme.colors.border}` : "none",
-          flexShrink: 0,
           opacity: sidebarOpen ? 1 : 0,
-          overflow: "hidden",
-          transition: "width 0.2s ease, opacity 0.15s ease",
           width: sidebarOpen ? "200px" : "0px",
         }}
       >
@@ -104,41 +155,22 @@ export const LogTapeDevtoolsPlugin = ({ store }: Props) => {
           onResume={handleResume}
           onSearchTextChange={setSearchText}
           paused={paused}
-          searchText={searchText}
           totalCount={records.length}
         />
       </div>
 
-      <div style={{ display: "flex", flex: 1, flexDirection: "column", overflow: "hidden" }}>
+      <div style={mainStyle}>
         {/* Sidebar toggle bar */}
-        <div
-          style={{
-            alignItems: "center",
-            borderBottom: `1px solid ${theme.colors.border}`,
-            display: "flex",
-            flexShrink: 0,
-            gap: theme.spacing.lg,
-            padding: `${theme.spacing.sm} ${theme.spacing.lg}`,
-          }}
-        >
+        <div style={topBarStyle}>
           <button
             aria-expanded={sidebarOpen}
             data-lt-clear-btn=""
             onClick={() => setSidebarOpen((v) => !v)}
-            style={{
-              background: "none",
-              border: "none",
-              color: theme.colors.textMuted,
-              cursor: "pointer",
-              fontFamily: theme.fontFamily.sans,
-              fontSize: theme.fontSize.md,
-              padding: `${theme.spacing.xs} ${theme.spacing.sm}`,
-              transition: "color 0.1s",
-            }}
+            style={sidebarToggleStyle}
             title={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
             type="button"
           >
-            <span style={{ alignItems: "center", display: "inline-flex", gap: "6px" }}>
+            <span style={iconLabelStyle}>
               {sidebarOpen ? <PanelLeftCloseIcon size={14} /> : <PanelLeftOpenIcon size={14} />}
               {sidebarOpen ? "Hide controls" : "Show controls"}
             </span>
@@ -146,13 +178,7 @@ export const LogTapeDevtoolsPlugin = ({ store }: Props) => {
 
           {!sidebarOpen && (
             <>
-              <span
-                style={{
-                  color: theme.colors.textMuted,
-                  fontFamily: theme.fontFamily.mono,
-                  fontSize: theme.fontSize.sm,
-                }}
-              >
+              <span style={countStyle}>
                 {filteredRecords.length === records.length
                   ? `${records.length} logs`
                   : `${filteredRecords.length} / ${records.length} logs`}
@@ -161,17 +187,11 @@ export const LogTapeDevtoolsPlugin = ({ store }: Props) => {
                 data-lt-interactive=""
                 onClick={paused ? handleResume : handlePause}
                 style={{
+                  ...compactButtonStyle,
                   background: paused
                     ? theme.colors.levels.warning.badge
-                    : theme.colors.surfaceHover,
-                  border: `1px solid ${theme.colors.border}`,
-                  borderRadius: theme.radius.sm,
-                  color: paused ? theme.colors.white : theme.colors.textPrimary,
-                  cursor: "pointer",
-                  fontFamily: theme.fontFamily.sans,
-                  fontSize: theme.fontSize.sm,
-                  padding: `${theme.spacing.xs} ${theme.spacing.sm}`,
-                  transition: "filter 0.1s",
+                    : compactButtonStyle.background,
+                  color: paused ? theme.colors.white : compactButtonStyle.color,
                 }}
                 title={paused ? "Resume" : "Pause"}
                 type="button"
@@ -181,17 +201,7 @@ export const LogTapeDevtoolsPlugin = ({ store }: Props) => {
               <button
                 data-lt-interactive=""
                 onClick={handleClear}
-                style={{
-                  background: theme.colors.surfaceHover,
-                  border: `1px solid ${theme.colors.border}`,
-                  borderRadius: theme.radius.sm,
-                  color: theme.colors.textPrimary,
-                  cursor: "pointer",
-                  fontFamily: theme.fontFamily.sans,
-                  fontSize: theme.fontSize.sm,
-                  padding: `${theme.spacing.xs} ${theme.spacing.sm}`,
-                  transition: "filter 0.1s",
-                }}
+                style={compactButtonStyle}
                 title="Clear"
                 type="button"
               >
