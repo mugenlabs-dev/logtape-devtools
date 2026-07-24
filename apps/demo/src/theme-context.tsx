@@ -1,3 +1,4 @@
+import { play } from "cuelume";
 import {
   createContext,
   type ReactNode,
@@ -12,12 +13,18 @@ import {
 type Theme = "dark" | "light";
 
 interface ThemeContextValue {
+  soundEnabled: boolean;
   theme: Theme;
+  toggleSound: () => void;
   toggleTheme: (e?: React.MouseEvent) => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
+  soundEnabled: true,
   theme: "dark",
+  toggleSound: () => {
+    // no-op default
+  },
   toggleTheme: () => {
     // no-op default
   },
@@ -25,88 +32,16 @@ const ThemeContext = createContext<ThemeContextValue>({
 
 export const useTheme = () => useContext(ThemeContext);
 
-// ---- light-switch click sound helpers ----
+const prefersReducedMotion = (): boolean =>
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-interface ToneConfig {
-  endFreq: number;
-  endTime: number;
-  gainVal: number;
-  rampTime: number;
-  startFreq: number;
-  startTime: number;
-}
-
-const playTone = (ctx: AudioContext, config: ToneConfig) => {
-  const osc = ctx.createOscillator();
-  osc.type = "sine";
-  const gain = ctx.createGain();
-  gain.gain.setValueAtTime(config.gainVal, config.startTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, config.endTime);
-  osc.frequency.setValueAtTime(config.startFreq, config.startTime);
-  osc.frequency.exponentialRampToValueAtTime(config.endFreq, config.rampTime);
-  osc.connect(gain);
-  gain.connect(ctx.destination);
-  osc.start(config.startTime);
-  osc.stop(config.endTime);
-};
-
-let sharedAudioCtx: AudioContext | null = null;
-
-const getAudioContext = (): AudioContext | null => {
-  try {
-    if (sharedAudioCtx == null || sharedAudioCtx.state === "closed") {
-      sharedAudioCtx = new AudioContext();
-    }
-    return sharedAudioCtx;
-  } catch {
-    return null;
-  }
-};
+// ---- light-switch click sound ----
 
 const playLightSwitchSound = (targetTheme: Theme) => {
-  const ctx = getAudioContext();
-  if (ctx == null) {
-    return;
-  }
-  if (ctx.state === "suspended") {
-    void ctx.resume();
-  }
-  const now = ctx.currentTime;
-
-  if (targetTheme === "light") {
-    playTone(ctx, {
-      endFreq: 800,
-      endTime: now + 0.15,
-      gainVal: 0.25,
-      rampTime: now + 0.08,
-      startFreq: 400,
-      startTime: now,
-    });
-    playTone(ctx, {
-      endFreq: 800,
-      endTime: now + 0.1,
-      gainVal: 0.08,
-      rampTime: now + 0.1,
-      startFreq: 1200,
-      startTime: now + 0.02,
-    });
-  } else {
-    playTone(ctx, {
-      endFreq: 200,
-      endTime: now + 0.15,
-      gainVal: 0.25,
-      rampTime: now + 0.12,
-      startFreq: 500,
-      startTime: now,
-    });
-    playTone(ctx, {
-      endFreq: 150,
-      endTime: now + 0.12,
-      gainVal: 0.1,
-      rampTime: now + 0.12,
-      startFreq: 300,
-      startTime: now,
-    });
+  try {
+    play(targetTheme === "light" ? "tick" : "press");
+  } catch {
+    // audio unavailable — never break the toggle
   }
 };
 
@@ -161,6 +96,7 @@ const applyThemeVars = (theme: Theme) => {
 };
 
 const THEME_KEY = "logtape-devtools:theme";
+const SOUND_KEY = "logtape-devtools:sound";
 
 const getSystemTheme = (): Theme =>
   window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
@@ -177,6 +113,15 @@ const getSavedTheme = (): Theme => {
   return getSystemTheme();
 };
 
+const getSavedSoundEnabled = (): boolean => {
+  try {
+    return localStorage.getItem(SOUND_KEY) !== "off";
+  } catch {
+    // localStorage unavailable
+    return true;
+  }
+};
+
 const animateViewTransition = (x: number, y: number) => {
   const maxRadius = Math.hypot(
     Math.max(x, window.innerWidth - x),
@@ -190,6 +135,7 @@ const animateViewTransition = (x: number, y: number) => {
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState<Theme>(getSavedTheme);
+  const [soundEnabled, setSoundEnabled] = useState<boolean>(getSavedSoundEnabled);
   const initialized = useRef(false);
 
   useEffect(() => {
@@ -199,10 +145,26 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [theme]);
 
+  const toggleSound = useCallback(() => {
+    setSoundEnabled((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(SOUND_KEY, next ? "on" : "off");
+      } catch {
+        // localStorage unavailable
+      }
+      return next;
+    });
+  }, []);
+
   const toggleTheme = useCallback(
     (e?: React.MouseEvent) => {
       const next = theme === "dark" ? "light" : "dark";
-      playLightSwitchSound(next);
+      const reducedMotion = prefersReducedMotion();
+
+      if (soundEnabled && !reducedMotion) {
+        playLightSwitchSound(next);
+      }
 
       const x = e?.clientX ?? window.innerWidth / 2;
       const y = e?.clientY ?? 0;
@@ -217,17 +179,20 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
         }
       };
 
-      if (typeof document.startViewTransition === "function") {
+      if (!reducedMotion && typeof document.startViewTransition === "function") {
         const transition = document.startViewTransition(applyNext);
         void transition.ready.then(() => animateViewTransition(x, y));
       } else {
         applyNext();
       }
     },
-    [theme]
+    [theme, soundEnabled]
   );
 
-  const contextValue = useMemo(() => ({ theme, toggleTheme }), [theme, toggleTheme]);
+  const contextValue = useMemo(
+    () => ({ soundEnabled, theme, toggleSound, toggleTheme }),
+    [soundEnabled, theme, toggleSound, toggleTheme]
+  );
 
   return <ThemeContext.Provider value={contextValue}>{children}</ThemeContext.Provider>;
 };
