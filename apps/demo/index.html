@@ -29,6 +29,25 @@
     <meta name="twitter:image" content="https://logtape-devtools.mugenlabs.dev/og-image.png">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-Frame-Options" content="DENY">
+    <script>
+    "use strict";
+    (() => {
+      let saved = null;
+      try {
+        saved = localStorage.getItem("logtape-devtools:theme");
+      } catch {
+        // localStorage unavailable
+      }
+      let theme = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+      if (saved === "dark" || saved === "light") {
+        theme = saved;
+      }
+      const root = document.documentElement;
+      root.dataset.theme = theme;
+      root.style.setProperty("--bg-primary", theme === "light" ? "#f8f8f8" : "#0a0a0a");
+      root.style.setProperty("--text-primary", theme === "light" ? "#1a1a1a" : "#fff");
+    })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

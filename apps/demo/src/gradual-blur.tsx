@@ -16,7 +16,7 @@ export const GradualBlur = ({
   const layerElements: ReactElement[] = [];
 
   for (let i = 0; i < layers; i += 1) {
-    const t = i / (layers - 1);
+    const t = layers > 1 ? i / (layers - 1) : 0;
     const blur = t * t * maxBlur;
     const bandCenter = t * 100;
     const fadeWidth = (100 / layers) * 1.2;

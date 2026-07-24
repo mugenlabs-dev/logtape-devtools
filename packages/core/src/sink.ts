@@ -2,8 +2,6 @@ import type { LogRecord, Sink } from "@logtape/logtape";
 import { defaultLogStore, type LogStore } from "./store";
 import type { DevtoolsLogRecord, LogLevel } from "./types";
 
-let counter = 0;
-
 function renderMessage(message: readonly unknown[]): string {
   return message
     .map((part) => {
@@ -91,9 +89,9 @@ function captureCallerInfo(): string | undefined {
   return undefined;
 }
 
-function normalizeRecord(record: LogRecord, captureStack: boolean): DevtoolsLogRecord {
+function normalizeRecord(record: LogRecord, captureStack: boolean, id: string): DevtoolsLogRecord {
   const normalized: DevtoolsLogRecord = {
-    id: `log-${++counter}-${record.timestamp}`,
+    id,
     timestamp: record.timestamp,
     level: record.level as LogLevel,
     category: [...record.category],
@@ -172,9 +170,18 @@ export function createDevtoolsSink(options?: DevtoolsSinkOptions): Sink {
   const wantsStack = options?.experimentalCaptureStackTrace ?? true;
   const captureStack = wantsStack && (options?.forceStackTrace || !isProductionEnv());
 
+  // Per-sink counter, plus a random discriminator so that two sinks sharing a
+  // single store cannot emit the same id for records with equal timestamps.
+  const sinkId = Math.random().toString(36).slice(2, 8);
+  let counter = 0;
+
   return (record: LogRecord) => {
     try {
-      const normalized = normalizeRecord(record, captureStack);
+      const normalized = normalizeRecord(
+        record,
+        captureStack,
+        `log-${sinkId}-${++counter}-${record.timestamp}`
+      );
       store.addRecord(normalized);
     } catch {
       // Fail silently — devtools should never break the application

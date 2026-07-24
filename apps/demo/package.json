@@ -9,10 +9,11 @@
   },
   "dependencies": {
     "@logtape/logtape": "^2.0.4",
+    "@mugenlabs/logtape-devtools": "workspace:*",
     "@tailwindcss/vite": "^4.2.1",
     "@tanstack/react-devtools": "^0.9.6",
     "@tanstack/react-router": "^1.162.1",
-    "@mugenlabs/logtape-devtools": "workspace:*",
+    "cuelume": "^0.1.2",
     "lucide-react": "^0.575.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

@@ -43,6 +43,18 @@ describe("createDevtoolsSink", () => {
     expect(snap[0].id).not.toBe(snap[1].id);
   });
 
+  it("generates unique IDs across two sinks sharing one store", () => {
+    const store = createLogStore();
+    const sinkA = createDevtoolsSink({ store });
+    const sinkB = createDevtoolsSink({ store });
+    const record = makeLogRecord();
+    sinkA(record);
+    sinkB(record);
+
+    const snap = store.getSnapshot();
+    expect(snap[0].id).not.toBe(snap[1].id);
+  });
+
   it("renders message parts into messageText", () => {
     const store = createLogStore();
     const sink = createDevtoolsSink({ store });

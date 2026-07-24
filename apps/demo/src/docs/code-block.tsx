@@ -1,5 +1,5 @@
 import { Check, Copy } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Highlighter } from "shiki";
 import { createHighlighter } from "shiki";
 
@@ -79,11 +79,24 @@ const WindowDots = () => (
 // ---------------------------------------------------------------------------
 const CopyButton = ({ text }: { text: string }) => {
   const [copied, setCopied] = useState(false);
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      if (resetTimerRef.current != null) {
+        clearTimeout(resetTimerRef.current);
+      }
+    },
+    []
+  );
 
   const handleCopy = useCallback(async () => {
     await navigator.clipboard.writeText(text);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    if (resetTimerRef.current != null) {
+      clearTimeout(resetTimerRef.current);
+    }
+    resetTimerRef.current = setTimeout(() => setCopied(false), 2000);
   }, [text]);
 
   const handleMouseEnter = useCallback(

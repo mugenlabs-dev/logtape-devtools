@@ -149,6 +149,8 @@ export const Toolbar = ({
     [onSearchTextChange]
   );
 
+  useEffect(() => () => debouncedSearch.cancel(), [debouncedSearch]);
+
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
