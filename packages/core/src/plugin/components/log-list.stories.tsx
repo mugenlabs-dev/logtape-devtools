@@ -66,9 +66,10 @@ export const ManyLogs: Story = {
     ),
   },
   play: async ({ canvas, step }) => {
-    await step("Verify many rows render", async () => {
+    await step("Only the visible window is rendered (virtualized)", async () => {
       const rows = await canvas.findAllByTestId("log-row");
-      await expect(rows).toHaveLength(50);
+      await expect(rows.length).toBeGreaterThan(0);
+      await expect(rows.length).toBeLessThan(50);
     });
   },
 };

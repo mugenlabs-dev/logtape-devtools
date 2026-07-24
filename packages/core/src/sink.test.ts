@@ -71,7 +71,7 @@ describe("createDevtoolsSink", () => {
     expect(store.getSnapshot()[0].messageText).toBe("value: null and undefined");
   });
 
-  it("safely clones properties with non-serializable values", () => {
+  it("safely clones properties with circular references", () => {
     const store = createLogStore();
     const sink = createDevtoolsSink({ store });
 
@@ -81,9 +81,19 @@ describe("createDevtoolsSink", () => {
     sink(makeLogRecord({ properties: circular }));
     const snap = store.getSnapshot();
     expect(snap).toHaveLength(1);
-    // The circular ref should be stringified as a fallback
     expect(snap[0].properties.a).toBe(1);
-    expect(typeof snap[0].properties.self).toBe("string");
+    // structuredClone preserves the cycle, but the clone must be detached
+    expect(snap[0].properties.self).not.toBe(circular);
+  });
+
+  it("safely clones properties containing values structuredClone rejects", () => {
+    const store = createLogStore();
+    const sink = createDevtoolsSink({ store });
+
+    sink(makeLogRecord({ properties: { a: 1, fn: () => "nope" } }));
+    const snap = store.getSnapshot();
+    expect(snap).toHaveLength(1);
+    expect(snap[0].properties.a).toBe(1);
   });
 
   it("never throws even if store.addRecord throws", () => {
@@ -107,5 +117,54 @@ describe("createDevtoolsSink", () => {
     const snap = store.getSnapshot();
     expect(snap[0].category).toEqual(["app", "db"]);
     expect(snap[0].category).not.toBe(category);
+  });
+
+  it("skips stack capture while the store has no listeners", () => {
+    const store = createLogStore();
+    const hasListeners = vi.spyOn(store, "hasListeners");
+    const sink = createDevtoolsSink({ store });
+
+    sink(makeLogRecord());
+
+    expect(hasListeners).toHaveBeenCalled();
+    expect(hasListeners).toHaveReturnedWith(false);
+    expect(store.getSnapshot()[0].caller).toBeUndefined();
+  });
+
+  it("attempts stack capture once the store has a listener", () => {
+    const store = createLogStore();
+    store.subscribe(() => {
+      // panel mounted
+    });
+    const hasListeners = vi.spyOn(store, "hasListeners");
+    const sink = createDevtoolsSink({ store });
+
+    sink(makeLogRecord());
+
+    expect(hasListeners).toHaveReturnedWith(true);
+  });
+
+  it("does not gate on listeners when forceStackTrace is set", () => {
+    const store = createLogStore();
+    const hasListeners = vi.spyOn(store, "hasListeners");
+    const sink = createDevtoolsSink({ forceStackTrace: true, store });
+
+    sink(makeLogRecord());
+
+    expect(hasListeners).not.toHaveBeenCalled();
+  });
+
+  it("never captures the caller when captureStackTrace is false", () => {
+    const store = createLogStore();
+    store.subscribe(() => {
+      // panel mounted
+    });
+    const hasListeners = vi.spyOn(store, "hasListeners");
+    const sink = createDevtoolsSink({ captureStackTrace: false, store });
+
+    sink(makeLogRecord());
+
+    expect(hasListeners).not.toHaveBeenCalled();
+    expect(store.getSnapshot()[0].caller).toBeUndefined();
   });
 });
