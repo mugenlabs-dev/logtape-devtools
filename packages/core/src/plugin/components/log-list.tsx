@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import { useCallback, useEffect, useRef } from "react";
 import type { DevtoolsLogRecord } from "../../types";
 import { theme } from "../theme";
 import { LogRow } from "./log-row";
@@ -10,67 +11,99 @@ interface LogListProps {
   records: DevtoolsLogRecord[];
 }
 
+/** Collapsed row height — rows are measured after mount, this is only the seed. */
+const ESTIMATED_ROW_HEIGHT = 28;
+const OVERSCAN = 10;
+/** Distance from the bottom (px) still considered "stuck to the bottom". */
+const STICK_THRESHOLD = 40;
+
+const emptyStyle = {
+  alignItems: "center",
+  color: theme.colors.textMuted,
+  display: "flex",
+  flex: 1,
+  fontSize: theme.fontSize.lg,
+  justifyContent: "center",
+} as const;
+
+const containerStyle = {
+  flex: 1,
+  overflow: "auto",
+  scrollbarColor: `${theme.colors.scrollbar} transparent`,
+  scrollbarWidth: "thin",
+} as const;
+
 export const LogList = ({ records, expandedId, onToggle, autoScroll }: LogListProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const isAtBottomRef = useRef(true);
 
+  const virtualizer = useVirtualizer({
+    count: records.length,
+    estimateSize: () => ESTIMATED_ROW_HEIGHT,
+    getItemKey: (index) => records[index].id,
+    getScrollElement: () => containerRef.current,
+    overscan: OVERSCAN,
+  });
+
   const recordCount = records.length;
-  // biome-ignore lint/correctness/useExhaustiveDependencies: recordCount triggers scroll on new records
   useEffect(() => {
-    const el = containerRef.current;
-    if (!(el && autoScroll && isAtBottomRef.current)) {
+    if (recordCount === 0 || !(autoScroll && isAtBottomRef.current)) {
       return;
     }
-    el.scrollTop = el.scrollHeight;
-  }, [autoScroll, recordCount]);
+    virtualizer.scrollToIndex(recordCount - 1, { align: "end" });
+  }, [autoScroll, recordCount, virtualizer]);
 
-  const handleScroll = () => {
+  const handleScroll = useCallback(() => {
     const el = containerRef.current;
     if (!el) {
       return;
     }
-    // Consider "at bottom" if within 40px of the end
-    isAtBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 40;
-  };
+    isAtBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < STICK_THRESHOLD;
+  }, []);
 
   if (records.length === 0) {
     return (
-      <div
-        data-testid="log-list-empty"
-        style={{
-          alignItems: "center",
-          color: theme.colors.textMuted,
-          display: "flex",
-          flex: 1,
-          fontSize: theme.fontSize.lg,
-          justifyContent: "center",
-        }}
-      >
+      <div data-testid="log-list-empty" style={emptyStyle}>
         No logs yet
       </div>
     );
   }
 
+  const virtualItems = virtualizer.getVirtualItems();
+
   return (
-    <div
-      data-testid="log-list"
-      onScroll={handleScroll}
-      ref={containerRef}
-      style={{
-        flex: 1,
-        overflow: "auto",
-        scrollbarColor: `${theme.colors.scrollbar} transparent`,
-        scrollbarWidth: "thin",
-      }}
-    >
-      {records.map((record) => (
-        <LogRow
-          expanded={expandedId === record.id}
-          key={record.id}
-          onToggle={onToggle}
-          record={record}
-        />
-      ))}
+    <div data-testid="log-list" onScroll={handleScroll} ref={containerRef} style={containerStyle}>
+      {/* Spacer sized to the full list, with only the visible window rendered */}
+      <div
+        style={{
+          height: `${virtualizer.getTotalSize()}px`,
+          position: "relative",
+          width: "100%",
+        }}
+      >
+        <div
+          style={{
+            left: 0,
+            position: "absolute",
+            top: 0,
+            transform: `translateY(${virtualItems[0]?.start ?? 0}px)`,
+            width: "100%",
+          }}
+        >
+          {virtualItems.map((virtualItem) => {
+            const record = records[virtualItem.index];
+            return (
+              <div
+                data-index={virtualItem.index}
+                key={virtualItem.key}
+                ref={virtualizer.measureElement}
+              >
+                <LogRow expanded={expandedId === record.id} onToggle={onToggle} record={record} />
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 };
