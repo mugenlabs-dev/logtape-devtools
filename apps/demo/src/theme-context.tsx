@@ -13,18 +13,12 @@ import {
 type Theme = "dark" | "light";
 
 interface ThemeContextValue {
-  soundEnabled: boolean;
   theme: Theme;
-  toggleSound: () => void;
   toggleTheme: (e?: React.MouseEvent) => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
-  soundEnabled: true,
   theme: "dark",
-  toggleSound: () => {
-    // no-op default
-  },
   toggleTheme: () => {
     // no-op default
   },
@@ -96,7 +90,6 @@ const applyThemeVars = (theme: Theme) => {
 };
 
 const THEME_KEY = "logtape-devtools:theme";
-const SOUND_KEY = "logtape-devtools:sound";
 
 const getSystemTheme = (): Theme =>
   window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
@@ -113,15 +106,6 @@ const getSavedTheme = (): Theme => {
   return getSystemTheme();
 };
 
-const getSavedSoundEnabled = (): boolean => {
-  try {
-    return localStorage.getItem(SOUND_KEY) !== "off";
-  } catch {
-    // localStorage unavailable
-    return true;
-  }
-};
-
 const animateViewTransition = (x: number, y: number) => {
   const maxRadius = Math.hypot(
     Math.max(x, window.innerWidth - x),
@@ -135,7 +119,6 @@ const animateViewTransition = (x: number, y: number) => {
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState<Theme>(getSavedTheme);
-  const [soundEnabled, setSoundEnabled] = useState<boolean>(getSavedSoundEnabled);
   const initialized = useRef(false);
 
   useEffect(() => {
@@ -145,24 +128,12 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [theme]);
 
-  const toggleSound = useCallback(() => {
-    setSoundEnabled((prev) => {
-      const next = !prev;
-      try {
-        localStorage.setItem(SOUND_KEY, next ? "on" : "off");
-      } catch {
-        // localStorage unavailable
-      }
-      return next;
-    });
-  }, []);
-
   const toggleTheme = useCallback(
     (e?: React.MouseEvent) => {
       const next = theme === "dark" ? "light" : "dark";
       const reducedMotion = prefersReducedMotion();
 
-      if (soundEnabled && !reducedMotion) {
+      if (!reducedMotion) {
         playLightSwitchSound(next);
       }
 
@@ -186,13 +157,10 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
         applyNext();
       }
     },
-    [theme, soundEnabled]
+    [theme]
   );
 
-  const contextValue = useMemo(
-    () => ({ soundEnabled, theme, toggleSound, toggleTheme }),
-    [soundEnabled, theme, toggleSound, toggleTheme]
-  );
+  const contextValue = useMemo(() => ({ theme, toggleTheme }), [theme, toggleTheme]);
 
   return <ThemeContext.Provider value={contextValue}>{children}</ThemeContext.Provider>;
 };

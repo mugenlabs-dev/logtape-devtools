@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { BookOpen, Github, Play } from "lucide-react";
 import { GradualBlur } from "./gradual-blur";
-import { SoundToggle, ThemeToggle } from "./theme-toggle";
+import { ThemeToggle } from "./theme-toggle";
 
 const NavLink = ({
   to,
@@ -65,7 +65,6 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
               <Github size={14} />
               <span className="hidden sm:inline">GitHub</span>
             </a>
-            <SoundToggle />
             <ThemeToggle />
           </nav>
         </div>
