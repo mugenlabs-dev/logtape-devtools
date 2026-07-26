@@ -23,5 +23,23 @@
         "noBarrelFile": "off"
       }
     }
-  }
+  },
+  "overrides": [
+    {
+      // Animated icons vendored from the lucide-animated shadcn registry.
+      // Kept close to upstream so they can be re-fetched without re-editing.
+      // They wrap a decorative <svg> in a hover-listening <div>; the real
+      // accessible name always lives on the surrounding button/link.
+      "includes": ["apps/demo/src/icons/*.tsx"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noNoninteractiveElementInteractions": "off",
+            "noStaticElementInteractions": "off",
+            "noSvgWithoutTitle": "off"
+          }
+        }
+      }
+    }
+  ]
 }
