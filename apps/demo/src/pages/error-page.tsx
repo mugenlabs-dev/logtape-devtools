@@ -1,8 +1,13 @@
 import { type ErrorComponentProps, useRouter } from "@tanstack/react-router";
-import { AlertTriangle, RotateCcw } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
+import { useCallback, useRef } from "react";
+import { type AnimatedIconHandle, RotateCCWIcon } from "../icons";
 
 export const ErrorPage = ({ error }: ErrorComponentProps) => {
   const router = useRouter();
+  const iconRef = useRef<AnimatedIconHandle>(null);
+  const start = useCallback(() => iconRef.current?.startAnimation(), []);
+  const stop = useCallback(() => iconRef.current?.stopAnimation(), []);
 
   return (
     <div className="mx-auto flex max-w-xl flex-col items-center justify-center px-6 py-24 text-center">
@@ -16,9 +21,11 @@ export const ErrorPage = ({ error }: ErrorComponentProps) => {
       <button
         className="flex items-center gap-2 rounded-lg bg-accent/15 px-5 py-2.5 font-semibold text-accent-light text-sm transition-colors hover:bg-accent/25"
         onClick={() => router.invalidate()}
+        onMouseEnter={start}
+        onMouseLeave={stop}
         type="button"
       >
-        <RotateCcw size={14} />
+        <RotateCCWIcon ref={iconRef} size={14} />
         Try again
       </button>
     </div>

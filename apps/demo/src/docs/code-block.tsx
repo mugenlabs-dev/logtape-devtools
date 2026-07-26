@@ -1,7 +1,7 @@
-import { Check, Copy } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Highlighter } from "shiki";
 import { createHighlighter } from "shiki";
+import { type AnimatedIconHandle, CheckIcon, CopyIcon } from "../icons";
 
 // ---------------------------------------------------------------------------
 // Shiki highlighter (loaded once, cached)
@@ -80,6 +80,7 @@ const WindowDots = () => (
 const CopyButton = ({ text }: { text: string }) => {
   const [copied, setCopied] = useState(false);
   const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const iconRef = useRef<AnimatedIconHandle>(null);
 
   useEffect(
     () => () => {
@@ -101,6 +102,7 @@ const CopyButton = ({ text }: { text: string }) => {
 
   const handleMouseEnter = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
+      iconRef.current?.startAnimation();
       if (!copied) {
         e.currentTarget.style.opacity = "1";
       }
@@ -110,6 +112,7 @@ const CopyButton = ({ text }: { text: string }) => {
 
   const handleMouseLeave = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
+      iconRef.current?.stopAnimation();
       if (!copied) {
         e.currentTarget.style.opacity = "0.6";
       }
@@ -142,7 +145,7 @@ const CopyButton = ({ text }: { text: string }) => {
       }}
       type="button"
     >
-      {copied ? <Check size={14} /> : <Copy size={14} />}
+      {copied ? <CheckIcon ref={iconRef} size={14} /> : <CopyIcon ref={iconRef} size={14} />}
     </button>
   );
 };

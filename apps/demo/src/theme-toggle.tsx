@@ -1,4 +1,5 @@
-import { Moon, Sun } from "lucide-react";
+import { useCallback, useRef } from "react";
+import { type AnimatedIconHandle, MoonIcon, SunIcon } from "./icons";
 import { useTheme } from "./theme-context";
 
 const buttonClass =
@@ -6,15 +7,24 @@ const buttonClass =
 
 export const ThemeToggle = () => {
   const { theme, toggleTheme } = useTheme();
+  const iconRef = useRef<AnimatedIconHandle>(null);
+  const start = useCallback(() => iconRef.current?.startAnimation(), []);
+  const stop = useCallback(() => iconRef.current?.stopAnimation(), []);
 
   return (
     <button
       aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
       className={buttonClass}
       onClick={toggleTheme}
+      onMouseEnter={start}
+      onMouseLeave={stop}
       type="button"
     >
-      {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
+      {theme === "dark" ? (
+        <SunIcon ref={iconRef} size={15} />
+      ) : (
+        <MoonIcon ref={iconRef} size={15} />
+      )}
     </button>
   );
 };

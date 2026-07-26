@@ -1,9 +1,9 @@
 import { configure, getLogger, reset } from "@logtape/logtape";
 import { createLogTapeDevtools } from "@mugenlabs/logtape-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
-import { ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CodeBlock } from "../docs/code-block";
+import { ChevronRightIcon } from "../icons";
 
 // --- Source code shown to the user ---
 const EXAMPLE_CODE = `import { configure, getLogger } from "@logtape/logtape";
@@ -294,7 +294,7 @@ export const PlaygroundPage = () => {
           {/* Source code reference */}
           <details className="group rounded-xl border border-border-secondary bg-card-bg">
             <summary className="flex cursor-pointer list-none items-center gap-2 p-5 font-medium text-sm text-text-muted [&::-webkit-details-marker]:hidden">
-              <ChevronRight className="transition-transform group-open:rotate-90" size={14} />
+              <ChevronRightIcon className="transition-transform group-open:rotate-90" size={14} />
               How this playground works
             </summary>
             <div className="px-5 pb-5">

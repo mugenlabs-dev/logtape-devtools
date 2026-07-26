@@ -1,6 +1,6 @@
 import { SiBun, SiNpm, SiPnpm, SiYarn } from "@icons-pack/react-simple-icons";
-import { Check, Copy } from "lucide-react";
-import { type ComponentType, useCallback, useState } from "react";
+import { type ComponentType, useCallback, useRef, useState } from "react";
+import { type AnimatedIconHandle, CheckIcon, CopyIcon } from "../icons";
 import { MANAGERS, type PM, usePm } from "./pm-context";
 
 const pmIcons: Record<PM, ComponentType<{ size: number; color: string }>> = {
@@ -28,6 +28,9 @@ function getCommand(pm: PM, packages: string, dev: boolean): string {
 
 const CopyButton = ({ text }: { text: string }) => {
   const [copied, setCopied] = useState(false);
+  const iconRef = useRef<AnimatedIconHandle>(null);
+  const startAnimation = useCallback(() => iconRef.current?.startAnimation(), []);
+  const stopAnimation = useCallback(() => iconRef.current?.stopAnimation(), []);
 
   const handleCopy = useCallback(async () => {
     try {
@@ -43,10 +46,16 @@ const CopyButton = ({ text }: { text: string }) => {
     <button
       className="flex items-center justify-center rounded-md p-1.5 text-text-dimmed transition-colors hover:bg-white/10 hover:text-text-primary"
       onClick={handleCopy}
+      onMouseEnter={startAnimation}
+      onMouseLeave={stopAnimation}
       title="Copy to clipboard"
       type="button"
     >
-      {copied ? <Check className="text-accent-green" size={14} /> : <Copy size={14} />}
+      {copied ? (
+        <CheckIcon className="text-accent-green" ref={iconRef} size={14} />
+      ) : (
+        <CopyIcon ref={iconRef} size={14} />
+      )}
     </button>
   );
 };

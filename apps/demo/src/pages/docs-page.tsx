@@ -1,19 +1,19 @@
 import { Link } from "@tanstack/react-router";
-import {
-  ArrowUp,
-  BookOpen,
-  Brain,
-  ClipboardList,
-  Pause,
-  Search,
-  SlidersHorizontal,
-  Zap,
-} from "lucide-react";
-import { type ComponentType, useCallback, useEffect, useState } from "react";
+import { BookOpen, ClipboardList } from "lucide-react";
+import { type ComponentType, useCallback, useEffect, useRef, useState } from "react";
 import { CodeBlock } from "../docs/code-block";
 import { InstallBlock } from "../docs/install-block";
 import { PmProvider } from "../docs/pm-context";
 import { SectionTitle } from "../docs/section-title";
+import {
+  type AnimatedIconHandle,
+  ArrowUpIcon,
+  BrainIcon,
+  PauseIcon,
+  SearchIcon,
+  SlidersHorizontalIcon,
+  ZapIcon,
+} from "../icons";
 
 const SINK_CODE = `import { configure } from "@logtape/logtape";
 import { createLogTapeDevtools } from "@mugenlabs/logtape-devtools";
@@ -121,19 +121,19 @@ const features: { description: string; icon: ComponentType<{ size: number }>; ti
     title: "Live Log Stream",
     description:
       "Watch logs appear in real time as your application runs. No more switching between browser console and your app.",
-    icon: Zap,
+    icon: ZapIcon,
   },
   {
     title: "Level Filtering",
     description:
       "Filter logs by severity level — trace, debug, info, warning, error, fatal. Focus on what matters.",
-    icon: SlidersHorizontal,
+    icon: SlidersHorizontalIcon,
   },
   {
     title: "Category Search",
     description:
       "Filter by category prefix and search across log messages. Find the needle in the haystack.",
-    icon: Search,
+    icon: SearchIcon,
   },
   {
     title: "Structured Inspection",
@@ -145,19 +145,22 @@ const features: { description: string; icon: ComponentType<{ size: number }>; ti
     title: "Pause & Resume",
     description:
       "Pause the live stream to inspect logs without them scrolling away. Resume when you're ready.",
-    icon: Pause,
+    icon: PauseIcon,
   },
   {
     title: "Bounded Memory",
     description:
       "A configurable buffer keeps memory usage under control. Old logs are dropped automatically.",
-    icon: Brain,
+    icon: BrainIcon,
   },
 ];
 
 const FloatingButtons = () => {
   const [showDocs, setShowDocs] = useState(true);
   const [showTop, setShowTop] = useState(false);
+  const arrowRef = useRef<AnimatedIconHandle>(null);
+  const startArrow = useCallback(() => arrowRef.current?.startAnimation(), []);
+  const stopArrow = useCallback(() => arrowRef.current?.stopAnimation(), []);
 
   const update = useCallback(() => {
     const el = document.querySelector("#installation");
@@ -209,6 +212,8 @@ const FloatingButtons = () => {
         <button
           className="pointer-events-auto flex size-10 items-center justify-center rounded-full border border-border-secondary bg-bg-primary/80 text-text-muted shadow-md backdrop-blur-md transition-all hover:border-accent/40 hover:text-accent-light"
           onClick={scrollToTop}
+          onMouseEnter={startArrow}
+          onMouseLeave={stopArrow}
           style={{
             opacity: showTop ? 1 : 0,
             pointerEvents: showTop ? "auto" : "none",
@@ -218,7 +223,7 @@ const FloatingButtons = () => {
           title="Scroll to top"
           type="button"
         >
-          <ArrowUp size={16} />
+          <ArrowUpIcon ref={arrowRef} size={16} />
         </button>
       </div>
     </>
