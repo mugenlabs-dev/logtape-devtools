@@ -1,19 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { BookOpen, ClipboardList } from "lucide-react";
-import { type ComponentType, useCallback, useEffect, useRef, useState } from "react";
+import { BookOpen } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { CodeBlock } from "../docs/code-block";
+import { FeaturesSection } from "../docs/features-section";
 import { InstallBlock } from "../docs/install-block";
 import { PmProvider } from "../docs/pm-context";
 import { SectionTitle } from "../docs/section-title";
-import {
-  type AnimatedIconHandle,
-  ArrowUpIcon,
-  BrainIcon,
-  PauseIcon,
-  SearchIcon,
-  SlidersHorizontalIcon,
-  ZapIcon,
-} from "../icons";
+import { type AnimatedIconHandle, ArrowUpIcon } from "../icons";
 
 const SINK_CODE = `import { configure } from "@logtape/logtape";
 import { createLogTapeDevtools } from "@mugenlabs/logtape-devtools";
@@ -115,45 +108,6 @@ const store = createLogStore({ maxRecords: 5000 });
 
 const sink = createDevtoolsSink({ store });
 const plugin = createLogTapeDevtoolsPlugin({ store });`;
-
-const features: { description: string; icon: ComponentType<{ size: number }>; title: string }[] = [
-  {
-    title: "Live Log Stream",
-    description:
-      "Watch logs appear in real time as your application runs. No more switching between browser console and your app.",
-    icon: ZapIcon,
-  },
-  {
-    title: "Level Filtering",
-    description:
-      "Filter logs by severity level — trace, debug, info, warning, error, fatal. Focus on what matters.",
-    icon: SlidersHorizontalIcon,
-  },
-  {
-    title: "Category Search",
-    description:
-      "Filter by category prefix and search across log messages. Find the needle in the haystack.",
-    icon: SearchIcon,
-  },
-  {
-    title: "Structured Inspection",
-    description:
-      "Click any log entry to expand and inspect the full payload, including structured properties and metadata.",
-    icon: ClipboardList,
-  },
-  {
-    title: "Pause & Resume",
-    description:
-      "Pause the live stream to inspect logs without them scrolling away. Resume when you're ready.",
-    icon: PauseIcon,
-  },
-  {
-    title: "Bounded Memory",
-    description:
-      "A configurable buffer keeps memory usage under control. Old logs are dropped automatically.",
-    icon: BrainIcon,
-  },
-];
 
 const FloatingButtons = () => {
   const [showDocs, setShowDocs] = useState(true);
@@ -284,23 +238,8 @@ export const DocsPage = () => (
       </div>
     </section>
 
-    {/* Features */}
-    <section className="mx-auto max-w-5xl px-6 pb-24">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {features.map((f) => (
-          <div
-            className="rounded-xl border border-border-primary bg-card-bg p-6 transition-colors hover:border-border-secondary"
-            key={f.title}
-          >
-            <div className="mb-3 text-accent-light">
-              <f.icon size={24} />
-            </div>
-            <h3 className="mb-2 font-semibold text-text-primary">{f.title}</h3>
-            <p className="text-sm text-text-muted leading-relaxed">{f.description}</p>
-          </div>
-        ))}
-      </div>
-    </section>
+    {/* Features — each with a compact animated demo of that slice of the UI */}
+    <FeaturesSection />
 
     {/* Docs content */}
     <div className="mx-auto max-w-3xl px-6 pb-40">
