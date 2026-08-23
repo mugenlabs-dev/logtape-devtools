@@ -4,14 +4,17 @@ import { useEffect, useRef, useState } from "react";
 // Compact, self-contained mock replicas of the devtools UI — each one loops a
 // tiny scripted animation showing exactly one feature. Colors mirror the
 // plugin's own dark theme so the demos read as slices of the real panel.
+//
+// Layout-stability rules: every shell has a fixed content height and a fixed
+// two-line caption slot, and any inner block whose content varies between
+// phases (filtered lists, expanding payloads) reserves its tallest size — so
+// nothing outside or inside the box ever re-flows.
 
 const IN_VIEW_THRESHOLD = 0.3;
 
-/** Cycles 0..steps-1 while the demo is on screen; pauses when scrolled away. */
-const useDemoPhase = (steps: number, intervalMs: number) => {
+const useInViewRef = () => {
   const ref = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
-  const [phase, setPhase] = useState(0);
 
   useEffect(() => {
     const el = ref.current;
@@ -30,6 +33,14 @@ const useDemoPhase = (steps: number, intervalMs: number) => {
     };
   }, []);
 
+  return { inView, ref };
+};
+
+/** Cycles 0..steps-1 while the demo is on screen; pauses when scrolled away. */
+const useDemoPhase = (steps: number, intervalMs: number) => {
+  const { inView, ref } = useInViewRef();
+  const [phase, setPhase] = useState(0);
+
   useEffect(() => {
     if (!inView) {
       return;
@@ -45,11 +56,29 @@ const useDemoPhase = (steps: number, intervalMs: number) => {
   return { phase, ref };
 };
 
-// Fixed heights (tallest phase + a two-line caption slot) so cycling phases
-// never resizes the box and causes layout shift.
+/** Monotonic counter for streaming demos — never wraps, so rows always glide forward. */
+const useDemoTick = (intervalMs: number) => {
+  const { inView, ref } = useInViewRef();
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    if (!inView) {
+      return;
+    }
+    const id = window.setInterval(() => {
+      setTick((t) => t + 1);
+    }, intervalMs);
+    return () => {
+      window.clearInterval(id);
+    };
+  }, [inView, intervalMs]);
+
+  return { ref, tick };
+};
+
 const DemoShell = ({ caption, children }: { caption: string; children: ReactNode }) => (
   <div className="w-full rounded-xl border border-[#333] bg-[#1e1e1e] p-4 font-mono text-[11px] shadow-[0_12px_32px_rgba(0,0,0,0.3)]">
-    <div className="flex h-[136px] flex-col justify-center gap-1.5">{children}</div>
+    <div className="flex h-[148px] flex-col justify-center gap-1.5">{children}</div>
     <div className="mt-3 border-[#2a2a2a] border-t pt-2.5">
       <p className="m-0 h-[30px] overflow-hidden font-sans text-[#888] text-[11px] leading-[15px]">
         {caption}
@@ -77,10 +106,8 @@ interface DemoLog {
   time: string;
 }
 
-const LogRow = ({ dimmed, log }: { dimmed?: boolean; log: DemoLog }) => (
-  <div
-    className={`flex items-center gap-1.5 overflow-hidden rounded bg-[#1a1a1a] px-2 py-1 transition-opacity duration-300 ${dimmed ? "opacity-35" : "opacity-100"}`}
-  >
+const LogRow = ({ log }: { log: DemoLog }) => (
+  <div className="flex h-[24px] items-center gap-1.5 overflow-hidden rounded bg-[#1a1a1a] px-2">
     <span className="shrink-0 text-[#555] text-[9px]">{log.time}</span>
     <span className={`shrink-0 rounded px-1 py-px text-[8px] ${LEVEL_BADGES[log.level].className}`}>
       {LEVEL_BADGES[log.level].abbr}
@@ -111,6 +138,55 @@ const LOG_POOL: DemoLog[] = [
   { category: "app·db", level: "fatal", message: "Connection pool exhausted", time: "12:04:07" },
 ];
 
+// ---------------------------------------------------------------------------
+// Animated stack — rows keep stable keys, so new records glide in from the
+// bottom edge, old ones fade out past the top, and everything in between
+// slides up smoothly instead of snapping.
+// ---------------------------------------------------------------------------
+
+const STACK_SLOT = 30;
+const STACK_ROW_GAP = STACK_SLOT - 24;
+
+/** Continuous fake clock so the looping pool never shows repeating timestamps. */
+const timeForSeq = (seq: number): string => {
+  const totalSeconds = 43_441 + seq; // 12:04:01
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return `12:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+};
+
+const AnimatedLogStack = ({ tick, visible }: { tick: number; visible: number }) => {
+  const items: { log: DemoLog; seq: number }[] = [];
+  // One extra row above (fading out) and below (waiting to enter) the window.
+  for (let seq = Math.max(0, tick - 1); seq <= tick + visible; seq++) {
+    const base = LOG_POOL[seq % LOG_POOL.length];
+    items.push({ log: { ...base, time: timeForSeq(seq) }, seq });
+  }
+
+  return (
+    <div
+      className="relative overflow-hidden"
+      style={{ height: visible * STACK_SLOT - STACK_ROW_GAP }}
+    >
+      {items.map(({ log, seq }) => {
+        const offset = seq - tick;
+        return (
+          <div
+            className="absolute inset-x-0 top-0 transition-[transform,opacity] duration-500 ease-out"
+            key={seq}
+            style={{
+              opacity: offset < 0 ? 0 : 1,
+              transform: `translateY(${offset * STACK_SLOT}px)`,
+            }}
+          >
+            <LogRow log={log} />
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 const STREAM_WINDOW = 4;
 
 // ---------------------------------------------------------------------------
@@ -118,18 +194,12 @@ const STREAM_WINDOW = 4;
 // ---------------------------------------------------------------------------
 
 export const LiveStreamDemo = () => {
-  const { phase, ref } = useDemoPhase(LOG_POOL.length, 1400);
-  const rows = Array.from(
-    { length: STREAM_WINDOW },
-    (_, i) => LOG_POOL[(phase + i) % LOG_POOL.length]
-  );
+  const { ref, tick } = useDemoTick(1400);
 
   return (
     <div ref={ref}>
       <DemoShell caption="Every record streams in the moment it's logged — no console juggling.">
-        {rows.map((log, index) => (
-          <LogRow dimmed={index === 0} key={`${log.time}-${log.message}`} log={log} />
-        ))}
+        <AnimatedLogStack tick={tick} visible={STREAM_WINDOW} />
       </DemoShell>
     </div>
   );
@@ -171,7 +241,8 @@ export const LevelFilterDemo = () => {
             </span>
           ))}
         </div>
-        <div className="flex flex-col gap-1.5">
+        {/* Fixed-height list so collapsing rows never re-center the toolbar. */}
+        <div className="flex h-[114px] flex-col gap-1.5">
           {LEVEL_FILTER_ROWS.map((log) => {
             const visible = step.active.length === 0 || step.active.includes(log.level);
             return (
@@ -215,7 +286,8 @@ export const CategorySearchDemo = () => {
           <span className="-ml-1 animate-pulse text-[#6366f1]">▏</span>
           {step.query === "" ? <span className="text-[#555]">Filter by category…</span> : null}
         </div>
-        <div className="flex flex-col gap-1.5">
+        {/* Fixed-height list so collapsing rows never re-center the search box. */}
+        <div className="flex h-[114px] flex-col gap-1.5">
           {SEARCH_ROWS.map((log) => {
             const visible = step.query === "" || log.category.includes(step.query);
             return (
@@ -249,7 +321,8 @@ export const StructuredInspectionDemo = () => {
   return (
     <div ref={ref}>
       <DemoShell caption={INSPECT_STEPS[phase]}>
-        <div className="rounded bg-[#1a1a1a]">
+        {/* Fixed-height card so the payload unfolds downward without re-centering. */}
+        <div className="h-[104px] overflow-hidden rounded bg-[#1a1a1a]">
           <div className="flex items-center gap-1.5 px-2 py-1">
             <span
               className={`text-[#666] text-[9px] transition-transform duration-300 ${expanded ? "rotate-90" : ""}`}
@@ -371,32 +444,24 @@ const MEMORY_CAPTIONS = [
   "Memory stays flat no matter how chatty your app gets.",
 ];
 
+const MEMORY_WINDOW = 3;
+const MEMORY_EVICTED_BASE = 12;
+
 export const BoundedMemoryDemo = () => {
-  const { phase, ref } = useDemoPhase(MEMORY_CAPTIONS.length, 1600);
-  const rows = Array.from(
-    { length: STREAM_WINDOW },
-    (_, i) => LOG_POOL[(phase + i) % LOG_POOL.length]
-  );
+  const { ref, tick } = useDemoTick(1600);
 
   return (
     <div ref={ref}>
-      <DemoShell caption={MEMORY_CAPTIONS[phase]}>
+      <DemoShell caption={MEMORY_CAPTIONS[tick % MEMORY_CAPTIONS.length]}>
         <div className="mb-0.5 flex items-center justify-between px-0.5 text-[#888]">
           <span>
             buffer <span className="text-[#e0e0e0]">25 / 25</span>
           </span>
           <span className="text-[#666]">
-            evicted <span className="text-[#facc15]">{phase * 3 + 12}</span>
+            evicted <span className="text-[#facc15]">{MEMORY_EVICTED_BASE + tick}</span>
           </span>
         </div>
-        {rows.map((log, index) => (
-          <div
-            className={index === 0 ? "opacity-35 [&_span]:line-through" : ""}
-            key={`${log.time}-${log.message}`}
-          >
-            <LogRow log={log} />
-          </div>
-        ))}
+        <AnimatedLogStack tick={tick} visible={MEMORY_WINDOW} />
       </DemoShell>
     </div>
   );
