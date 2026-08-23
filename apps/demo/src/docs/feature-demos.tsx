@@ -45,12 +45,16 @@ const useDemoPhase = (steps: number, intervalMs: number) => {
   return { phase, ref };
 };
 
+// Fixed heights (tallest phase + a two-line caption slot) so cycling phases
+// never resizes the box and causes layout shift.
 const DemoShell = ({ caption, children }: { caption: string; children: ReactNode }) => (
   <div className="w-full rounded-xl border border-[#333] bg-[#1e1e1e] p-4 font-mono text-[11px] shadow-[0_12px_32px_rgba(0,0,0,0.3)]">
-    <div className="flex min-h-[124px] flex-col justify-center gap-1.5">{children}</div>
-    <p className="m-0 mt-3 min-h-[28px] border-[#2a2a2a] border-t pt-2.5 font-sans text-[#888] text-[11px] leading-snug">
-      {caption}
-    </p>
+    <div className="flex h-[136px] flex-col justify-center gap-1.5">{children}</div>
+    <div className="mt-3 border-[#2a2a2a] border-t pt-2.5">
+      <p className="m-0 h-[30px] overflow-hidden font-sans text-[#888] text-[11px] leading-[15px]">
+        {caption}
+      </p>
+    </div>
   </div>
 );
 
@@ -122,7 +126,7 @@ export const LiveStreamDemo = () => {
 
   return (
     <div ref={ref}>
-      <DemoShell caption="Every record streams into the panel the moment it's logged — no more juggling the browser console.">
+      <DemoShell caption="Every record streams in the moment it's logged — no console juggling.">
         {rows.map((log, index) => (
           <LogRow dimmed={index === 0} key={`${log.time}-${log.message}`} log={log} />
         ))}
