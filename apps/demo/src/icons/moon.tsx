@@ -13,11 +13,11 @@ interface MoonIconProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const SVG_VARIANTS: Variants = {
-  normal: {
-    rotate: 0,
-  },
   animate: {
     rotate: [0, -10, 10, -5, 5, 0],
+  },
+  normal: {
+    rotate: 0,
   },
 };
 

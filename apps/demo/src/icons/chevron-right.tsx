@@ -13,8 +13,8 @@ interface ChevronRightIconProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const DEFAULT_TRANSITION: Transition = {
-  times: [0, 0.4, 1],
   duration: 0.5,
+  times: [0, 0.4, 1],
 };
 
 const ChevronRightIcon = forwardRef<ChevronRightIconHandle, ChevronRightIconProps>(
@@ -75,8 +75,8 @@ const ChevronRightIcon = forwardRef<ChevronRightIconHandle, ChevronRightIconProp
             d="m9 18 6-6-6-6"
             transition={DEFAULT_TRANSITION}
             variants={{
-              normal: { x: 0 },
               animate: { x: [0, 2, 0] },
+              normal: { x: 0 },
             }}
           />
         </svg>

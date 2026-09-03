@@ -13,11 +13,11 @@ interface SunIconProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const PATH_VARIANTS: Variants = {
-  normal: { opacity: 1 },
   animate: (i: number) => ({
     opacity: [0, 1],
     transition: { delay: i * 0.1, duration: 0.3 },
   }),
+  normal: { opacity: 1 },
 };
 
 const SunIcon = forwardRef<SunIconHandle, SunIconProps>(

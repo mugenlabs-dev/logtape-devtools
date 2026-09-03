@@ -13,19 +13,19 @@ interface PlayIconProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const PATH_VARIANTS: Variants = {
-  normal: {
-    x: 0,
-    rotate: 0,
-  },
   animate: {
-    x: [0, -1, 2, 0],
     rotate: [0, -10, 0, 0],
     transition: {
-      duration: 0.5,
-      times: [0, 0.2, 0.5, 1],
-      stiffness: 260,
       damping: 20,
+      duration: 0.5,
+      stiffness: 260,
+      times: [0, 0.2, 0.5, 1],
     },
+    x: [0, -1, 2, 0],
+  },
+  normal: {
+    rotate: 0,
+    x: 0,
   },
 };
 

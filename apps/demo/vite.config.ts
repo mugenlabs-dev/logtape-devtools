@@ -10,9 +10,9 @@ export default defineConfig({
   },
   server: {
     headers: {
+      "Referrer-Policy": "strict-origin-when-cross-origin",
       "X-Content-Type-Options": "nosniff",
       "X-Frame-Options": "DENY",
-      "Referrer-Policy": "strict-origin-when-cross-origin",
     },
     port: 3001,
   },

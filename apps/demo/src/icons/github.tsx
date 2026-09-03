@@ -13,14 +13,6 @@ interface GithubIconProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const BODY_VARIANTS: Variants = {
-  normal: {
-    opacity: 1,
-    pathLength: 1,
-    scale: 1,
-    transition: {
-      duration: 0.3,
-    },
-  },
   animate: {
     opacity: [0, 1],
     pathLength: [0, 1],
@@ -29,21 +21,29 @@ const BODY_VARIANTS: Variants = {
       duration: 0.4,
     },
   },
-};
-
-const TAIL_VARIANTS: Variants = {
   normal: {
+    opacity: 1,
     pathLength: 1,
-    rotate: 0,
+    scale: 1,
     transition: {
       duration: 0.3,
     },
   },
+};
+
+const TAIL_VARIANTS: Variants = {
   draw: {
     pathLength: [0, 1],
     rotate: 0,
     transition: {
       duration: 0.5,
+    },
+  },
+  normal: {
+    pathLength: 1,
+    rotate: 0,
+    transition: {
+      duration: 0.3,
     },
   },
   wag: {

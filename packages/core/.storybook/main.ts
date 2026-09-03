@@ -6,12 +6,12 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(__dirname, "..");
 
 const config: StorybookConfig = {
-  stories: ["../src/**/*.stories.tsx"],
   addons: ["@storybook/addon-vitest"],
   framework: {
     name: "@storybook/react-vite",
     options: {},
   },
+  stories: ["../src/**/*.stories.tsx"],
   viteFinal: (viteConfig) => {
     viteConfig.resolve ??= {};
     viteConfig.resolve.alias = [{ find: "#", replacement: join(packageRoot, "src") }];
