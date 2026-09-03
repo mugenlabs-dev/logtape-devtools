@@ -199,4 +199,32 @@ describe("createLogStore", () => {
     await flush();
     expect(listener).not.toHaveBeenCalled();
   });
+
+  it("treats maxRecords: 0 as a disabled store", () => {
+    const store = createLogStore({ maxRecords: 0 });
+    store.addRecord(makeRecord());
+    expect(store.getSnapshot()).toEqual([]);
+  });
+
+  it("rounds a fractional maxRecords down and still bounds the buffer", () => {
+    const store = createLogStore({ maxRecords: 2.5 });
+    for (let i = 0; i < 10; i += 1) {
+      store.addRecord(makeRecord({ id: `log-${i}` }));
+    }
+    expect(store.getSnapshot().map((r) => r.id)).toEqual(["log-8", "log-9"]);
+  });
+
+  it("does not wedge the buffer on a NaN or negative maxRecords", () => {
+    const nan = createLogStore({ maxRecords: Number.NaN });
+    nan.addRecord(makeRecord());
+    expect(nan.getSnapshot()).toEqual([]);
+
+    const negative = createLogStore({ maxRecords: -5 });
+    negative.addRecord(makeRecord());
+    expect(negative.getSnapshot()).toEqual([]);
+
+    negative.setMaxSize(3);
+    negative.addRecord(makeRecord({ id: "after" }));
+    expect(negative.getSnapshot().map((r) => r.id)).toEqual(["after"]);
+  });
 });
