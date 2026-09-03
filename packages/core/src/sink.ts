@@ -28,7 +28,7 @@ const smFrameRe = /(?:^|@)(.+?):(\d+):(\d+)$/;
 
 function captureCallerInfo(): string | undefined {
   // biome-ignore lint/suspicious/useErrorMessage: we only need the stack trace, not the message
-  const stack = new Error().stack;
+  const { stack } = new Error();
   if (!stack) {
     return undefined;
   }
@@ -71,13 +71,13 @@ function captureCallerInfo(): string | undefined {
 
 function normalizeRecord(record: LogRecord, captureStack: boolean, id: string): DevtoolsLogRecord {
   const normalized: DevtoolsLogRecord = {
-    id,
-    timestamp: record.timestamp,
-    level: record.level as LogLevel,
     category: [...record.category],
+    id,
+    level: record.level as LogLevel,
     message: [...record.message],
     messageText: renderMessage(record.message),
     properties: safeCloneProperties(record.properties),
+    timestamp: record.timestamp,
   };
 
   if (captureStack) {
@@ -163,10 +163,11 @@ export function createDevtoolsSink(options?: DevtoolsSinkOptions): Sink {
       // Stack capture is the most expensive part of normalization — skip it
       // while nothing is watching the store (i.e. no panel is mounted).
       const shouldCaptureStack = captureStack && (forceStack || store.hasListeners());
+      counter += 1;
       const normalized = normalizeRecord(
         record,
         shouldCaptureStack,
-        `log-${sinkId}-${++counter}-${record.timestamp}`
+        `log-${sinkId}-${counter}-${record.timestamp}`
       );
       store.addRecord(normalized);
     } catch {

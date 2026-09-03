@@ -63,10 +63,10 @@ async function setupLogTape() {
     await reset();
   }
   await configure({
+    loggers: [{ category: [], lowestLevel: "trace", sinks: ["devtools"] }],
     sinks: {
       devtools: devtoolsSink,
     },
-    loggers: [{ category: [], lowestLevel: "trace", sinks: ["devtools"] }],
   });
   configured = true;
 }
@@ -84,25 +84,10 @@ const categories = [
 ];
 
 const messages = {
-  trace: [
-    "Entering function renderPage",
-    "Variable userId = {userId}",
-    "Loop iteration {i} of {total}",
-  ],
   debug: [
     "Cache lookup for key {key}",
     "Request headers prepared",
     "Component re-rendered with {count} items",
-  ],
-  info: [
-    "User {username} logged in",
-    "API request to {endpoint} completed in {ms}ms",
-    "Page {route} loaded successfully",
-  ],
-  warning: [
-    "Slow query detected: {ms}ms on {table}",
-    "Rate limit approaching: {current}/{max} requests",
-    "Deprecated API endpoint called: {endpoint}",
   ],
   error: [
     "Failed to fetch {url}: {status} {statusText}",
@@ -112,6 +97,21 @@ const messages = {
   fatal: [
     "Application state corrupted, forcing restart",
     "Critical service unreachable: {service}",
+  ],
+  info: [
+    "User {username} logged in",
+    "API request to {endpoint} completed in {ms}ms",
+    "Page {route} loaded successfully",
+  ],
+  trace: [
+    "Entering function renderPage",
+    "Variable userId = {userId}",
+    "Loop iteration {i} of {total}",
+  ],
+  warning: [
+    "Slow query detected: {ms}ms on {table}",
+    "Rate limit approaching: {current}/{max} requests",
+    "Deprecated API endpoint called: {endpoint}",
   ],
 };
 
@@ -170,7 +170,7 @@ function emitRandomLog() {
   const weights = [0.1, 0.25, 0.35, 0.15, 0.12, 0.03];
   let r = Math.random();
   let levelIdx = 0;
-  for (let i = 0; i < weights.length; i++) {
+  for (let i = 0; i < weights.length; i += 1) {
     r -= weights[i];
     if (r <= 0) {
       levelIdx = i;
@@ -265,12 +265,12 @@ export const PlaygroundPage = () => {
             <div className="flex flex-wrap gap-2">
               {levels.map((level) => {
                 const colorMap: Record<string, string> = {
-                  trace: "bg-[#5555aa]/20 text-[#8888bb] hover:bg-[#5555aa]/30",
                   debug: "bg-[#55aa55]/20 text-[#88bb88] hover:bg-[#55aa55]/30",
-                  info: "bg-blue-500/20 text-blue-400 hover:bg-blue-500/30",
-                  warning: "bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30",
                   error: "bg-red-500/20 text-red-400 hover:bg-red-500/30",
                   fatal: "bg-red-700/20 text-red-300 hover:bg-red-700/30",
+                  info: "bg-blue-500/20 text-blue-400 hover:bg-blue-500/30",
+                  trace: "bg-[#5555aa]/20 text-[#8888bb] hover:bg-[#5555aa]/30",
+                  warning: "bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30",
                 };
                 return (
                   <button

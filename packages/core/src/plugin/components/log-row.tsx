@@ -101,7 +101,7 @@ export const LogRow = ({ record, expanded, onToggle }: LogRowProps) => {
         <span style={messageStyle}>{record.messageText}</span>
 
         {/* Caller (right-aligned) */}
-        {record.caller && <span style={callerStyle}>{record.caller}</span>}
+        {record.caller ? <span style={callerStyle}>{record.caller}</span> : null}
 
         {/* Expand indicator */}
         <span style={{ ...chevronStyle, transform: expanded ? "rotate(90deg)" : "rotate(0deg)" }}>
@@ -109,7 +109,7 @@ export const LogRow = ({ record, expanded, onToggle }: LogRowProps) => {
         </span>
       </button>
 
-      {expanded && <LogDetail record={record} />}
+      {expanded ? <LogDetail record={record} /> : null}
     </div>
   );
 };

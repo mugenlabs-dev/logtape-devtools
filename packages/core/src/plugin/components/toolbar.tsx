@@ -154,7 +154,7 @@ export const Toolbar = ({
 
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
+      const { value } = e.target;
       setSearch(value);
       debouncedSearch.maybeExecute(value);
     },
