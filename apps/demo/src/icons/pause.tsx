@@ -20,10 +20,10 @@ const BASE_RECT_VARIANTS: Variants = {
 
 const BASE_RECT_TRANSITION = {
   transition: {
-    times: [0, 0.2, 0.5, 1],
+    damping: 20,
     duration: 0.5,
     stiffness: 260,
-    damping: 20,
+    times: [0, 0.2, 0.5, 1],
   },
 };
 

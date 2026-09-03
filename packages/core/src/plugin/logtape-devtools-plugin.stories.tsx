@@ -5,9 +5,9 @@ import { allLevelRecords, typicalRecords } from "./__stories__/fixtures";
 import { LogTapeDevtoolsPlugin } from "./logtape-devtools-plugin";
 
 const meta: Meta<typeof LogTapeDevtoolsPlugin> = {
-  title: "Plugin/LogTapeDevtoolsPlugin",
   component: LogTapeDevtoolsPlugin,
   decorators: [withPluginContainer],
+  title: "Plugin/LogTapeDevtoolsPlugin",
 };
 
 export default meta;
@@ -30,8 +30,8 @@ export const Default: Story = {
 };
 
 export const EmptyState: Story = {
-  name: "Empty (No Logs)",
   decorators: [withLogStore([])],
+  name: "Empty (No Logs)",
   play: async ({ canvas, step }) => {
     await step("Verify empty state", async () => {
       await canvas.findByTestId("log-list-empty");
@@ -41,8 +41,8 @@ export const EmptyState: Story = {
 };
 
 export const AllLevels: Story = {
-  name: "All Log Levels",
   decorators: [withLogStore(allLevelRecords)],
+  name: "All Log Levels",
   play: async ({ canvas, step }) => {
     await step("Verify all level badges appear", async () => {
       // Use getAllByText since level text appears in both toolbar toggles and row badges

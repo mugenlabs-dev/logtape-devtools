@@ -4,8 +4,9 @@ import { createLogStore } from "../../store";
 import type { DevtoolsLogRecord } from "../../types";
 import { theme } from "../theme";
 
-export const withLogStore = (records: DevtoolsLogRecord[] = []): Decorator => {
-  return (Story, context) => {
+export const withLogStore =
+  (records: DevtoolsLogRecord[] = []): Decorator =>
+  (Story, context) => {
     const storeRef = useRef(createLogStore());
 
     useEffect(() => {
@@ -20,7 +21,6 @@ export const withLogStore = (records: DevtoolsLogRecord[] = []): Decorator => {
 
     return <Story args={{ ...context.args, store: storeRef.current }} />;
   };
-};
 
 export const withPluginContainer: Decorator = (Story) => (
   <div

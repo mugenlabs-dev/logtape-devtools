@@ -26,12 +26,12 @@ export const GradualBlur = ({
       <div
         key={i}
         style={{
-          WebkitBackdropFilter: `blur(${blur}px)`,
-          WebkitMaskImage: `linear-gradient(${maskDir}, transparent ${Math.max(0, bandCenter - fadeWidth)}%, black ${bandCenter}%, black 100%)`,
           backdropFilter: `blur(${blur}px)`,
           inset: 0,
           maskImage: `linear-gradient(${maskDir}, transparent ${Math.max(0, bandCenter - fadeWidth)}%, black ${bandCenter}%, black 100%)`,
           position: "absolute" as const,
+          WebkitBackdropFilter: `blur(${blur}px)`,
+          WebkitMaskImage: `linear-gradient(${maskDir}, transparent ${Math.max(0, bandCenter - fadeWidth)}%, black ${bandCenter}%, black 100%)`,
         }}
       />
     );

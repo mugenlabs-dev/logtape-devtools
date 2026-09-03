@@ -2,12 +2,12 @@ import type { LogLevel } from "../../types";
 import { theme } from "../theme";
 
 const LEVEL_LABELS: Record<LogLevel, string> = {
-  trace: "TRC",
   debug: "DBG",
-  info: "INF",
-  warning: "WRN",
   error: "ERR",
   fatal: "FTL",
+  info: "INF",
+  trace: "TRC",
+  warning: "WRN",
 };
 
 export const LevelBadge = ({ level }: { level: LogLevel }) => {

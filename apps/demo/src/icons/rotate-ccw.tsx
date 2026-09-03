@@ -61,10 +61,10 @@ const RotateCCWIcon = forwardRef<RotateCCWIconHandle, RotateCCWIconProps>(
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth="2"
-          transition={{ type: "spring", stiffness: 250, damping: 25 }}
+          transition={{ damping: 25, stiffness: 250, type: "spring" }}
           variants={{
-            normal: { rotate: "0deg" },
             animate: { rotate: "-50deg" },
+            normal: { rotate: "0deg" },
           }}
           viewBox="0 0 24 24"
           width={size}

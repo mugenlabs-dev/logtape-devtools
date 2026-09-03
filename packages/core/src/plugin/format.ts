@@ -2,8 +2,8 @@
 export function formatTime(ts: number): string {
   const d = new Date(ts);
   return d.toLocaleTimeString(undefined, {
-    hour12: false,
     hour: "2-digit",
+    hour12: false,
     minute: "2-digit",
     second: "2-digit",
   });

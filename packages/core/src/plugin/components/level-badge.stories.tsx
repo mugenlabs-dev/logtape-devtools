@@ -4,7 +4,6 @@ import { theme } from "../theme";
 import { LevelBadge } from "./level-badge";
 
 const meta: Meta<typeof LevelBadge> = {
-  title: "Components/LevelBadge",
   component: LevelBadge,
   decorators: [
     (Story) => (
@@ -13,6 +12,7 @@ const meta: Meta<typeof LevelBadge> = {
       </div>
     ),
   ],
+  title: "Components/LevelBadge",
 };
 
 export default meta;
