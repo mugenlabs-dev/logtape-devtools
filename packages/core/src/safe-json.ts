@@ -5,42 +5,88 @@
  * `@mugenlabs/logtape-devtools/sink` entry point.
  */
 
-/** Replacer that turns circular references into a `"[Circular]"` marker. */
-function circularSafeReplacer(): (key: string, value: unknown) => unknown {
-  const seen = new WeakSet<object>();
-  return (_key, value) => {
+/**
+ * Map values JSON cannot represent (or would silently flatten to `{}`) onto a
+ * readable equivalent. Anything else is returned untouched.
+ */
+function toSerializable(value: unknown): unknown {
+  switch (typeof value) {
+    case "bigint":
+      return `${value}n`;
+    case "symbol":
+      return value.toString();
+    case "function":
+      return `[Function ${value.name || "anonymous"}]`;
+    default:
+      break;
+  }
+  if (value instanceof Error) {
+    const error: Record<string, unknown> = { message: value.message, name: value.name };
+    if (value.stack) {
+      error.stack = value.stack;
+    }
+    if ("cause" in value && value.cause !== undefined) {
+      error.cause = value.cause;
+    }
+    return error;
+  }
+  if (value instanceof Map) {
+    return [...value.entries()];
+  }
+  if (value instanceof Set) {
+    return [...value];
+  }
+  return value;
+}
+
+interface Ancestor {
+  /** The value as it appeared in the source graph — used for cycle detection. */
+  original: object;
+  /** What JSON.stringify actually recursed into — used to unwind the stack. */
+  serialized: object;
+}
+
+/**
+ * Replacer that marks true cycles as `"[Circular]"` while leaving shared
+ * (non-circular) references intact, and converts unrepresentable values via
+ * {@link toSerializable}.
+ */
+function createReplacer(): (this: unknown, key: string, value: unknown) => unknown {
+  const ancestors: Ancestor[] = [];
+  return function replace(this: unknown, _key, value) {
+    // `this` is the object holding `key`; unwind to the current branch.
+    while (ancestors.length > 0 && ancestors.at(-1)?.serialized !== this) {
+      ancestors.pop();
+    }
     if (typeof value === "object" && value !== null) {
-      if (seen.has(value)) {
+      if (ancestors.some((ancestor) => ancestor.original === value)) {
         return "[Circular]";
       }
-      seen.add(value);
+      const serialized = toSerializable(value);
+      if (typeof serialized === "object" && serialized !== null) {
+        ancestors.push({ original: value, serialized });
+      }
+      return serialized;
     }
-    return value;
+    return toSerializable(value);
   };
 }
 
 /**
  * Serializes any value to JSON, never throwing.
  *
- * Falls back to a circular-reference-safe pass, then to `String(value)` for
- * values JSON cannot represent at all (`undefined`, symbols, BigInt…).
+ * Errors, Maps, Sets, BigInts, symbols and functions are rendered in a readable
+ * form instead of being dropped, circular references become `"[Circular]"`,
+ * and anything still unserializable falls back to `String(value)`.
  */
 export function safeStringify(value: unknown, indent?: number): string {
   try {
-    const json = JSON.stringify(value, null, indent);
+    const json = JSON.stringify(value, createReplacer(), indent);
     if (json !== undefined) {
       return json;
     }
   } catch {
-    // Circular references, or a throwing `toJSON`.
-  }
-  try {
-    const json = JSON.stringify(value, circularSafeReplacer(), indent);
-    if (json !== undefined) {
-      return json;
-    }
-  } catch {
-    // Still unserializable — fall through.
+    // A throwing `toJSON` or getter — fall through.
   }
   return String(value);
 }
