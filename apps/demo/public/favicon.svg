@@ -1,4 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="6" fill="#1e1e1e"/>
-  <text x="16" y="23" text-anchor="middle" font-family="system-ui" font-weight="700" font-size="18" fill="#6366f1">LT</text>
+<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <title>LogTape DevTools logo</title>
+  <rect fill="#1e1e1e" height="32" rx="6" width="32" />
+  <text
+    fill="#6366f1"
+    font-family="system-ui"
+    font-size="18"
+    font-weight="700"
+    text-anchor="middle"
+    x="16"
+    y="23"
+  >
+    LT
+  </text>
 </svg>

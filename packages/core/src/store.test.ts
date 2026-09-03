@@ -3,13 +3,13 @@ import type { DevtoolsLogRecord } from "./types";
 
 function makeRecord(overrides: Partial<DevtoolsLogRecord> = {}): DevtoolsLogRecord {
   return {
-    id: `log-${Math.random()}`,
-    timestamp: Date.now(),
-    level: "info",
     category: ["test"],
+    id: `log-${Math.random()}`,
+    level: "info",
     message: ["hello"],
     messageText: "hello",
     properties: {},
+    timestamp: Date.now(),
     ...overrides,
   };
 }
@@ -62,7 +62,7 @@ describe("createLogStore", () => {
     const listener = vi.fn();
     store.subscribe(listener);
 
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 100; i += 1) {
       store.addRecord(makeRecord({ id: `log-${i}` }));
     }
 
@@ -108,7 +108,7 @@ describe("createLogStore", () => {
 
   it("respects maxRecords and trims oldest records", () => {
     const store = createLogStore({ maxRecords: 3 });
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 5; i += 1) {
       store.addRecord(makeRecord({ id: `log-${i}` }));
     }
     const snap = store.getSnapshot();
@@ -119,7 +119,7 @@ describe("createLogStore", () => {
 
   it("keeps records in order once the ring buffer has wrapped several times", () => {
     const store = createLogStore({ maxRecords: 3 });
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 10; i += 1) {
       store.addRecord(makeRecord({ id: `log-${i}` }));
     }
     expect(store.getSnapshot().map((r) => r.id)).toEqual(["log-7", "log-8", "log-9"]);
@@ -127,7 +127,7 @@ describe("createLogStore", () => {
 
   it("defaults to 1000 records", () => {
     const store = createLogStore();
-    for (let i = 0; i < 1005; i++) {
+    for (let i = 0; i < 1005; i += 1) {
       store.addRecord(makeRecord({ id: `log-${i}` }));
     }
     const snap = store.getSnapshot();
@@ -156,7 +156,7 @@ describe("createLogStore", () => {
 
   it("setMaxSize trims records if current count exceeds new max", () => {
     const store = createLogStore({ maxRecords: 10 });
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 5; i += 1) {
       store.addRecord(makeRecord({ id: `log-${i}` }));
     }
     store.setMaxSize(2);
@@ -168,7 +168,7 @@ describe("createLogStore", () => {
 
   it("keeps appending in order after setMaxSize grows the buffer", () => {
     const store = createLogStore({ maxRecords: 2 });
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 4; i += 1) {
       store.addRecord(makeRecord({ id: `log-${i}` }));
     }
     store.setMaxSize(4);
@@ -178,7 +178,7 @@ describe("createLogStore", () => {
 
   it("setMaxSize notifies when trimming occurs", async () => {
     const store = createLogStore({ maxRecords: 10 });
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 5; i += 1) {
       store.addRecord(makeRecord());
     }
     await flush();

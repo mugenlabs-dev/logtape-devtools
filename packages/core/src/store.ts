@@ -13,27 +13,27 @@ type Listener = () => void;
  */
 export interface LogStore {
   /** Appends a record, evicting the oldest one when the max size is reached. */
-  addRecord(record: DevtoolsLogRecord): void;
+  addRecord: (record: DevtoolsLogRecord) => void;
   /** Removes every record and notifies subscribers. */
-  clear(): void;
+  clear: () => void;
   /**
    * Returns the current records, oldest first.
    *
    * The reference is stable until the store changes, which makes it safe to use
    * with `useSyncExternalStore`.
    */
-  getSnapshot(): DevtoolsLogRecord[];
+  getSnapshot: () => DevtoolsLogRecord[];
   /**
    * Whether anything is currently subscribed to the store.
    *
    * Used by the sink to skip expensive work (such as stack trace capture) while
    * no devtools panel is mounted.
    */
-  hasListeners(): boolean;
+  hasListeners: () => boolean;
   /** Updates the maximum number of retained records, trimming if needed. */
-  setMaxSize(size: number): void;
+  setMaxSize: (size: number) => void;
   /** Registers a change listener. Returns an unsubscribe function. */
-  subscribe(listener: Listener): () => void;
+  subscribe: (listener: Listener) => () => void;
 }
 
 /** Options for {@link createLogStore}. */
@@ -101,7 +101,7 @@ export function createLogStore(options?: LogStoreOptions): LogStore {
   /** Materializes the ring buffer into a plain, oldest-first array. */
   function toArray(): DevtoolsLogRecord[] {
     const result: DevtoolsLogRecord[] = new Array(size);
-    for (let i = 0; i < size; i++) {
+    for (let i = 0; i < size; i += 1) {
       result[i] = buffer[(start + i) % buffer.length];
     }
     return result;
@@ -128,7 +128,7 @@ export function createLogStore(options?: LogStoreOptions): LogStore {
       if (size < max) {
         // Below capacity — the buffer is linear, so a plain append is enough.
         buffer.push(record);
-        size++;
+        size += 1;
       } else {
         // At capacity — overwrite the oldest slot.
         buffer[start] = record;

@@ -73,11 +73,11 @@ export const LogDetail = ({ record }: { record: DevtoolsLogRecord }) => {
       <DetailRow label="Category">
         <span style={categoryStyle}>{record.category.join(".")}</span>
       </DetailRow>
-      {record.caller && (
+      {record.caller ? (
         <DetailRow label="Caller">
           <span style={callerStyle}>{record.caller}</span>
         </DetailRow>
-      )}
+      ) : null}
       <DetailRow label="Message">
         <span style={messageStyle}>{record.messageText}</span>
       </DetailRow>
