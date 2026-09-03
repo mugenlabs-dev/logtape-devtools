@@ -70,15 +70,27 @@ function captureCallerInfo(): string | undefined {
 }
 
 function normalizeRecord(record: LogRecord, captureStack: boolean, id: string): DevtoolsLogRecord {
-  const normalized: DevtoolsLogRecord = {
+  const message = [...record.message];
+  const normalized = {
     category: [...record.category],
     id,
     level: record.level as LogLevel,
-    message: [...record.message],
-    messageText: renderMessage(record.message),
+    message,
     properties: safeCloneProperties(record.properties),
     timestamp: record.timestamp,
-  };
+  } as DevtoolsLogRecord;
+
+  // Rendering the message serialises every interpolated value, so defer it to
+  // the first read (search or display) instead of paying for it on every log.
+  let messageText: string | undefined;
+  Object.defineProperty(normalized, "messageText", {
+    configurable: true,
+    enumerable: true,
+    get: () => {
+      messageText ??= renderMessage(message);
+      return messageText;
+    },
+  });
 
   if (captureStack) {
     const caller = captureCallerInfo();
@@ -132,6 +144,12 @@ export interface DevtoolsSinkOptions {
 }
 
 /**
+ * A LogTape sink that is also disposable. LogTape disposes sinks when the
+ * configuration is reset; a disposed sink stops writing to its store.
+ */
+export type DevtoolsSink = Sink & Disposable;
+
+/**
  * Creates a LogTape sink that forwards log records to the devtools panel.
  *
  * Usage:
@@ -147,7 +165,7 @@ export interface DevtoolsSinkOptions {
  * });
  * ```
  */
-export function createDevtoolsSink(options?: DevtoolsSinkOptions): Sink {
+export function createDevtoolsSink(options?: DevtoolsSinkOptions): DevtoolsSink {
   const store = options?.store ?? defaultLogStore;
   const wantsStack = options?.captureStackTrace ?? true;
   const forceStack = options?.forceStackTrace ?? false;
@@ -157,8 +175,13 @@ export function createDevtoolsSink(options?: DevtoolsSinkOptions): Sink {
   // single store cannot emit the same id for records with equal timestamps.
   const sinkId = Math.random().toString(36).slice(2, 8);
   let counter = 0;
+  let disposed = false;
 
-  return (record: LogRecord) => {
+  const sink = (record: LogRecord): void => {
+    // A store with no capacity drops every record, so skip normalisation too.
+    if (disposed || store.getMaxRecords?.() === 0) {
+      return;
+    }
     try {
       // Stack capture is the most expensive part of normalization — skip it
       // while nothing is watching the store (i.e. no panel is mounted).
@@ -174,4 +197,10 @@ export function createDevtoolsSink(options?: DevtoolsSinkOptions): Sink {
       // Fail silently — devtools should never break the application
     }
   };
+
+  return Object.assign(sink, {
+    [Symbol.dispose]: () => {
+      disposed = true;
+    },
+  });
 }
