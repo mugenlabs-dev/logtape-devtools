@@ -17,6 +17,11 @@ export interface LogStore {
   /** Removes every record and notifies subscribers. */
   clear: () => void;
   /**
+   * The current retention limit. `0` means the store discards everything, which
+   * lets the sink skip normalisation entirely. Optional for custom stores.
+   */
+  getMaxRecords?: () => number;
+  /**
    * Returns the current records, oldest first.
    *
    * The reference is stable until the store changes, which makes it safe to use
@@ -153,6 +158,7 @@ export function createLogStore(options?: LogStoreOptions): LogStore {
       snapshotDirty = true;
       notify();
     },
+    getMaxRecords: () => max,
     getSnapshot: () => {
       if (snapshotDirty) {
         snapshot = toArray();

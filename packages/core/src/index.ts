@@ -7,7 +7,7 @@ export type { LogTapeDevtoolsPluginOptions } from "./plugin/create-logtape-devto
 export { createLogTapeDevtoolsPlugin } from "./plugin/create-logtape-devtools-plugin";
 
 // --- Sink ---
-export type { DevtoolsSinkOptions } from "./sink";
+export type { DevtoolsSink, DevtoolsSinkOptions } from "./sink";
 export { createDevtoolsSink } from "./sink";
 
 // --- Store ---

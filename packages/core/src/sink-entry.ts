@@ -7,7 +7,7 @@
  */
 
 // --- Sink ---
-export type { DevtoolsSinkOptions } from "./sink";
+export type { DevtoolsSink, DevtoolsSinkOptions } from "./sink";
 export { createDevtoolsSink } from "./sink";
 
 // --- Store ---

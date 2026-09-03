@@ -167,4 +167,39 @@ describe("createDevtoolsSink", () => {
     expect(hasListeners).not.toHaveBeenCalled();
     expect(store.getSnapshot()[0].caller).toBeUndefined();
   });
+
+  it("skips all work when the store has no capacity", () => {
+    const store = createLogStore({ maxRecords: 0 });
+    const addRecord = vi.spyOn(store, "addRecord");
+    const sink = createDevtoolsSink({ store });
+
+    sink(makeLogRecord());
+
+    expect(addRecord).not.toHaveBeenCalled();
+  });
+
+  it("renders messageText lazily and consistently", () => {
+    const store = createLogStore();
+    const sink = createDevtoolsSink({ store });
+    const heavy = { toJSON: vi.fn(() => "rendered") };
+    sink(makeLogRecord({ message: ["value: ", heavy] }));
+
+    const [record] = store.getSnapshot();
+    expect(heavy.toJSON).not.toHaveBeenCalled();
+    expect(record.messageText).toBe('value: "rendered"');
+    expect(record.messageText).toBe('value: "rendered"');
+    expect(heavy.toJSON).toHaveBeenCalledTimes(1);
+    expect(Object.keys(record)).toContain("messageText");
+  });
+
+  it("stops writing once disposed", () => {
+    const store = createLogStore();
+    const sink = createDevtoolsSink({ store });
+    sink(makeLogRecord());
+
+    sink[Symbol.dispose]();
+    sink(makeLogRecord());
+
+    expect(store.getSnapshot()).toHaveLength(1);
+  });
 });
