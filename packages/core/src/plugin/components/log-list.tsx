@@ -40,7 +40,9 @@ export const LogList = ({ records, expandedId, onToggle, autoScroll }: LogListPr
   const virtualizer = useVirtualizer({
     count: records.length,
     estimateSize: () => ESTIMATED_ROW_HEIGHT,
-    getItemKey: (index) => records[index].id,
+    // The virtualizer can ask for keys of indices from a previous, longer list
+    // (after clear or a narrowing filter), so never assume the index exists.
+    getItemKey: (index) => records[index]?.id ?? index,
     getScrollElement: () => containerRef.current,
     overscan: OVERSCAN,
   });
@@ -55,6 +57,14 @@ export const LogList = ({ records, expandedId, onToggle, autoScroll }: LogListPr
     }
     virtualizer.scrollToIndex(recordCount - 1, { align: "end" });
   }, [autoScroll, lastRecordId, recordCount, virtualizer]);
+
+  // The scroll container unmounts while the list is empty; treat the next
+  // batch of logs as a fresh start instead of keeping a stale "scrolled up".
+  useEffect(() => {
+    if (recordCount === 0) {
+      isAtBottomRef.current = true;
+    }
+  }, [recordCount]);
 
   const handleScroll = useCallback(() => {
     const el = containerRef.current;
