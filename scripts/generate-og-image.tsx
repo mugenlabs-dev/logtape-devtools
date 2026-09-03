@@ -47,23 +47,23 @@ const GridLines = () => {
     <div
       style={{
         display: "flex",
+        height: H,
+        left: 0,
         position: "absolute",
         top: 0,
-        left: 0,
         width: W,
-        height: H,
       }}
     >
       {Array.from({ length: cols }, (_, i) => (
         <div
           key={`vcol-${String(i)}`}
           style={{
-            position: "absolute",
+            backgroundColor: GRID_COLOR,
+            height: H,
             left: i * GRID_SIZE,
+            position: "absolute",
             top: 0,
             width: 1,
-            height: H,
-            backgroundColor: GRID_COLOR,
           }}
         />
       ))}
@@ -71,12 +71,12 @@ const GridLines = () => {
         <div
           key={`hrow-${String(i)}`}
           style={{
+            backgroundColor: GRID_COLOR,
+            height: 1,
+            left: 0,
             position: "absolute",
             top: i * GRID_SIZE,
-            left: 0,
             width: W,
-            height: 1,
-            backgroundColor: GRID_COLOR,
           }}
         />
       ))}
@@ -87,14 +87,14 @@ const GridLines = () => {
 const Pill = ({ label }: { label: string }) => (
   <div
     style={{
-      display: "flex",
       alignItems: "center",
-      padding: "8px 20px",
-      borderRadius: 8,
       backgroundColor: "rgba(25, 22, 32, 0.8)",
       border: "1px solid rgba(70, 55, 100, 0.8)",
-      fontSize: 15,
+      borderRadius: 8,
       color: "#c4b5fd",
+      display: "flex",
+      fontSize: 15,
+      padding: "8px 20px",
     }}
   >
     {label}
@@ -107,43 +107,43 @@ const Pill = ({ label }: { label: string }) => (
 const OgImage = ({ logoSrc }: { logoSrc: string }) => (
   <div
     style={{
+      alignItems: "center",
+      backgroundColor: "#0a0a0c",
       display: "flex",
       flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      width: W,
       height: H,
-      backgroundColor: "#0a0a0c",
-      position: "relative",
+      justifyContent: "center",
       overflow: "hidden",
+      position: "relative",
+      width: W,
     }}
   >
     {/* Indigo radial glow (main) */}
     <div
       style={{
-        display: "flex",
-        position: "absolute",
-        top: -100,
-        left: 200,
-        width: 800,
-        height: 600,
-        borderRadius: "50%",
         background:
           "radial-gradient(ellipse at center, rgba(99,102,241,0.3) 0%, rgba(99,102,241,0.12) 40%, transparent 70%)",
+        borderRadius: "50%",
+        display: "flex",
+        height: 600,
+        left: 200,
+        position: "absolute",
+        top: -100,
+        width: 800,
       }}
     />
 
     {/* Secondary wider glow */}
     <div
       style={{
+        background: "radial-gradient(ellipse at center, rgba(99,102,241,0.1) 0%, transparent 60%)",
+        borderRadius: "50%",
         display: "flex",
+        height: 500,
+        left: 0,
         position: "absolute",
         top: -50,
-        left: 0,
         width: 1200,
-        height: 500,
-        borderRadius: "50%",
-        background: "radial-gradient(ellipse at center, rgba(99,102,241,0.1) 0%, transparent 60%)",
       }}
     />
 
@@ -153,21 +153,21 @@ const OgImage = ({ logoSrc }: { logoSrc: string }) => (
     {/* Content */}
     <div
       style={{
+        alignItems: "center",
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
       }}
     >
       <img alt="" height={120} src={logoSrc} style={{ borderRadius: 24 }} width={120} />
 
       <div
         style={{
-          fontSize: 48,
-          fontFamily: "sans-serif",
-          fontWeight: 700,
           color: "#ffffff",
-          marginTop: 28,
+          fontFamily: "sans-serif",
+          fontSize: 48,
+          fontWeight: 700,
           letterSpacing: "-0.03em",
+          marginTop: 28,
         }}
       >
         {TITLE}
@@ -175,15 +175,15 @@ const OgImage = ({ logoSrc }: { logoSrc: string }) => (
 
       <div
         style={{
+          alignItems: "center",
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
-          marginTop: 20,
           gap: 4,
+          marginTop: 20,
         }}
       >
         {DESCRIPTION.map((line) => (
-          <div key={line} style={{ fontSize: 20, color: "#888888" }}>
+          <div key={line} style={{ color: "#888888", fontSize: 20 }}>
             {line}
           </div>
         ))}
@@ -204,6 +204,7 @@ const OgImage = ({ logoSrc }: { logoSrc: string }) => (
 async function loadFirstAvailable(paths: string[]): Promise<Buffer> {
   for (const p of paths) {
     try {
+      // biome-ignore lint/performance/noAwaitInLoops: fonts are tried in priority order
       return await readFile(p);
     } catch {
       // Font not found at this path, try next
@@ -225,31 +226,31 @@ async function main() {
   const logoSrc = `data:image/png;base64,${logoBase64}`;
 
   const svg = await satori(<OgImage logoSrc={logoSrc} />, {
-    width: W,
-    height: H,
     fonts: [
       {
-        name: "monospace",
         data: await loadFirstAvailable([
           "/System/Library/Fonts/Supplemental/Andale Mono.ttf",
           "/System/Library/Fonts/Supplemental/Courier New Bold.ttf",
           "/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf",
         ]),
-        weight: 700,
+        name: "monospace",
         style: "normal",
+        weight: 700,
       },
       {
-        name: "sans-serif",
         data: await loadFirstAvailable([
           "/System/Library/Fonts/Supplemental/Arial.ttf",
           "/System/Library/Fonts/Supplemental/Georgia.ttf",
           "/System/Library/Fonts/Geneva.ttf",
           "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
         ]),
-        weight: 400,
+        name: "sans-serif",
         style: "normal",
+        weight: 400,
       },
     ],
+    height: H,
+    width: W,
   });
 
   const resvg = new Resvg(svg, {

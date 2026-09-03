@@ -158,7 +158,7 @@ const timeForSeq = (seq: number): string => {
 const AnimatedLogStack = ({ tick, visible }: { tick: number; visible: number }) => {
   const items: { log: DemoLog; seq: number }[] = [];
   // One extra row above (fading out) and below (waiting to enter) the window.
-  for (let seq = Math.max(0, tick - 1); seq <= tick + visible; seq++) {
+  for (let seq = Math.max(0, tick - 1); seq <= tick + visible; seq += 1) {
     const base = LOG_POOL[seq % LOG_POOL.length];
     items.push({ log: { ...base, time: timeForSeq(seq) }, seq });
   }
