@@ -38,6 +38,11 @@ function useHoverStyles() {
       [data-lt-interactive]:active {
         filter: brightness(0.9);
       }
+      [data-lt-interactive]:focus-visible,
+      [data-lt-input]:focus-visible {
+        outline: 2px solid ${theme.colors.accent};
+        outline-offset: 1px;
+      }
       [data-lt-clear-btn]:hover {
         color: ${theme.colors.textPrimary} !important;
       }
@@ -87,10 +92,14 @@ const sectionLabelStyle = {
 const LevelToggle = ({
   level,
   active,
+  pressed,
   onToggle,
 }: {
   level: LogLevel;
+  /** Visual state: lit when the level is included (all levels when no filter is set). */
   active: boolean;
+  /** Semantic state: whether the user has explicitly selected this level. */
+  pressed: boolean;
   onToggle: (level: LogLevel) => void;
 }) => {
   const colors = theme.colors.levels[level];
@@ -98,7 +107,7 @@ const LevelToggle = ({
 
   return (
     <button
-      aria-pressed={active}
+      aria-pressed={pressed}
       data-lt-interactive=""
       data-testid={`level-toggle-${level}`}
       onClick={handleClick}
@@ -274,6 +283,7 @@ export const Toolbar = ({
               key={level}
               level={level}
               onToggle={handleLevelToggle}
+              pressed={levelFilter.has(level)}
             />
           ))}
         </div>
@@ -403,6 +413,8 @@ export const Toolbar = ({
                 </span>
               ))}
               <Combobox.Input
+                aria-label="Filter by category"
+                data-lt-input=""
                 data-testid="category-input"
                 placeholder={categoryFilter.length === 0 ? "Category…" : ""}
                 style={{
@@ -471,6 +483,8 @@ export const Toolbar = ({
       <div style={{ display: "flex", flexDirection: "column", gap: theme.spacing.sm }}>
         <div style={sectionLabelStyle}>Search</div>
         <input
+          aria-label="Search logs"
+          data-lt-input=""
           data-testid="search-input"
           onChange={handleSearchChange}
           placeholder="Search…"

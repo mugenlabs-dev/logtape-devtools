@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { memo, useCallback } from "react";
 import type { DevtoolsLogRecord } from "../../types";
 import { formatTime } from "../format";
 import { ChevronRightIcon } from "../icons";
@@ -71,7 +71,7 @@ const chevronStyle = {
   transition: "transform 0.15s",
 } as const;
 
-export const LogRow = ({ record, expanded, onToggle }: LogRowProps) => {
+const LogRowComponent = ({ record, expanded, onToggle }: LogRowProps) => {
   const levelColors = getLevelColors(record.level);
 
   const handleClick = useCallback(() => {
@@ -113,3 +113,6 @@ export const LogRow = ({ record, expanded, onToggle }: LogRowProps) => {
     </div>
   );
 };
+
+/** Memoised so a new batch of records only re-renders the rows that changed. */
+export const LogRow = memo(LogRowComponent);
