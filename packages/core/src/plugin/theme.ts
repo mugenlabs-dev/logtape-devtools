@@ -60,3 +60,11 @@ export const theme = {
 } as const;
 
 export type LogLevelColors = (typeof theme.colors.levels)[keyof typeof theme.colors.levels];
+
+/**
+ * Colors for a level, falling back to "info" for levels this version does not
+ * know about (the LogTape peer range allows newer levels to appear).
+ */
+export const getLevelColors = (level: string): LogLevelColors =>
+  (theme.colors.levels as Record<string, LogLevelColors | undefined>)[level] ??
+  theme.colors.levels.info;

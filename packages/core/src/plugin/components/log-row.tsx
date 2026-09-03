@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import type { DevtoolsLogRecord } from "../../types";
 import { formatTime } from "../format";
 import { ChevronRightIcon } from "../icons";
-import { theme } from "../theme";
+import { getLevelColors, theme } from "../theme";
 import { LevelBadge } from "./level-badge";
 import { LogDetail } from "./log-detail";
 
@@ -72,7 +72,7 @@ const chevronStyle = {
 } as const;
 
 export const LogRow = ({ record, expanded, onToggle }: LogRowProps) => {
-  const levelColors = theme.colors.levels[record.level];
+  const levelColors = getLevelColors(record.level);
 
   const handleClick = useCallback(() => {
     onToggle(expanded ? null : record.id);
