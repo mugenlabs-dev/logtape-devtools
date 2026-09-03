@@ -46,12 +46,15 @@ export const LogList = ({ records, expandedId, onToggle, autoScroll }: LogListPr
   });
 
   const recordCount = records.length;
+  // Key on the newest record rather than the count: once the ring buffer is
+  // full the count stays constant while the contents keep changing.
+  const lastRecordId = records[recordCount - 1]?.id;
   useEffect(() => {
-    if (recordCount === 0 || !(autoScroll && isAtBottomRef.current)) {
+    if (lastRecordId === undefined || !(autoScroll && isAtBottomRef.current)) {
       return;
     }
     virtualizer.scrollToIndex(recordCount - 1, { align: "end" });
-  }, [autoScroll, recordCount, virtualizer]);
+  }, [autoScroll, lastRecordId, recordCount, virtualizer]);
 
   const handleScroll = useCallback(() => {
     const el = containerRef.current;
