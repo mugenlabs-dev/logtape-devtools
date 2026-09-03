@@ -95,10 +95,10 @@ type Level = "debug" | "error" | "fatal" | "info" | "trace" | "warning";
 
 // Badge colors from the plugin's own level palette (theme.ts).
 const LEVEL_BADGES: Record<Level, { abbr: string; className: string }> = {
-  debug: { abbr: "DBG", className: "bg-[#55aa55] text-white" },
+  debug: { abbr: "DBG", className: "bg-[#2f7a2f] text-white" },
   error: { abbr: "ERR", className: "bg-[#dc2626] text-white" },
   fatal: { abbr: "FTL", className: "bg-[#b91c1c] text-white" },
-  info: { abbr: "INF", className: "bg-[#3b82f6] text-white" },
+  info: { abbr: "INF", className: "bg-[#2563eb] text-white" },
   trace: { abbr: "TRC", className: "bg-[#5555aa] text-white" },
   warning: { abbr: "WRN", className: "bg-[#eab308] text-black" },
 };
