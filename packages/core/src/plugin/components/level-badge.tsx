@@ -1,5 +1,5 @@
 import type { LogLevel } from "../../types";
-import { theme } from "../theme";
+import { getLevelColors, theme } from "../theme";
 
 const LEVEL_LABELS: Record<LogLevel, string> = {
   debug: "DBG",
@@ -11,7 +11,8 @@ const LEVEL_LABELS: Record<LogLevel, string> = {
 };
 
 export const LevelBadge = ({ level }: { level: LogLevel }) => {
-  const colors = theme.colors.levels[level];
+  const colors = getLevelColors(level);
+  const label = (LEVEL_LABELS as Record<string, string | undefined>)[level] ?? level.toUpperCase();
 
   return (
     <span
@@ -30,7 +31,7 @@ export const LevelBadge = ({ level }: { level: LogLevel }) => {
         textTransform: "uppercase",
       }}
     >
-      {LEVEL_LABELS[level]}
+      {label}
     </span>
   );
 };
