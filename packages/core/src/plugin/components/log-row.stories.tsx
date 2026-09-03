@@ -5,7 +5,11 @@ import { theme } from "../theme";
 import { LogRow } from "./log-row";
 
 const meta: Meta<typeof LogRow> = {
-  title: "Components/LogRow",
+  args: {
+    expanded: false,
+    onToggle: fn(),
+    record: infoRecord,
+  },
   component: LogRow,
   decorators: [
     (Story) => (
@@ -14,11 +18,7 @@ const meta: Meta<typeof LogRow> = {
       </div>
     ),
   ],
-  args: {
-    expanded: false,
-    onToggle: fn(),
-    record: infoRecord,
-  },
+  title: "Components/LogRow",
 };
 
 export default meta;

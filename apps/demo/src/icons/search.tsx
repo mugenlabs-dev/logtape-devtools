@@ -63,15 +63,15 @@ const SearchIcon = forwardRef<SearchIconHandle, SearchIconProps>(
           strokeLinejoin="round"
           strokeWidth="2"
           transition={{
-            duration: 1,
             bounce: 0.3,
+            duration: 1,
           }}
           variants={{
-            normal: { x: 0, y: 0 },
             animate: {
               x: [0, 0, -3, 0],
               y: [0, -4, 0, 0],
             },
+            normal: { x: 0, y: 0 },
           }}
           viewBox="0 0 24 24"
           width={size}

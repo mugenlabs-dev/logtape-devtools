@@ -4,15 +4,6 @@ import { theme } from "../theme";
 import { Toolbar } from "./toolbar";
 
 const meta: Meta<typeof Toolbar> = {
-  title: "Components/Toolbar",
-  component: Toolbar,
-  decorators: [
-    (Story) => (
-      <div style={{ background: theme.colors.background, width: "200px" }}>
-        <Story />
-      </div>
-    ),
-  ],
   args: {
     categories: ["app", "app.auth", "app.db", "lib.http"],
     categoryFilter: [],
@@ -27,6 +18,15 @@ const meta: Meta<typeof Toolbar> = {
     paused: false,
     totalCount: 5,
   },
+  component: Toolbar,
+  decorators: [
+    (Story) => (
+      <div style={{ background: theme.colors.background, width: "200px" }}>
+        <Story />
+      </div>
+    ),
+  ],
+  title: "Components/Toolbar",
 };
 
 export default meta;

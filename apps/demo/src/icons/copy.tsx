@@ -13,10 +13,10 @@ interface CopyIconProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const DEFAULT_TRANSITION: Transition = {
-  type: "spring",
-  stiffness: 160,
   damping: 17,
   mass: 1,
+  stiffness: 160,
+  type: "spring",
 };
 
 const CopyIcon = forwardRef<CopyIconHandle, CopyIconProps>(
@@ -79,8 +79,8 @@ const CopyIcon = forwardRef<CopyIconHandle, CopyIconProps>(
             ry="2"
             transition={DEFAULT_TRANSITION}
             variants={{
-              normal: { translateY: 0, translateX: 0 },
-              animate: { translateY: -3, translateX: -3 },
+              animate: { translateX: -3, translateY: -3 },
+              normal: { translateX: 0, translateY: 0 },
             }}
             width="14"
             x="8"
@@ -91,8 +91,8 @@ const CopyIcon = forwardRef<CopyIconHandle, CopyIconProps>(
             d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
             transition={DEFAULT_TRANSITION}
             variants={{
-              normal: { x: 0, y: 0 },
               animate: { x: 3, y: 3 },
+              normal: { x: 0, y: 0 },
             }}
           />
         </svg>

@@ -7,71 +7,71 @@ export const makeRecord = (
 ): DevtoolsLogRecord => {
   idCounter += 1;
   return {
-    id: `story-log-${idCounter}`,
-    timestamp: Date.now() - idCounter * 1000,
-    level: overrides.level,
+    caller: overrides.caller,
     category: overrides.category ?? ["app"],
+    id: `story-log-${idCounter}`,
+    level: overrides.level,
     message: overrides.message ?? [overrides.messageText ?? "Log message"],
     messageText: overrides.messageText ?? "Log message",
     properties: overrides.properties ?? {},
-    caller: overrides.caller,
+    timestamp: Date.now() - idCounter * 1000,
   };
 };
 
 export const traceRecord = makeRecord({
-  level: "trace",
+  caller: "router.ts:42:8",
   category: ["app", "router"],
+  level: "trace",
   messageText: "Entering function renderPage",
   properties: { functionName: "renderPage" },
-  caller: "router.ts:42:8",
 });
 
 export const debugRecord = makeRecord({
-  level: "debug",
   category: ["app", "cache"],
+  level: "debug",
   messageText: "Cache lookup for key user:123",
-  properties: { key: "user:123", hit: false },
+  properties: { hit: false, key: "user:123" },
 });
 
 export const infoRecord = makeRecord({
-  level: "info",
-  category: ["app", "auth"],
-  messageText: "User john_doe logged in",
-  properties: { username: "john_doe", sessionId: "abc123" },
   caller: "auth.ts:88:12",
+  category: ["app", "auth"],
+  level: "info",
+  messageText: "User john_doe logged in",
+  properties: { sessionId: "abc123", username: "john_doe" },
 });
 
 export const warningRecord = makeRecord({
-  level: "warning",
   category: ["app", "api"],
+  level: "warning",
   messageText: "Slow query detected: 950ms on users",
   properties: { ms: 950, table: "users" },
 });
 
 export const errorRecord = makeRecord({
-  level: "error",
-  category: ["lib", "http"],
-  messageText: "Failed to fetch /api/data: 500 Internal Server Error",
-  properties: { url: "/api/data", status: 500 },
   caller: "http.ts:201:5",
+  category: ["lib", "http"],
+  level: "error",
+  messageText: "Failed to fetch /api/data: 500 Internal Server Error",
+  properties: { status: 500, url: "/api/data" },
 });
 
 export const fatalRecord = makeRecord({
-  level: "fatal",
   category: ["app"],
+  level: "fatal",
   messageText: "Application state corrupted, forcing restart",
   properties: { service: "state-manager" },
 });
 
 export const simpleInfoRecord = makeRecord({
-  level: "info",
   category: ["app", "ui"],
+  level: "info",
   messageText: "Page loaded successfully",
 });
 
 export const debugNoCaller = makeRecord({
-  level: "debug",
   category: ["app", "db"],
+  level: "debug",
   messageText: "Database connection established",
   properties: { host: "localhost", port: 5432 },
 });

@@ -9,7 +9,7 @@ interface IconProps {
   style?: React.CSSProperties;
 }
 
-const defaults = { size: 14, color: "currentColor" } as const;
+const defaults = { color: "currentColor", size: 14 } as const;
 
 const Svg = ({
   size = defaults.size,

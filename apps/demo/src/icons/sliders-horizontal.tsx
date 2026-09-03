@@ -13,10 +13,10 @@ interface SlidersHorizontalIconProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const DEFAULT_TRANSITION: Transition = {
-  type: "spring",
-  stiffness: 100,
   damping: 12,
   mass: 0.4,
+  stiffness: 100,
+  type: "spring",
 };
 
 const SlidersHorizontalIcon = forwardRef<SlidersHorizontalIconHandle, SlidersHorizontalIconProps>(
@@ -78,11 +78,11 @@ const SlidersHorizontalIcon = forwardRef<SlidersHorizontalIconHandle, SlidersHor
             initial={false}
             transition={DEFAULT_TRANSITION}
             variants={{
-              normal: {
-                x2: 14,
-              },
               animate: {
                 x2: 10,
+              },
+              normal: {
+                x2: 14,
               },
             }}
             x1="21"
@@ -94,11 +94,11 @@ const SlidersHorizontalIcon = forwardRef<SlidersHorizontalIconHandle, SlidersHor
             animate={controls}
             transition={DEFAULT_TRANSITION}
             variants={{
-              normal: {
-                x1: 10,
-              },
               animate: {
                 x1: 5,
+              },
+              normal: {
+                x1: 10,
               },
             }}
             x1="10"
@@ -111,11 +111,11 @@ const SlidersHorizontalIcon = forwardRef<SlidersHorizontalIconHandle, SlidersHor
             animate={controls}
             transition={DEFAULT_TRANSITION}
             variants={{
-              normal: {
-                x2: 12,
-              },
               animate: {
                 x2: 18,
+              },
+              normal: {
+                x2: 12,
               },
             }}
             x1="21"
@@ -128,11 +128,11 @@ const SlidersHorizontalIcon = forwardRef<SlidersHorizontalIconHandle, SlidersHor
             animate={controls}
             transition={DEFAULT_TRANSITION}
             variants={{
-              normal: {
-                x1: 8,
-              },
               animate: {
                 x1: 13,
+              },
+              normal: {
+                x1: 8,
               },
             }}
             x1="8"
@@ -145,11 +145,11 @@ const SlidersHorizontalIcon = forwardRef<SlidersHorizontalIconHandle, SlidersHor
             animate={controls}
             transition={DEFAULT_TRANSITION}
             variants={{
-              normal: {
-                x2: 12,
-              },
               animate: {
                 x2: 4,
+              },
+              normal: {
+                x2: 12,
               },
             }}
             x1="3"
@@ -162,11 +162,11 @@ const SlidersHorizontalIcon = forwardRef<SlidersHorizontalIconHandle, SlidersHor
             animate={controls}
             transition={DEFAULT_TRANSITION}
             variants={{
-              normal: {
-                x1: 16,
-              },
               animate: {
                 x1: 8,
+              },
+              normal: {
+                x1: 16,
               },
             }}
             x1="16"
@@ -179,13 +179,13 @@ const SlidersHorizontalIcon = forwardRef<SlidersHorizontalIconHandle, SlidersHor
             animate={controls}
             transition={DEFAULT_TRANSITION}
             variants={{
-              normal: {
-                x1: 14,
-                x2: 14,
-              },
               animate: {
                 x1: 9,
                 x2: 9,
+              },
+              normal: {
+                x1: 14,
+                x2: 14,
               },
             }}
             x1="14"
@@ -198,13 +198,13 @@ const SlidersHorizontalIcon = forwardRef<SlidersHorizontalIconHandle, SlidersHor
             animate={controls}
             transition={DEFAULT_TRANSITION}
             variants={{
-              normal: {
-                x1: 8,
-                x2: 8,
-              },
               animate: {
                 x1: 14,
                 x2: 14,
+              },
+              normal: {
+                x1: 8,
+                x2: 8,
               },
             }}
             x1="8"
@@ -217,13 +217,13 @@ const SlidersHorizontalIcon = forwardRef<SlidersHorizontalIconHandle, SlidersHor
             animate={controls}
             transition={DEFAULT_TRANSITION}
             variants={{
-              normal: {
-                x1: 16,
-                x2: 16,
-              },
               animate: {
                 x1: 8,
                 x2: 8,
+              },
+              normal: {
+                x1: 16,
+                x2: 16,
               },
             }}
             x1="16"

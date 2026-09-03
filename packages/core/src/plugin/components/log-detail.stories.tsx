@@ -5,7 +5,9 @@ import { theme } from "../theme";
 import { LogDetail } from "./log-detail";
 
 const meta: Meta<typeof LogDetail> = {
-  title: "Components/LogDetail",
+  args: {
+    record: infoRecord,
+  },
   component: LogDetail,
   decorators: [
     (Story) => (
@@ -14,9 +16,7 @@ const meta: Meta<typeof LogDetail> = {
       </div>
     ),
   ],
-  args: {
-    record: infoRecord,
-  },
+  title: "Components/LogDetail",
 };
 
 export default meta;

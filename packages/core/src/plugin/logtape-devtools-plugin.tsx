@@ -110,28 +110,30 @@ export const LogTapeDevtoolsPlugin = ({ store }: Props) => {
     return Array.from(seen).sort();
   }, [records]);
 
-  const filteredRecords = useMemo(() => {
-    return records.filter((r) => {
-      if (levelFilter.size > 0 && !levelFilter.has(r.level)) {
-        return false;
-      }
-      if (categoryFilter.length > 0 && !categoryFilter.includes(r.category.join("."))) {
-        return false;
-      }
-      if (searchText) {
-        const term = searchText.toLowerCase();
-        if (
-          !(
-            r.messageText.toLowerCase().includes(term) ||
-            r.category.join(".").toLowerCase().includes(term)
-          )
-        ) {
+  const filteredRecords = useMemo(
+    () =>
+      records.filter((r) => {
+        if (levelFilter.size > 0 && !levelFilter.has(r.level)) {
           return false;
         }
-      }
-      return true;
-    });
-  }, [records, levelFilter, categoryFilter, searchText]);
+        if (categoryFilter.length > 0 && !categoryFilter.includes(r.category.join("."))) {
+          return false;
+        }
+        if (searchText) {
+          const term = searchText.toLowerCase();
+          if (
+            !(
+              r.messageText.toLowerCase().includes(term) ||
+              r.category.join(".").toLowerCase().includes(term)
+            )
+          ) {
+            return false;
+          }
+        }
+        return true;
+      }),
+    [records, levelFilter, categoryFilter, searchText]
+  );
 
   return (
     <div style={rootStyle}>

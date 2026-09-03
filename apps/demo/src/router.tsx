@@ -14,15 +14,15 @@ const rootRoute = createRootRoute({
 });
 
 const indexRoute = createRoute({
+  component: DocsPage,
   getParentRoute: () => rootRoute,
   path: "/",
-  component: DocsPage,
 });
 
 const playgroundRoute = createRoute({
+  component: PlaygroundPage,
   getParentRoute: () => rootRoute,
   path: "/playground",
-  component: PlaygroundPage,
 });
 
 export const routeTree = rootRoute.addChildren([indexRoute, playgroundRoute]);

@@ -5,7 +5,11 @@ import { theme } from "../theme";
 import { LogList } from "./log-list";
 
 const meta: Meta<typeof LogList> = {
-  title: "Components/LogList",
+  args: {
+    autoScroll: true,
+    expandedId: null,
+    onToggle: fn(),
+  },
   component: LogList,
   decorators: [
     (Story) => (
@@ -22,11 +26,7 @@ const meta: Meta<typeof LogList> = {
       </div>
     ),
   ],
-  args: {
-    autoScroll: true,
-    expandedId: null,
-    onToggle: fn(),
-  },
+  title: "Components/LogList",
 };
 
 export default meta;

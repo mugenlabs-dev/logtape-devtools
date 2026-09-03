@@ -13,27 +13,27 @@ export default defineConfig({
       {
         extends: true,
         test: {
-          name: "unit",
           environment: "jsdom",
           globals: true,
           include: ["packages/**/src/**/*.test.ts", "packages/**/src/**/*.test.tsx"],
+          name: "unit",
         },
       },
       {
         extends: true,
-        plugins: [storybookTest({ configDir: "./packages/core/.storybook" })],
         optimizeDeps: {
-          include: ["@storybook/addon-vitest/internal/test-utils"],
           exclude: ["react-dom/test-utils"],
+          include: ["@storybook/addon-vitest/internal/test-utils"],
         },
+        plugins: [storybookTest({ configDir: "./packages/core/.storybook" })],
         test: {
-          name: "storybook",
           browser: {
             enabled: true,
             headless: true,
-            provider: playwright(),
             instances: [{ browser: "chromium" }],
+            provider: playwright(),
           },
+          name: "storybook",
           setupFiles: ["./packages/core/.storybook/vitest.setup.ts"],
         },
       },
