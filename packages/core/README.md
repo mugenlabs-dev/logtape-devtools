@@ -90,7 +90,7 @@ The package root pulls in React (the panel is a React component). If your LogTap
 import { createDevtoolsSink, createLogStore } from "@mugenlabs/logtape-devtools/sink";
 ```
 
-Exported from `/sink`: `createDevtoolsSink`, `createLogStore`, `defaultLogStore`, `LOG_LEVELS`, and the types `DevtoolsSinkOptions`, `LogStore`, `LogStoreOptions`, `DevtoolsLogRecord`, `LogLevel`.
+Exported from `/sink`: `createDevtoolsSink`, `createLogStore`, `defaultLogStore`, `LOG_LEVELS`, and the types `DevtoolsSink`, `DevtoolsSinkOptions`, `LogStore`, `LogStoreOptions`, `DevtoolsLogRecord`, `LogLevel`.
 
 ## Production
 
@@ -121,8 +121,11 @@ import { createLogTapeDevtoolsPlugin } from "@mugenlabs/logtape-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { logStore } from "./logging";
 
+// Create the plugin once, outside the component, so it is not re-created on every render.
+const plugin = createLogTapeDevtoolsPlugin({ store: logStore });
+
 export default function Devtools() {
-  return <TanStackDevtools plugins={[createLogTapeDevtoolsPlugin({ store: logStore })]} />;
+  return <TanStackDevtools plugins={[plugin]} />;
 }
 ```
 
@@ -131,9 +134,9 @@ With webpack or other bundlers, `process.env.NODE_ENV !== "production"` works th
 Two related behaviours make the sink itself cheap to leave in place:
 
 - **Stack capture auto-disables in production.** When `process.env.NODE_ENV === "production"`, `captureStackTrace` is ignored (minified bundles produce meaningless file and line references, and browsers do not apply source maps to `Error.stack`). Set `forceStackTrace: true` to override.
-- **Stack capture is skipped while no panel is open.** The sink checks `store.hasListeners()` on every record and does no stack work while nothing is subscribed, so the cost of an unmounted panel is close to zero.
+- **Stack capture is skipped while no panel is open.** The sink checks `store.hasListeners()` on every record and does no stack work while nothing is subscribed. Message text is rendered lazily, so an unmounted panel costs one property clone per record.
 
-Records are still buffered in memory when no panel is mounted. If you do not want that in production either, keep the sink out of your production LogTape configuration, or pass `createLogStore({ maxRecords: 0 })`.
+Records are still buffered in memory when no panel is mounted. If you do not want that in production either, keep the sink out of your production LogTape configuration, or pass `createLogStore({ maxRecords: 0 })` — the sink then returns before doing any work at all.
 
 ## API
 
@@ -156,7 +159,7 @@ const { sink, plugin } = createLogTapeDevtools({
 
 ### `createDevtoolsSink(options?)`
 
-Creates a LogTape sink that forwards log records to the devtools store. Returns a LogTape `Sink`.
+Creates a LogTape sink that forwards log records to the devtools store. Returns a `DevtoolsSink` — a LogTape `Sink` that is also `Disposable`, so LogTape can dispose it when its configuration is reset (a disposed sink stops writing).
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
@@ -166,7 +169,7 @@ Creates a LogTape sink that forwards log records to the devtools store. Returns 
 
 ### `createLogTapeDevtoolsPlugin(options?)`
 
-Creates a TanStack DevTools plugin config object (`{ id, name, defaultOpen, render }`) to pass to `<TanStackDevtools plugins={[...]} />`.
+Creates a TanStack DevTools plugin (`TanStackDevtoolsReactPlugin` from `@tanstack/react-devtools`) to pass to `<TanStackDevtools plugins={[...]} />`. Create it once at module scope rather than inside a component.
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
@@ -189,6 +192,7 @@ The returned `LogStore` exposes:
 | `addRecord` | `(record: DevtoolsLogRecord) => void` | Appends a record, evicting the oldest when full |
 | `clear` | `() => void` | Removes every record and notifies subscribers |
 | `getSnapshot` | `() => DevtoolsLogRecord[]` | Current records, oldest first. Reference is stable between mutations (safe for `useSyncExternalStore`) |
+| `getMaxRecords` | `() => number` | Current retention limit. Optional for custom stores; when it returns `0` the sink skips all work |
 | `hasListeners` | `() => boolean` | Whether anything is currently subscribed |
 | `setMaxSize` | `(size: number) => void` | Updates the retention limit, trimming if needed |
 | `subscribe` | `(listener: () => void) => () => void` | Registers a change listener; returns an unsubscribe function |
@@ -210,7 +214,7 @@ The shared `LogStore` instance (created with the default `maxRecords: 1000`) use
 | `level` | `LogLevel` | Severity of the record |
 | `category` | `string[]` | Logger category path, e.g. `["app", "auth"]` |
 | `message` | `unknown[]` | Raw message parts, alternating literals and interpolated values |
-| `messageText` | `string` | Message parts rendered into one searchable string |
+| `messageText` | `string` | Message parts rendered into one searchable string (computed lazily on first access) |
 | `properties` | `Record<string, unknown>` | Structured properties, deep-cloned for safety |
 | `caller` | `string \| undefined` | Source location, present only when stack capture ran |
 
@@ -240,12 +244,12 @@ The shared `LogStore` instance (created with the default `maxRecords: 1000`) use
 
 | Peer dependency | Range | Notes |
 | --- | --- | --- |
-| `@logtape/logtape` | `>=2.0.0` | Required |
+| `@logtape/logtape` | `>=2.0.0` | **Optional** — only types are imported; you need it to configure LogTape anyway |
 | `react` | `^18.0.0 \|\| ^19.0.0` | Required for the panel |
 | `react-dom` | `^18.0.0 \|\| ^19.0.0` | Required for the panel |
 | `@tanstack/react-devtools` | `>=0.9.0` | **Optional** — only needed to host the panel |
 
-Node `>=18`. `@tanstack/react-devtools` being optional means you can depend on this package purely for the sink (via `@mugenlabs/logtape-devtools/sink`) without installing the DevTools shell.
+Node `>=18`. The package is published as ESM only (`import` condition, no `require()`). `@tanstack/react-devtools` being optional means you can depend on this package purely for the sink (via `@mugenlabs/logtape-devtools/sink`) without installing the DevTools shell.
 
 ## Demo
 

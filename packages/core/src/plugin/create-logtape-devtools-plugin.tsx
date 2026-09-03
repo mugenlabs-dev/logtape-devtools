@@ -1,3 +1,4 @@
+import type { TanStackDevtoolsReactPlugin } from "@tanstack/react-devtools";
 import { defaultLogStore, type LogStore } from "../store";
 import { LogTapeDevtoolsPlugin } from "./logtape-devtools-plugin";
 
@@ -21,7 +22,9 @@ export interface LogTapeDevtoolsPluginOptions {
  * <TanStackDevtools plugins={[createLogTapeDevtoolsPlugin()]} />
  * ```
  */
-export const createLogTapeDevtoolsPlugin = (options?: LogTapeDevtoolsPluginOptions) => ({
+export const createLogTapeDevtoolsPlugin = (
+  options?: LogTapeDevtoolsPluginOptions
+): TanStackDevtoolsReactPlugin => ({
   defaultOpen: options?.defaultOpen ?? true,
   id: "logtape-devtools-plugin",
   name: options?.name ?? "LogTape",

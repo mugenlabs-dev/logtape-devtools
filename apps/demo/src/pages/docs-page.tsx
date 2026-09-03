@@ -90,12 +90,11 @@ import { createLogTapeDevtoolsPlugin } from "@mugenlabs/logtape-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { logStore } from "./logging";
 
+// Create the plugin once, outside the component.
+const plugin = createLogTapeDevtoolsPlugin({ store: logStore });
+
 export default function Devtools() {
-  return (
-    <TanStackDevtools
-      plugins={[createLogTapeDevtoolsPlugin({ store: logStore })]}
-    />
-  );
+  return <TanStackDevtools plugins={[plugin]} />;
 }`;
 
 const STORE_CODE = `import {
@@ -364,15 +363,16 @@ export const DocsPage = () => (
                 Stack capture is skipped while no panel is open.
               </strong>{" "}
               The sink checks <code className="text-text-primary">store.hasListeners()</code> per
-              record and does no stack work while nothing is subscribed, so an unmounted panel costs
-              close to nothing.
+              record and does no stack work while nothing is subscribed, and message text is
+              rendered lazily, so an unmounted panel costs one property clone per record.
             </span>
           </li>
         </ul>
         <p className="mt-4 text-sm text-text-muted leading-relaxed">
           Records are still buffered in memory when no panel is mounted. If you do not want that
           either, keep the sink out of your production LogTape configuration, or pass{" "}
-          <code className="text-text-primary">createLogStore(&#123; maxRecords: 0 &#125;)</code>.
+          <code className="text-text-primary">createLogStore(&#123; maxRecords: 0 &#125;)</code>,
+          which makes the sink return before doing any work.
         </p>
       </section>
 
