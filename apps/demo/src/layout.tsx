@@ -59,6 +59,12 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="min-h-screen">
       {/* Header */}
+      <a
+        className="sr-only z-[60] rounded-md bg-accent px-3 py-2 text-sm text-white focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
+        href="#main-content"
+      >
+        Skip to content
+      </a>
       <header className="fixed top-0 right-0 left-0 z-50 border-border-primary border-b bg-header-bg backdrop-blur-md">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
           <Link className="flex items-center gap-2 font-semibold text-text-primary" to="/">
@@ -85,7 +91,9 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
       </header>
 
       {/* Main content */}
-      <main className="pt-14">{children}</main>
+      <main className="pt-14" id="main-content">
+        {children}
+      </main>
 
       {/* Blurred bottom fade — docs page only */}
       {isDocsPage && <GradualBlur direction="bottom" height="120px" layers={5} maxBlur={10} />}

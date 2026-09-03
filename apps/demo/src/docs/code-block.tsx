@@ -1,18 +1,23 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { Highlighter } from "shiki";
-import { createHighlighter } from "shiki";
+import type { BundledLanguage, BundledTheme, HighlighterGeneric } from "shiki/bundle/web";
 import { type AnimatedIconHandle, CheckIcon, CopyIcon } from "../icons";
 
 // ---------------------------------------------------------------------------
 // Shiki highlighter (loaded once, cached)
 // ---------------------------------------------------------------------------
-let highlighterPromise: Promise<Highlighter> | null = null;
+type WebHighlighter = HighlighterGeneric<BundledLanguage, BundledTheme>;
 
+let highlighterPromise: Promise<WebHighlighter> | null = null;
+
+// The web bundle only carries browser-relevant grammars, and the dynamic
+// import keeps shiki out of the initial landing-page chunk.
 const getHighlighter = () => {
-  highlighterPromise ??= createHighlighter({
-    langs: ["typescript", "tsx", "bash"],
-    themes: ["github-dark"],
-  });
+  highlighterPromise ??= import("shiki/bundle/web").then(({ createHighlighter }) =>
+    createHighlighter({
+      langs: ["typescript", "tsx", "bash"],
+      themes: ["github-dark"],
+    })
+  );
   return highlighterPromise;
 };
 

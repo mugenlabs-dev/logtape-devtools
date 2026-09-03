@@ -12,6 +12,10 @@ import { useEffect, useRef, useState } from "react";
 
 const IN_VIEW_THRESHOLD = 0.3;
 
+/** Looping demos stay on their first frame for users who asked for less motion. */
+const prefersReducedMotion = () =>
+  typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 const useInViewRef = () => {
   const ref = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
@@ -42,7 +46,7 @@ const useDemoPhase = (steps: number, intervalMs: number) => {
   const [phase, setPhase] = useState(0);
 
   useEffect(() => {
-    if (!inView) {
+    if (!inView || prefersReducedMotion()) {
       return;
     }
     const id = window.setInterval(() => {
@@ -62,7 +66,7 @@ const useDemoTick = (intervalMs: number) => {
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
-    if (!inView) {
+    if (!inView || prefersReducedMotion()) {
       return;
     }
     const id = window.setInterval(() => {

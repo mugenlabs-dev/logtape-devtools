@@ -72,7 +72,7 @@ export const FeaturesSection = () => (
           <div className={index % 2 === 1 ? "lg:order-2" : ""}>
             <div className="mb-2 flex items-center gap-2.5 text-accent-light">
               <feature.icon size={20} />
-              <h3 className="m-0 font-semibold text-[17px] text-text-primary">{feature.title}</h3>
+              <h2 className="m-0 font-semibold text-[17px] text-text-primary">{feature.title}</h2>
             </div>
             <p className="m-0 text-sm text-text-muted leading-relaxed">{feature.description}</p>
           </div>

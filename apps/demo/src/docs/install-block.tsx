@@ -44,6 +44,7 @@ const CopyButton = ({ text }: { text: string }) => {
 
   return (
     <button
+      aria-label="Copy to clipboard"
       className="flex items-center justify-center rounded-md p-1.5 text-text-dimmed transition-colors hover:bg-white/10 hover:text-text-primary"
       onClick={handleCopy}
       onMouseEnter={startAnimation}
