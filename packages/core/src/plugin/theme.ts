@@ -8,10 +8,11 @@ export const theme = {
     borderInput: "#444",
 
     levels: {
-      debug: { badge: "#55aa55", bg: "#1a2a1a", color: "#88bb88" },
+      // Badge colours keep at least 4.5:1 contrast against white badge text.
+      debug: { badge: "#2f7a2f", bg: "#1a2a1a", color: "#88bb88" },
       error: { badge: "#dc2626", bg: "#2a1a1a", color: "#ef4444" },
       fatal: { badge: "#b91c1c", bg: "#3a0a0a", color: "#ff6b6b" },
-      info: { badge: "#3b82f6", bg: "#1a2a3a", color: "#60a5fa" },
+      info: { badge: "#2563eb", bg: "#1a2a3a", color: "#60a5fa" },
       trace: { badge: "#5555aa", bg: "#1a1a2e", color: "#8888bb" },
       warning: { badge: "#eab308", bg: "#2a2a1a", color: "#facc15" },
     },
