@@ -48,6 +48,15 @@ export interface LogStoreOptions {
 
 const DEFAULT_MAX_RECORDS = 1000;
 
+/**
+ * Coerce a user-supplied capacity into a non-negative integer. Fractions would
+ * defeat the `size < max` capacity check and NaN would wedge the ring buffer.
+ */
+function normalizeMaxRecords(value: number | undefined): number {
+  const numeric = Math.floor(Number(value ?? DEFAULT_MAX_RECORDS));
+  return Number.isFinite(numeric) && numeric > 0 ? numeric : 0;
+}
+
 function schedule(callback: () => void): void {
   if (typeof queueMicrotask === "function") {
     queueMicrotask(callback);
@@ -67,7 +76,7 @@ function schedule(callback: () => void): void {
  * ```
  */
 export function createLogStore(options?: LogStoreOptions): LogStore {
-  let max = Math.max(0, options?.maxRecords ?? DEFAULT_MAX_RECORDS);
+  let max = normalizeMaxRecords(options?.maxRecords);
 
   // Ring buffer: `start` is the index of the oldest record, `size` the number
   // of live entries. Appending is O(1) — no per-record array copy.
@@ -153,7 +162,7 @@ export function createLogStore(options?: LogStoreOptions): LogStore {
     },
     hasListeners: () => listeners.size > 0,
     setMaxSize: (nextMax) => {
-      max = Math.max(0, nextMax);
+      max = normalizeMaxRecords(nextMax);
       if (normalize()) {
         snapshotDirty = true;
         notify();
