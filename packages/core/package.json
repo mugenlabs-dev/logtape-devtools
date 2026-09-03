@@ -73,6 +73,9 @@
     "react-dom": "^18.0.0 || ^19.0.0"
   },
   "peerDependenciesMeta": {
+    "@logtape/logtape": {
+      "optional": true
+    },
     "@tanstack/react-devtools": {
       "optional": true
     }
