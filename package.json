@@ -14,7 +14,7 @@
     "lint:fix": "biome check --write .",
     "storybook": "pnpm --filter ./packages/core run storybook",
     "test": "vitest --project=unit",
-    "test:ci": "vitest run --project=unit --passWithNoTests",
+    "test:ci": "vitest run --project=unit",
     "test:e2e": "playwright test",
     "test-storybook": "vitest run --project=storybook",
     "typecheck": "pnpm build && tsgo -p packages/core --noEmit && tsgo -p apps/demo --noEmit"
@@ -31,7 +31,7 @@
     "@typescript/native-preview": "7.0.0-dev.20260412.1",
     "@vitest/browser": "^4.1.11",
     "@vitest/browser-playwright": "^4.1.11",
-    "jsdom": "^26.1.0",
+    "jsdom": "^28.1.0",
     "satori": "^0.26.0",
     "tsup": "^8.5.1",
     "tsx": "^4.23.13",
@@ -41,7 +41,7 @@
   },
   "packageManager": "pnpm@10.6.5",
   "engines": {
-    "node": ">=18.0.0",
+    "node": ">=22.0.0",
     "pnpm": ">=10.0.0"
   },
   "pnpm": {

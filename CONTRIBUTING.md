@@ -17,7 +17,7 @@ Unit tests live next to the source they cover (`packages/core/src/**/*.test.ts`)
 
 ## Getting started
 
-Requires Node >=18 (see `.nvmrc`) and pnpm >=10.
+Requires Node 22 (see `.nvmrc`) and pnpm >=10.
 
 ```bash
 pnpm install

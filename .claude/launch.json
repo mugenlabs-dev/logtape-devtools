@@ -3,13 +3,10 @@
   "configurations": [
     {
       "name": "demo",
-      "runtimeExecutable": "/bin/sh",
-      "runtimeArgs": [
-        "-c",
-        "export PATH=/Users/eonnext/.nvm/versions/node/v22.14.0/bin:$PATH && npx vite --port 3001 --host"
-      ],
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "demo", "run", "dev"],
       "port": 3001,
-      "cwd": "apps/demo"
+      "autoPort": true
     }
   ]
 }

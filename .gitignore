@@ -10,3 +10,5 @@ coverage
 storybook-static
 playwright-report
 test-results
+*.log
+.claude/settings.local.json
