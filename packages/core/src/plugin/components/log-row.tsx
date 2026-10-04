@@ -95,10 +95,14 @@ const LogRowComponent = ({ record, expanded, onToggle }: LogRowProps) => {
         <LevelBadge level={record.level} />
 
         {/* Category */}
-        <span style={categoryStyle}>{record.category.join(".")}</span>
+        <span data-testid="log-row-category" style={categoryStyle}>
+          {record.category.join(".")}
+        </span>
 
         {/* Message */}
-        <span style={messageStyle}>{record.messageText}</span>
+        <span data-testid="log-row-message" style={messageStyle}>
+          {record.messageText}
+        </span>
 
         {/* Caller (right-aligned) */}
         {record.caller ? <span style={callerStyle}>{record.caller}</span> : null}

@@ -213,8 +213,10 @@ The shared `LogStore` instance (created with the default `maxRecords: 1000`) use
 | `timestamp` | `number` | Creation time in ms since the Unix epoch |
 | `level` | `LogLevel` | Severity of the record |
 | `category` | `string[]` | Logger category path, e.g. `["app", "auth"]` |
+| `categoryKey` | `string \| undefined` | Precomputed `category.join(".")` for filter/search (set by the sink) |
 | `message` | `unknown[]` | Raw message parts, alternating literals and interpolated values |
 | `messageText` | `string` | Message parts rendered into one searchable string (computed lazily on first access) |
+| `messageSearchText` | `string \| undefined` | Cached lowercase `messageText` for search (lazy; set by the sink) |
 | `properties` | `Record<string, unknown>` | Structured properties, deep-cloned for safety |
 | `caller` | `string \| undefined` | Source location, present only when stack capture ran |
 
