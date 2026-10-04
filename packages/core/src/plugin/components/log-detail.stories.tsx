@@ -1,6 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect } from "storybook/test";
-import { debugNoCaller, errorRecord, infoRecord, simpleInfoRecord } from "../__stories__/fixtures";
+import {
+  debugNoCaller,
+  errorRecord,
+  infoRecord,
+  simpleInfoRecord,
+  unknownLevelRecord,
+} from "../__stories__/fixtures";
 import { theme } from "../theme";
 import { LogDetail } from "./log-detail";
 
@@ -52,6 +58,18 @@ export const WithoutProperties: Story = {
       // Data label should not be present when properties is empty
       const dataLabels = canvas.queryAllByText("Data");
       await expect(dataLabels).toHaveLength(0);
+    });
+  },
+};
+
+export const UnknownLevel: Story = {
+  args: { record: unknownLevelRecord },
+  play: async ({ canvas, step }) => {
+    await step("Unknown levels render without throwing", async () => {
+      const detail = await canvas.findByTestId("log-detail");
+      await expect(canvas.getByText("hypothetical")).toBeInTheDocument();
+      await expect(canvas.getByText("A future LogTape level")).toBeInTheDocument();
+      await expect(detail).toHaveStyle({ backgroundColor: theme.colors.levels.info.bg });
     });
   },
 };

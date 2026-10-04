@@ -33,7 +33,7 @@ Full package documentation lives in [`packages/core/README.md`](./packages/core/
 
 ## Development
 
-Requires Node >=18 and pnpm >=10.
+Requires Node 24 LTS (see `.nvmrc`) and pnpm >=10.
 
 ```bash
 pnpm install

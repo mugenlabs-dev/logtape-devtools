@@ -244,12 +244,12 @@ The shared `LogStore` instance (created with the default `maxRecords: 1000`) use
 
 | Peer dependency | Range | Notes |
 | --- | --- | --- |
-| `@logtape/logtape` | `>=2.0.0` | **Optional** — only types are imported; you need it to configure LogTape anyway |
+| `@logtape/logtape` | `^2.0.0` | **Optional** — only types are imported; you need it to configure LogTape anyway |
 | `react` | `^18.0.0 \|\| ^19.0.0` | Required for the panel |
 | `react-dom` | `^18.0.0 \|\| ^19.0.0` | Required for the panel |
-| `@tanstack/react-devtools` | `>=0.9.0` | **Optional** — only needed to host the panel |
+| `@tanstack/react-devtools` | `^0.9.0` | **Optional** — only needed to host the panel. Bound to 0.9.x because 0.10 changed how props are passed into plugins |
 
-Node `>=18`. The package is published as ESM only (`import` condition, no `require()`). `@tanstack/react-devtools` being optional means you can depend on this package purely for the sink (via `@mugenlabs/logtape-devtools/sink`) without installing the DevTools shell.
+Node `>=24.0.0` (Active LTS). The package is published as ESM only (`import` condition, no `require()`). `@tanstack/react-devtools` being optional means you can depend on this package purely for the sink (via `@mugenlabs/logtape-devtools/sink`) without installing the DevTools shell.
 
 ## Demo
 
