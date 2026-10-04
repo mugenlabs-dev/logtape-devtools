@@ -14,6 +14,7 @@ export default defineConfig({
   },
   external: ["react", "react-dom", "@logtape/logtape"],
   format: ["esm"],
+  minify: true,
   outExtension: () => ({ js: ".mjs" }),
-  sourcemap: true,
+  sourcemap: false,
 });

@@ -71,8 +71,11 @@ function captureCallerInfo(): string | undefined {
 
 function normalizeRecord(record: LogRecord, captureStack: boolean, id: string): DevtoolsLogRecord {
   const message = [...record.message];
+  const category = [...record.category];
   const normalized = {
-    category: [...record.category],
+    category,
+    // Joined once at normalize time so filter/search hot paths avoid `.join` per render.
+    categoryKey: category.join("."),
     id,
     level: record.level as LogLevel,
     message,
@@ -89,6 +92,20 @@ function normalizeRecord(record: LogRecord, captureStack: boolean, id: string): 
     get: () => {
       messageText ??= renderMessage(message);
       return messageText;
+    },
+  });
+
+  // Lowercasing is deferred with messageText so cold ingest stays cheap.
+  let messageSearchText: string | undefined;
+  Object.defineProperty(normalized, "messageSearchText", {
+    configurable: true,
+    enumerable: true,
+    get: () => {
+      if (messageSearchText === undefined) {
+        messageText ??= renderMessage(message);
+        messageSearchText = messageText.toLowerCase();
+      }
+      return messageSearchText;
     },
   });
 

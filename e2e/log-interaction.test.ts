@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import {
   clickInDevTools,
   emitAllLevels,
+  emitLog,
   openDevToolsPanel,
   waitForLogCount,
   waitForPlaygroundReady,
@@ -43,6 +44,18 @@ test.describe("Log Interaction", () => {
       },
       { timeout: 5000 }
     );
+
+    const countWhilePaused = await page.locator("[data-testid='log-row']").count();
+    await emitLog(page, "info");
+    await emitLog(page, "error");
+    // Give the store a chance to flush; the paused panel must not grow.
+    await page.waitForTimeout(300);
+    await expect(page.locator("[data-testid='log-row']")).toHaveCount(countWhilePaused);
+
+    await clickInDevTools(page, "button[title='Resume live updates']");
+    await expect(page.locator("[data-testid='log-row']")).toHaveCount(countWhilePaused + 2, {
+      timeout: 5000,
+    });
   });
 
   test("clear removes all logs", async ({ page }) => {
