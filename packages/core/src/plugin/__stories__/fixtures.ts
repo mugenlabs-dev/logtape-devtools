@@ -1,4 +1,4 @@
-import type { DevtoolsLogRecord } from "../../types";
+import type { DevtoolsLogRecord, LogLevel } from "../../types";
 
 let idCounter = 0;
 
@@ -74,6 +74,13 @@ export const debugNoCaller = makeRecord({
   level: "debug",
   messageText: "Database connection established",
   properties: { host: "localhost", port: 5432 },
+});
+
+/** A level this package does not have theme tokens for (future LogTape values). */
+export const unknownLevelRecord = makeRecord({
+  category: ["app", "future"],
+  level: "hypothetical" as LogLevel,
+  messageText: "A future LogTape level",
 });
 
 export const allLevelRecords: DevtoolsLogRecord[] = [

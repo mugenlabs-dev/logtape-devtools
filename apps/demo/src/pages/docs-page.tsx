@@ -599,11 +599,14 @@ export const DocsPage = () => (
         <div className="mt-8 rounded-lg border border-border-secondary bg-card-bg p-5">
           <h3 className="mb-2 font-semibold text-sm text-text-primary">Compatibility</h3>
           <p className="text-sm text-text-muted leading-relaxed">
-            Requires <code className="text-text-primary">@logtape/logtape</code> 2.0 or newer and
-            React 18 or 19. <code className="text-text-primary">@tanstack/react-devtools</code>{" "}
-            (0.9.0 or newer) is an optional peer dependency — you only need it to host the panel, so
-            you can depend on this package purely for the sink via the{" "}
-            <code className="text-text-primary">/sink</code> subpath. Node 18 or newer.
+            Requires <code className="text-text-primary">@logtape/logtape</code>{" "}
+            <code className="text-text-primary">^2.0.0</code> and React 18 or 19.{" "}
+            <code className="text-text-primary">@tanstack/react-devtools</code>{" "}
+            <code className="text-text-primary">^0.9.0</code> is an optional peer dependency — you
+            only need it to host the panel, so you can depend on this package purely for the sink
+            via the <code className="text-text-primary">/sink</code> subpath. Node 24 LTS or newer.
+            The TanStack peer is capped at 0.9.x because 0.10 changed how props are passed into
+            plugins.
           </p>
         </div>
       </section>

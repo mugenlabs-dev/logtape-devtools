@@ -24,7 +24,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: ".nvmrc"
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
@@ -51,7 +51,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: ".nvmrc"
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
@@ -87,7 +87,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: ".nvmrc"
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
@@ -118,7 +118,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: ".nvmrc"
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
@@ -134,10 +134,44 @@ jobs:
           echo "preview-url=$url" >> "$GITHUB_OUTPUT"
 
   # ─────────────────────────────────────────────
-  # Job 5: E2E tests against preview
+  # Job 5: E2E tests against localhost (PRs and main)
   # ─────────────────────────────────────────────
   e2e:
     name: E2E Tests
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --user 1001
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Run E2E tests
+        run: pnpm build && pnpm test:e2e
+        env:
+          CI: true
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
+  # ─────────────────────────────────────────────
+  # Job 6: E2E tests against the main preview deploy
+  # ─────────────────────────────────────────────
+  e2e-preview:
+    name: E2E Tests (preview)
     needs: deploy-preview
     runs-on: ubuntu-latest
     container:
@@ -150,7 +184,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: ".nvmrc"
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
@@ -166,17 +200,17 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
-          name: playwright-report
+          name: playwright-report-preview
           path: playwright-report/
           retention-days: 30
 
   # ─────────────────────────────────────────────
-  # Job 6: Promote to Production
+  # Job 7: Promote to Production
   # ─────────────────────────────────────────────
   promote:
     name: Promote to Production
     runs-on: ubuntu-latest
-    needs: [e2e, deploy-preview]
+    needs: [e2e, e2e-preview, deploy-preview]
     steps:
       - run: npm add -g vercel
       - name: Promote preview to production
