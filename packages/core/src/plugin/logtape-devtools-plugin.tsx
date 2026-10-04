@@ -73,9 +73,11 @@ const compactButtonStyle = {
   transition: "filter 0.1s",
 } as const;
 
-export const LogTapeDevtoolsPlugin = ({ store }: Props) => {
-  const allRecords = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
+function categoryKeyOf(record: DevtoolsLogRecord): string {
+  return record.categoryKey ?? record.category.join(".");
+}
 
+export const LogTapeDevtoolsPlugin = ({ store }: Props) => {
   const [paused, setPaused] = useState(false);
   const [pausedRecords, setPausedRecords] = useState<DevtoolsLogRecord[]>([]);
   const [levelFilter, setLevelFilter] = useState<Set<LogLevel>>(new Set());
@@ -84,9 +86,25 @@ export const LogTapeDevtoolsPlugin = ({ store }: Props) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
+  // While paused, unsubscribe so coalesced store flushes do not re-render the
+  // panel/toolbar/virtualizer. Resuming recreates the subscribe callback and
+  // useSyncExternalStore re-reads the live snapshot.
+  const subscribe = useCallback(
+    (onStoreChange: () => void) => {
+      if (paused) {
+        // No-op unsubscribe: skip store notifications for the pause window.
+        return () => undefined;
+      }
+      return store.subscribe(onStoreChange);
+    },
+    [store, paused]
+  );
+
+  const allRecords = useSyncExternalStore(subscribe, store.getSnapshot, store.getSnapshot);
+
   const handlePause = useCallback(() => {
-    setPaused(true);
     setPausedRecords(store.getSnapshot());
+    setPaused(true);
   }, [store]);
 
   const handleResume = useCallback(() => {
@@ -105,35 +123,30 @@ export const LogTapeDevtoolsPlugin = ({ store }: Props) => {
   const uniqueCategories = useMemo(() => {
     const seen = new Set<string>();
     for (const r of records) {
-      seen.add(r.category.join("."));
+      seen.add(categoryKeyOf(r));
     }
     return Array.from(seen).sort();
   }, [records]);
 
-  const filteredRecords = useMemo(
-    () =>
-      records.filter((r) => {
-        if (levelFilter.size > 0 && !levelFilter.has(r.level)) {
+  const filteredRecords = useMemo(() => {
+    const term = searchText ? searchText.toLowerCase() : "";
+    return records.filter((r) => {
+      if (levelFilter.size > 0 && !levelFilter.has(r.level)) {
+        return false;
+      }
+      const categoryKey = categoryKeyOf(r);
+      if (categoryFilter.length > 0 && !categoryFilter.includes(categoryKey)) {
+        return false;
+      }
+      if (term) {
+        const messageHaystack = r.messageSearchText ?? r.messageText.toLowerCase();
+        if (!(messageHaystack.includes(term) || categoryKey.toLowerCase().includes(term))) {
           return false;
         }
-        if (categoryFilter.length > 0 && !categoryFilter.includes(r.category.join("."))) {
-          return false;
-        }
-        if (searchText) {
-          const term = searchText.toLowerCase();
-          if (
-            !(
-              r.messageText.toLowerCase().includes(term) ||
-              r.category.join(".").toLowerCase().includes(term)
-            )
-          ) {
-            return false;
-          }
-        }
-        return true;
-      }),
-    [records, levelFilter, categoryFilter, searchText]
-  );
+      }
+      return true;
+    });
+  }, [records, levelFilter, categoryFilter, searchText]);
 
   return (
     <div style={rootStyle}>
