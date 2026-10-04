@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect, waitFor } from "storybook/test";
-import { withLogStore, withPluginContainer } from "./__stories__/decorators";
-import { allLevelRecords, typicalRecords } from "./__stories__/fixtures";
+import { getActiveStoryStore, withLogStore, withPluginContainer } from "./__stories__/decorators";
+import { allLevelRecords, makeRecord, typicalRecords } from "./__stories__/fixtures";
 import { LogTapeDevtoolsPlugin } from "./logtape-devtools-plugin";
 
 const meta: Meta<typeof LogTapeDevtoolsPlugin> = {
@@ -64,10 +64,27 @@ export const PauseResume: Story = {
       await userEvent.click(pauseBtn);
       await expect(canvas.getByRole("button", { name: /Resume/ })).toBeInTheDocument();
     });
-    await step("Resume logs", async () => {
+    await step("Emit while paused does not change visible rows", async () => {
+      const before = canvas.getAllByTestId("log-row").length;
+      getActiveStoryStore().addRecord(
+        makeRecord({
+          category: ["pause", "test"],
+          level: "info",
+          messageText: "emitted-while-paused-unique",
+        })
+      );
+      // Store notifies on a microtask; the paused panel must ignore it.
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      await expect(canvas.getAllByTestId("log-row")).toHaveLength(before);
+      await expect(canvas.queryByText("emitted-while-paused-unique")).not.toBeInTheDocument();
+    });
+    await step("Resume shows logs emitted while paused", async () => {
       const resumeBtn = canvas.getByRole("button", { name: /Resume/ });
       await userEvent.click(resumeBtn);
       await expect(canvas.getByRole("button", { name: /Pause/ })).toBeInTheDocument();
+      await waitFor(() => {
+        expect(canvas.getByText("emitted-while-paused-unique")).toBeInTheDocument();
+      });
     });
   },
 };

@@ -10,12 +10,22 @@ export interface DevtoolsLogRecord {
   caller?: string;
   /** Logger category path, e.g. `["app", "auth"]`. */
   category: string[];
+  /**
+   * Precomputed `category.join(".")` for filter/search hot paths.
+   * Optional so hand-built fixtures and older snapshots keep working.
+   */
+  categoryKey?: string;
   /** Unique identifier, stable for the lifetime of the record. */
   id: string;
   /** Severity of the record. */
   level: LogLevel;
   /** Raw message parts, alternating literals and interpolated values. */
   message: unknown[];
+  /**
+   * Cached lowercase {@link messageText} for search.
+   * Optional; when omitted the panel falls back to `messageText.toLowerCase()`.
+   */
+  messageSearchText?: string;
   /** Message parts rendered into a single searchable string. */
   messageText: string;
   /** Structured properties attached to the log call, deep-cloned for safety. */

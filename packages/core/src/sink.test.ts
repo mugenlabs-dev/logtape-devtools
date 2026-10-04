@@ -29,6 +29,7 @@ describe("createDevtoolsSink", () => {
     expect(snap).toHaveLength(1);
     expect(snap[0].messageText).toBe("hello world");
     expect(snap[0].category).toEqual(["test", "unit"]);
+    expect(snap[0].categoryKey).toBe("test.unit");
     expect(snap[0].level).toBe("info");
     expect(snap[0].properties).toEqual({ foo: "bar" });
   });
@@ -190,6 +191,22 @@ describe("createDevtoolsSink", () => {
     expect(record.messageText).toBe('value: "rendered"');
     expect(heavy.toJSON).toHaveBeenCalledTimes(1);
     expect(Object.keys(record)).toContain("messageText");
+  });
+
+  it("precomputes categoryKey and lazy messageSearchText", () => {
+    const store = createLogStore();
+    const sink = createDevtoolsSink({ store });
+    const heavy = { toJSON: vi.fn(() => "Rendered") };
+    sink(makeLogRecord({ category: ["app", "auth"], message: ["Hello ", heavy] }));
+
+    const [record] = store.getSnapshot();
+    expect(record.categoryKey).toBe("app.auth");
+    expect(heavy.toJSON).not.toHaveBeenCalled();
+    expect(record.messageSearchText).toBe('hello "rendered"');
+    expect(record.messageText).toBe('Hello "Rendered"');
+    expect(heavy.toJSON).toHaveBeenCalledTimes(1);
+    expect(record.messageSearchText).toBe('hello "rendered"');
+    expect(heavy.toJSON).toHaveBeenCalledTimes(1);
   });
 
   it("stops writing once disposed", () => {

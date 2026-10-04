@@ -6,13 +6,17 @@ export const makeRecord = (
   overrides: Partial<DevtoolsLogRecord> & Pick<DevtoolsLogRecord, "level">
 ): DevtoolsLogRecord => {
   idCounter += 1;
+  const category = overrides.category ?? ["app"];
+  const messageText = overrides.messageText ?? "Log message";
   return {
     caller: overrides.caller,
-    category: overrides.category ?? ["app"],
+    category,
+    categoryKey: overrides.categoryKey ?? category.join("."),
     id: `story-log-${idCounter}`,
     level: overrides.level,
-    message: overrides.message ?? [overrides.messageText ?? "Log message"],
-    messageText: overrides.messageText ?? "Log message",
+    message: overrides.message ?? [messageText],
+    messageSearchText: overrides.messageSearchText ?? messageText.toLowerCase(),
+    messageText,
     properties: overrides.properties ?? {},
     timestamp: Date.now() - idCounter * 1000,
   };
