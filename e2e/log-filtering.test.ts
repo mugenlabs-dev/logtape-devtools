@@ -27,17 +27,20 @@ test.describe("Log Filtering", () => {
     const before = await page.locator("[data-testid='log-row']").count();
     expect(before).toBe(7);
 
-    // Playground messages are random, so pick a token that currently matches
-    // exactly one visible row and assert the filter narrows to that row.
+    // Search matches messageText and categoryKey, not timestamps/badges.
+    // Playground messages are random, so pick a token unique to one row.
     const probe = await page.evaluate(() => {
-      const texts = Array.from(document.querySelectorAll("[data-testid='log-row']")).map(
-        (row) => row.textContent ?? ""
+      const haystacks = Array.from(document.querySelectorAll("[data-testid='log-row']")).map(
+        (row) => {
+          const message = row.querySelector("[data-testid='log-row-message']")?.textContent ?? "";
+          const category = row.querySelector("[data-testid='log-row-category']")?.textContent ?? "";
+          return `${message} ${category}`.toLowerCase();
+        }
       );
-      for (const text of texts) {
-        const tokens = text.split(/[^A-Za-z0-9_./:-]+/).filter((token) => token.length >= 6);
+      for (const haystack of haystacks) {
+        const tokens = haystack.split(/[^a-z0-9_./:-]+/).filter((token) => token.length >= 5);
         for (const token of tokens) {
-          const needle = token.toLowerCase();
-          const matches = texts.filter((candidate) => candidate.toLowerCase().includes(needle));
+          const matches = haystacks.filter((candidate) => candidate.includes(token));
           if (matches.length === 1) {
             return token;
           }

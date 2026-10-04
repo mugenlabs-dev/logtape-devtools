@@ -48,8 +48,8 @@ test.describe("Log Interaction", () => {
     const countWhilePaused = await page.locator("[data-testid='log-row']").count();
     await emitLog(page, "info");
     await emitLog(page, "error");
-    // Give the store a chance to flush; the paused panel must not grow.
-    await page.waitForTimeout(300);
+    // Two extra emissions would appear within this window if Pause were still subscribed.
+    await page.evaluate(() => new Promise<void>((resolve) => window.setTimeout(resolve, 400)));
     await expect(page.locator("[data-testid='log-row']")).toHaveCount(countWhilePaused);
 
     await clickInDevTools(page, "button[title='Resume live updates']");
