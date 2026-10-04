@@ -1,7 +1,7 @@
 import { safeStringify } from "../../safe-json";
 import type { DevtoolsLogRecord } from "../../types";
 import { formatTime } from "../format";
-import { theme } from "../theme";
+import { getLevelColors, theme } from "../theme";
 
 const detailRowStyle = {
   display: "flex",
@@ -61,7 +61,7 @@ const DetailRow = ({ label, children }: { label: string; children: React.ReactNo
 );
 
 export const LogDetail = ({ record }: { record: DevtoolsLogRecord }) => {
-  const levelColors = theme.colors.levels[record.level];
+  const levelColors = getLevelColors(record.level);
   const hasProperties = Object.keys(record.properties).length > 0;
 
   return (
