@@ -45,17 +45,17 @@
     "pnpm": ">=10.0.0"
   },
   "pnpm": {
-    "auditConfig": {
-      "ignoreGhsas": [
-        "GHSA-vfj7-8cjw-p6xm"
-      ]
-    },
     "onlyBuiltDependencies": [
       "esbuild"
     ],
     "overrides": {
       "brace-expansion": ">=5.0.12",
       "undici": ">=7.29.1"
+    },
+    "auditConfig": {
+      "ignoreGhsas": [
+        "GHSA-vfj7-8cjw-p6xm"
+      ]
     }
   }
 }
