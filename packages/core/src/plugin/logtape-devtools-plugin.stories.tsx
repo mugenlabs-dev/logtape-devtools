@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect, waitFor } from "storybook/test";
-import type { LogStore } from "../store";
-import { withLogStore, withPluginContainer } from "./__stories__/decorators";
+import { getActiveStoryStore, withLogStore, withPluginContainer } from "./__stories__/decorators";
 import { allLevelRecords, makeRecord, typicalRecords } from "./__stories__/fixtures";
 import { LogTapeDevtoolsPlugin } from "./logtape-devtools-plugin";
 
@@ -59,7 +58,7 @@ export const AllLevels: Story = {
 
 export const PauseResume: Story = {
   decorators: [withLogStore(typicalRecords)],
-  play: async ({ canvas, userEvent, step, args }) => {
+  play: async ({ canvas, userEvent, step }) => {
     await step("Pause logs", async () => {
       const pauseBtn = canvas.getByRole("button", { name: /Pause/ });
       await userEvent.click(pauseBtn);
@@ -67,8 +66,7 @@ export const PauseResume: Story = {
     });
     await step("Emit while paused does not change visible rows", async () => {
       const before = canvas.getAllByTestId("log-row").length;
-      const store = args.store as LogStore;
-      store.addRecord(
+      getActiveStoryStore().addRecord(
         makeRecord({
           category: ["pause", "test"],
           level: "info",
