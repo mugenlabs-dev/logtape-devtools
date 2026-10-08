@@ -1,8 +1,22 @@
 # LogTape DevTools
 
-A TanStack DevTools plugin that brings your LogTape logs into a dedicated, filterable panel. See everything your app is logging without leaving DevTools.
+A TanStack DevTools plugin that brings your LogTape logs into a dedicated, filterable panel. See everything your app is logging without leaving DevTools — built by Mugenlabs and published on npm as `@mugenlabs/logtape-devtools`.
 
-Built for [LogTape](https://logtape.org) & [TanStack DevTools](https://tanstack.com/devtools).
+## When to use this library
+
+Use `@mugenlabs/logtape-devtools` when you already log with LogTape in a JavaScript/TypeScript app and want a DevTools panel for level filters, category search, structured property inspection, pause/resume, and a bounded memory buffer during local development.
+
+Do not expect a hosted REST API, remote log ingestion service, or official CLI that talks to a backend. There is no hosted API and no CLI. Integration is local: install the package, configure the sink, mount the plugin.
+
+## Start here
+
+- [Full documentation](https://logtape-devtools.mugenlabs.dev/docs) — installation, quick start, API reference
+- [Developer portal](https://logtape-devtools.mugenlabs.dev/developers) — links for agents and humans
+- [Playground](https://logtape-devtools.mugenlabs.dev/playground) — live demo
+- [npm](https://www.npmjs.com/package/@mugenlabs/logtape-devtools)
+- [GitHub](https://github.com/mugenlabs-dev/logtape-devtools)
+- [llms.txt](https://logtape-devtools.mugenlabs.dev/llms.txt)
+- [Site catalog](https://logtape-devtools.mugenlabs.dev/api/v1/site)
 
 ## Features
 
@@ -30,72 +44,16 @@ Pause the live stream to inspect logs without them scrolling away. Resume when y
 
 A configurable buffer keeps memory usage under control. Old logs are dropped automatically.
 
-## Installation
-
-Add to your project as a dev dependency.
+## Install
 
 ```bash
 npm install -D @mugenlabs/logtape-devtools
 ```
 
-Or install everything at once (including peer dependencies):
+Peer dependencies include `@logtape/logtape`. Host the panel with `@tanstack/react-devtools` when you want the visual UI. For React-free configuration, import from `@mugenlabs/logtape-devtools/sink`.
 
-```bash
-npm install -D @mugenlabs/logtape-devtools @logtape/logtape @tanstack/react-devtools
-```
+## Trust and contact
 
-## Quick Start
-
-Two steps: configure the sink, add the plugin.
-
-### Configure the LogTape sink
-
-```ts
-import { configure } from "@logtape/logtape";
-import { createLogTapeDevtools } from "@mugenlabs/logtape-devtools";
-
-const { sink, plugin } = createLogTapeDevtools();
-
-await configure({
-  sinks: {
-    devtools: sink,
-  },
-  loggers: [
-    {
-      category: [],
-      lowestLevel: "trace",
-      sinks: ["devtools"],
-    },
-  ],
-});
-```
-
-### Add the DevTools plugin
-
-```tsx
-import { TanStackDevtools } from "@tanstack/react-devtools";
-
-function App() {
-  return (
-    <>
-      <YourApp />
-      <TanStackDevtools plugins={[plugin]} />
-    </>
-  );
-}
-```
-
-## API Reference
-
-Exported functions and types: `createLogTapeDevtools`, `createDevtoolsSink`, `createLogTapeDevtoolsPlugin`, `createLogStore`.
-
-### Compatibility
-
-Requires `@logtape/logtape` `^2.0.0` and React 18 or 19. `@tanstack/react-devtools` `^0.9.0` is an optional peer dependency. Node 24 LTS or newer.
-
-## Links
-
-- [Docs](https://logtape-devtools.mugenlabs.dev/)
-- [Playground](https://logtape-devtools.mugenlabs.dev/playground)
-- [npm: @mugenlabs/logtape-devtools](https://www.npmjs.com/package/@mugenlabs/logtape-devtools)
-- [Sitemap](https://logtape-devtools.mugenlabs.dev/sitemap.xml)
+- [About](https://logtape-devtools.mugenlabs.dev/about)
+- [Contact — GitHub Issues only](https://github.com/mugenlabs-dev/logtape-devtools/issues)
+- [Privacy](https://logtape-devtools.mugenlabs.dev/privacy)

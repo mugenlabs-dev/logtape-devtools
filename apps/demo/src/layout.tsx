@@ -1,6 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { BookOpen } from "lucide-react";
 import { useCallback, useRef } from "react";
+import { PACKAGE_NAME, SITE_URL } from "./content/site";
 import { GradualBlur } from "./gradual-blur";
 import { type AnimatedIconHandle, GithubIcon, PlayIcon } from "./icons";
 import { ThemeToggle } from "./theme-toggle";
@@ -15,7 +16,7 @@ const NavLink = ({
   children: React.ReactNode;
 }) => {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isActive = pathname === to;
+  const isActive = pathname === to || (to === "/" && pathname === "/docs");
 
   return (
     <Link
@@ -52,9 +53,11 @@ const GithubLink = () => {
   );
 };
 
+const footerLinkClass = "text-accent-light no-underline hover:underline";
+
 export const Layout = ({ children }: { children: React.ReactNode }) => {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isDocsPage = pathname === "/";
+  const isDocsPage = pathname === "/" || pathname === "/docs";
 
   return (
     <div className="min-h-screen">
@@ -95,8 +98,51 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
         {children}
       </main>
 
-      {/* Blurred bottom fade — docs page only */}
-      {isDocsPage && <GradualBlur direction="bottom" height="120px" layers={5} maxBlur={10} />}
+      {/* Footer — extra bottom padding so links clear the fixed GradualBlur on docs */}
+      <footer
+        className={`border-border-primary border-t px-6 py-10 ${isDocsPage ? "pb-40" : "pb-16"}`}
+      >
+        <div className="mx-auto flex max-w-3xl flex-col gap-4 text-sm text-text-muted">
+          <p className="m-0 font-mono text-text-secondary">{PACKAGE_NAME}</p>
+          <p className="m-0">
+            Mugenlabs open-source LogTape DevTools plugin. Documentation and playground for agents
+            and humans.
+          </p>
+          <nav className="flex flex-wrap gap-x-4 gap-y-2">
+            <Link className={footerLinkClass} to="/docs">
+              Docs
+            </Link>
+            <Link className={footerLinkClass} to="/developers">
+              Developers
+            </Link>
+            <Link className={footerLinkClass} to="/about">
+              About
+            </Link>
+            <Link className={footerLinkClass} to="/contact">
+              Contact
+            </Link>
+            <Link className={footerLinkClass} to="/privacy">
+              Privacy
+            </Link>
+            <a className={footerLinkClass} href={`${SITE_URL}llms.txt`}>
+              llms.txt
+            </a>
+            <a
+              className={footerLinkClass}
+              href="https://github.com/mugenlabs-dev/logtape-devtools"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              GitHub
+            </a>
+          </nav>
+        </div>
+      </footer>
+
+      {/* Blurred bottom fade — docs pages only */}
+      {isDocsPage ? (
+        <GradualBlur direction="bottom" height="120px" layers={5} maxBlur={10} />
+      ) : null}
     </div>
   );
 };

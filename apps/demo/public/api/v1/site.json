@@ -5,10 +5,24 @@
     "name": "Mugenlabs",
     "url": "https://github.com/mugenlabs-dev"
   },
-  "routes": ["/", "/playground"],
+  "routes": [
+    "/",
+    "/docs",
+    "/developers",
+    "/playground",
+    "/about",
+    "/contact",
+    "/privacy"
+  ],
   "links": {
     "homepage": "https://logtape-devtools.mugenlabs.dev/",
+    "docs": "https://logtape-devtools.mugenlabs.dev/docs",
+    "developers": "https://logtape-devtools.mugenlabs.dev/developers",
     "playground": "https://logtape-devtools.mugenlabs.dev/playground",
+    "about": "https://logtape-devtools.mugenlabs.dev/about",
+    "contact": "https://logtape-devtools.mugenlabs.dev/contact",
+    "privacy": "https://logtape-devtools.mugenlabs.dev/privacy",
+    "llms": "https://logtape-devtools.mugenlabs.dev/llms.txt",
     "openapi": "https://logtape-devtools.mugenlabs.dev/openapi.json",
     "apiCatalog": "https://logtape-devtools.mugenlabs.dev/.well-known/api-catalog",
     "sitemap": "https://logtape-devtools.mugenlabs.dev/sitemap.xml",

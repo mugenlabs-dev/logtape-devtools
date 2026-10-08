@@ -74,6 +74,26 @@
       "dest": "/index.html"
     },
     {
+      "src": "^/docs/?$",
+      "dest": "/index.html"
+    },
+    {
+      "src": "^/developers/?$",
+      "dest": "/index.html"
+    },
+    {
+      "src": "^/about/?$",
+      "dest": "/index.html"
+    },
+    {
+      "src": "^/contact/?$",
+      "dest": "/index.html"
+    },
+    {
+      "src": "^/privacy/?$",
+      "dest": "/index.html"
+    },
+    {
       "src": "/(.*)",
       "has": [
         {
