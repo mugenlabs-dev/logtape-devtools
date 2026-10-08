@@ -1,0 +1,19 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://logtape-devtools.mugenlabs.dev/api/v1/site",
+      "service-desc": [
+        {
+          "href": "https://logtape-devtools.mugenlabs.dev/openapi.json",
+          "type": "application/vnd.oai.openapi+json"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://logtape-devtools.mugenlabs.dev/",
+          "type": "text/html"
+        }
+      ]
+    }
+  ]
+}
