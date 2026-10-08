@@ -12,6 +12,47 @@
     <link href="https://logtape-devtools.mugenlabs.dev/" rel="canonical">
     <link href="/favicon.png" rel="icon" type="image/png">
     <meta content="#0a0a0a" name="theme-color">
+    <!-- JSON-LD: Organization contactPoint is GitHub Issues only (no PostalAddress). -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "SoftwareApplication",
+            "name": "LogTape DevTools",
+            "applicationCategory": "DeveloperApplication",
+            "operatingSystem": "Web",
+            "description": "A TanStack DevTools plugin for inspecting LogTape logs in the browser",
+            "url": "https://logtape-devtools.mugenlabs.dev/",
+            "downloadUrl": "https://www.npmjs.com/package/@mugenlabs/logtape-devtools",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "author": {
+              "@type": "Organization",
+              "name": "Mugenlabs"
+            },
+            "sameAs": [
+              "https://www.npmjs.com/package/@mugenlabs/logtape-devtools",
+              "https://github.com/mugenlabs-dev/logtape-devtools"
+            ]
+          },
+          {
+            "@type": "Organization",
+            "name": "Mugenlabs",
+            "url": "https://github.com/mugenlabs-dev/logtape-devtools",
+            "sameAs": ["https://github.com/mugenlabs-dev/logtape-devtools"],
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "contactType": "customer support",
+              "url": "https://github.com/mugenlabs-dev/logtape-devtools/issues"
+            }
+          }
+        ]
+      }
+    </script>
     <!-- Open Graph -->
     <meta content="LogTape DevTools" property="og:title">
     <meta
