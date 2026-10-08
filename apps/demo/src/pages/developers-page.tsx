@@ -1,12 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import {
-  GITHUB_REPO_URL,
-  NPM_URL,
-  ORG_NAME,
-  PACKAGE_NAME,
-  SITE_NAME,
-  SITE_URL,
-} from "../content/site";
+import { GITHUB_REPO_URL, NPM_URL, ORG_NAME, SITE_NAME, SITE_URL } from "../content/site";
+import { PackageName } from "../package-name";
 import { ContentPage } from "./content-page";
 
 export const DevelopersPage = () => (
@@ -52,7 +46,7 @@ export const DevelopersPage = () => (
     <ul>
       <li>
         <a href={NPM_URL} rel="noopener noreferrer" target="_blank">
-          npm: {PACKAGE_NAME}
+          npm: <PackageName />
         </a>
       </li>
       <li>

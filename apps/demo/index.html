@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
     <title>LogTape DevTools</title>
     <meta
       content="A TanStack DevTools plugin for inspecting LogTape logs in the browser"
@@ -87,8 +87,7 @@
       }
       const root = document.documentElement;
       root.dataset.theme = theme;
-      root.style.setProperty("--bg-primary", theme === "light" ? "#f8f8f8" : "#0a0a0a");
-      root.style.setProperty("--text-primary", theme === "light" ? "#1a1a1a" : "#fff");
+      root.style.colorScheme = theme;
     })();
     </script>
   </head>
