@@ -29,6 +29,7 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
     "@typescript/native-preview": "7.0.0-dev.20260412.1",
+    "@vercel/functions": "^3.9.11",
     "@vitest/browser": "^4.1.11",
     "@vitest/browser-playwright": "^4.1.11",
     "jsdom": "^28.1.0",

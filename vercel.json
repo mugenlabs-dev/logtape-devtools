@@ -6,7 +6,11 @@
   "outputDirectory": "apps/demo/dist",
   "rewrites": [
     {
-      "source": "/((?!assets).*)",
+      "source": "/playground",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/playground/",
       "destination": "/index.html"
     }
   ]
