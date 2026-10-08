@@ -1,0 +1,24 @@
+{
+  "name": "@mugenlabs/logtape-devtools",
+  "description": "A TanStack DevTools plugin for inspecting LogTape logs in the browser",
+  "organization": {
+    "name": "Mugenlabs",
+    "url": "https://github.com/mugenlabs-dev"
+  },
+  "routes": ["/", "/playground"],
+  "links": {
+    "homepage": "https://logtape-devtools.mugenlabs.dev/",
+    "playground": "https://logtape-devtools.mugenlabs.dev/playground",
+    "openapi": "https://logtape-devtools.mugenlabs.dev/openapi.json",
+    "apiCatalog": "https://logtape-devtools.mugenlabs.dev/.well-known/api-catalog",
+    "sitemap": "https://logtape-devtools.mugenlabs.dev/sitemap.xml",
+    "markdown": "https://logtape-devtools.mugenlabs.dev/index.md"
+  },
+  "github": "https://github.com/mugenlabs-dev/logtape-devtools",
+  "githubIssues": "https://github.com/mugenlabs-dev/logtape-devtools/issues",
+  "npm": "https://www.npmjs.com/package/@mugenlabs/logtape-devtools",
+  "serverApi": {
+    "note": "This host exposes only a read-only site catalog of public documentation links. The product itself is an npm library (browser DevTools panel), not a hosted application API. There is no CLI and no remote log ingestion API.",
+    "openapi": "https://logtape-devtools.mugenlabs.dev/openapi.json"
+  }
+}
