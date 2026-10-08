@@ -2,6 +2,7 @@ import type { Variants } from "motion/react";
 import { motion, useAnimation } from "motion/react";
 import type { HTMLAttributes } from "react";
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
+import { shouldReduceMotion } from "./prefers-reduced-motion";
 
 export interface PlayIconHandle {
   startAnimation: () => void;
@@ -38,7 +39,11 @@ const PlayIcon = forwardRef<PlayIconHandle, PlayIconProps>(
       isControlledRef.current = true;
 
       return {
-        startAnimation: () => controls.start("animate"),
+        startAnimation: () => {
+          if (!shouldReduceMotion()) {
+            void controls.start("animate");
+          }
+        },
         stopAnimation: () => controls.start("normal"),
       };
     });
@@ -47,8 +52,8 @@ const PlayIcon = forwardRef<PlayIconHandle, PlayIconProps>(
       (e: React.MouseEvent<HTMLDivElement>) => {
         if (isControlledRef.current) {
           onMouseEnter?.(e);
-        } else {
-          controls.start("animate");
+        } else if (!shouldReduceMotion()) {
+          void controls.start("animate");
         }
       },
       [controls, onMouseEnter]

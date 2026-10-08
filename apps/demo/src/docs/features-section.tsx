@@ -62,13 +62,10 @@ const FEATURES: {
 ];
 
 export const FeaturesSection = () => (
-  <section className="mx-auto max-w-4xl px-6 pb-24">
+  <section className="pb-24 content-grid content-grid--wide">
     <div className="flex flex-col gap-14">
       {FEATURES.map((feature, index) => (
-        <div
-          className="grid grid-cols-1 items-center gap-6 lg:grid-cols-2 lg:gap-12"
-          key={feature.title}
-        >
+        <div className="feature-grid" key={feature.title}>
           <div className={index % 2 === 1 ? "lg:order-2" : ""}>
             <div className="mb-2 flex items-center gap-2.5 text-accent-light">
               <feature.icon size={20} />

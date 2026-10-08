@@ -45,7 +45,7 @@ const CopyButton = ({ text }: { text: string }) => {
   return (
     <button
       aria-label="Copy to clipboard"
-      className="flex items-center justify-center rounded-md p-1.5 text-text-dimmed transition-colors hover:bg-white/10 hover:text-text-primary"
+      className="lt-control lt-copy lt-hit-44 flex items-center justify-center rounded-md p-1.5 text-text-dimmed"
       onClick={handleCopy}
       onMouseEnter={startAnimation}
       onMouseLeave={stopAnimation}
@@ -66,17 +66,15 @@ export const InstallBlock = ({ dev = true, packages }: { dev?: boolean; packages
   const command = getCommand(pm, packages, dev);
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border-secondary">
+    <div className="overflow-clip rounded-lg border border-border-secondary">
       <div className="flex border-border-secondary border-b bg-bg-tertiary">
         {MANAGERS.map((m) => {
           const Icon = pmIcons[m];
           const active = pm === m;
           return (
             <button
-              className={`flex items-center gap-1.5 px-4 py-2 font-medium text-sm transition-colors ${
-                active
-                  ? "border-accent border-b-2 text-accent-light"
-                  : "text-text-muted hover:text-text-primary"
+              className={`lt-control lt-pm-tab flex items-center gap-1.5 px-4 py-2 font-medium text-sm ${
+                active ? "border-accent border-b-2 text-accent-light" : "text-text-muted"
               }`}
               key={m}
               onClick={() => setPm(m)}

@@ -223,91 +223,102 @@ export const PlaygroundPage = () => {
   );
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-12 pb-96">
-      <h1 className="mb-2 font-bold text-3xl text-text-primary">Playground</h1>
-      <p className="mb-8 text-text-muted">
-        Generate logs to see them appear in the LogTape DevTools panel below.
-      </p>
+    <div className="py-12 pb-96 content-grid content-grid--header">
+      <div>
+        <h1
+          className="mb-2 font-bold text-text-primary"
+          style={{ fontSize: "var(--text-page-title)" }}
+        >
+          Playground
+        </h1>
+        <p className="mb-8 text-text-muted">
+          Generate logs to see them appear in the LogTape DevTools panel below.
+        </p>
 
-      {ready ? (
-        <div className="space-y-6">
-          {/* Auto-log controls */}
-          <div className="flex flex-wrap items-center gap-4 rounded-xl border border-border-secondary bg-card-bg p-5">
-            <button
-              className={`rounded-lg px-5 py-2.5 font-semibold text-sm transition-colors ${
-                autoLog
-                  ? "bg-red-500/15 text-red-400 hover:bg-red-500/25"
-                  : "bg-accent/15 text-accent-light hover:bg-accent/25"
-              }`}
-              onClick={() => setAutoLog((v) => !v)}
-              type="button"
-            >
-              {autoLog ? "⏹ Stop Auto-Log" : "▶ Start Auto-Log"}
-            </button>
-            <label className="flex items-center gap-2 text-sm text-text-muted">
-              Speed:
-              <select
-                className="rounded-md border border-border-secondary bg-bg-tertiary px-3 py-1.5 text-sm text-text-primary"
-                onChange={(e) => setSpeed(Number(e.target.value))}
-                value={speed}
+        {ready ? (
+          <div className="space-y-6">
+            {/* Auto-log controls */}
+            <div className="flex flex-wrap items-center gap-4 rounded-xl border border-border-secondary bg-card-bg p-5">
+              <button
+                className={`lt-control rounded-lg px-5 py-2.5 font-semibold text-sm ${
+                  autoLog
+                    ? "lt-control--danger-soft bg-red-500/15 text-red-400"
+                    : "lt-control--accent-soft bg-accent/15 text-accent-light"
+                }`}
+                onClick={() => setAutoLog((v) => !v)}
+                type="button"
               >
-                <option value={1000}>Slow (1/s)</option>
-                <option value={500}>Medium (2/s)</option>
-                <option value={200}>Fast (5/s)</option>
-                <option value={50}>Burst (20/s)</option>
-              </select>
-            </label>
-          </div>
-
-          {/* Manual log buttons */}
-          <div className="rounded-xl border border-border-secondary bg-card-bg p-5">
-            <h3 className="mb-3 font-medium text-sm text-text-muted">Emit single log:</h3>
-            <div className="flex flex-wrap gap-2">
-              {levels.map((level) => {
-                const colorMap: Record<string, string> = {
-                  debug: "bg-[#55aa55]/20 text-[#88bb88] hover:bg-[#55aa55]/30",
-                  error: "bg-red-500/20 text-red-400 hover:bg-red-500/30",
-                  fatal: "bg-red-700/20 text-red-300 hover:bg-red-700/30",
-                  info: "bg-blue-500/20 text-blue-400 hover:bg-blue-500/30",
-                  trace: "bg-[#5555aa]/20 text-[#8888bb] hover:bg-[#5555aa]/30",
-                  warning: "bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30",
-                };
-                return (
-                  <button
-                    className={`rounded-md px-4 py-2 font-mono font-semibold text-sm transition-colors ${colorMap[level]}`}
-                    key={level}
-                    onClick={() => emitOne(level)}
-                    type="button"
-                  >
-                    {level}
-                  </button>
-                );
-              })}
+                {autoLog ? "⏹ Stop Auto-Log" : "▶ Start Auto-Log"}
+              </button>
+              <label className="flex items-center gap-2 text-sm text-text-muted">
+                Speed:
+                <select
+                  className="rounded-md border border-border-secondary bg-bg-tertiary px-3 py-1.5 text-sm text-text-primary"
+                  onChange={(e) => setSpeed(Number(e.target.value))}
+                  value={speed}
+                >
+                  <option value={1000}>Slow (1/s)</option>
+                  <option value={500}>Medium (2/s)</option>
+                  <option value={200}>Fast (5/s)</option>
+                  <option value={50}>Burst (20/s)</option>
+                </select>
+              </label>
             </div>
-          </div>
 
-          {/* Hint */}
-          <p className="text-sm text-text-dimmed">
-            Open the DevTools panel at the bottom of the page to see your logs.
-          </p>
-
-          {/* Source code reference */}
-          <details className="group rounded-xl border border-border-secondary bg-card-bg">
-            <summary className="flex cursor-pointer list-none items-center gap-2 p-5 font-medium text-sm text-text-muted [&::-webkit-details-marker]:hidden">
-              <ChevronRightIcon className="transition-transform group-open:rotate-90" size={14} />
-              How this playground works
-            </summary>
-            <div className="px-5 pb-5">
-              <CodeBlock code={EXAMPLE_CODE} lang="tsx" />
+            {/* Manual log buttons */}
+            <div className="rounded-xl border border-border-secondary bg-card-bg p-5">
+              <h3 className="mb-3 font-medium text-sm text-text-muted">Emit single log:</h3>
+              <div className="flex flex-wrap gap-2">
+                {levels.map((level) => {
+                  const colorMap: Record<string, string> = {
+                    debug: "bg-[#55aa55]/20 text-[#88bb88]",
+                    error: "bg-red-500/20 text-red-400",
+                    fatal: "bg-red-700/20 text-red-300",
+                    info: "bg-blue-500/20 text-blue-400",
+                    trace: "bg-[#5555aa]/20 text-[#8888bb]",
+                    warning: "bg-yellow-500/20 text-yellow-400",
+                  };
+                  return (
+                    <button
+                      className={`lt-control rounded-md px-4 py-2 font-mono font-semibold text-sm ${colorMap[level]}`}
+                      key={level}
+                      onClick={() => emitOne(level)}
+                      type="button"
+                    >
+                      {level}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </details>
-        </div>
-      ) : (
-        <div className="text-text-muted">Initializing LogTape…</div>
-      )}
 
-      {/* TanStack Devtools */}
-      <TanStackDevtools config={{ defaultOpen: false }} plugins={[devtoolsPlugin]} />
+            {/* Hint */}
+            <p className="text-sm text-text-dimmed">
+              Open the DevTools panel at the bottom of the page to see your logs.
+            </p>
+
+            {/* Source code reference — padding on inner wrapper, not ::details-content (M7) */}
+            <details className="lt-accordion group rounded-xl border border-border-secondary bg-card-bg">
+              <summary className="flex cursor-pointer list-none items-center gap-2 p-5 font-medium text-sm text-text-muted [&::-webkit-details-marker]:hidden">
+                <ChevronRightIcon
+                  className="lt-chevron transition-transform duration-200 group-open:rotate-90"
+                  size={14}
+                  style={{ transitionTimingFunction: "var(--ease-out)" }}
+                />
+                How this playground works
+              </summary>
+              <div className="px-5 pb-5">
+                <CodeBlock code={EXAMPLE_CODE} lang="tsx" />
+              </div>
+            </details>
+          </div>
+        ) : (
+          <div className="text-text-muted">Initializing LogTape…</div>
+        )}
+
+        {/* TanStack Devtools */}
+        <TanStackDevtools config={{ defaultOpen: false }} plugins={[devtoolsPlugin]} />
+      </div>
     </div>
   );
 };

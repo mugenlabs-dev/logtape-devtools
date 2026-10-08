@@ -133,26 +133,26 @@ const FloatingButtons = () => {
   }, [update]);
 
   const scrollToDocs = useCallback(() => {
-    document.querySelector("#installation")?.scrollIntoView({ behavior: "smooth" });
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    document
+      .querySelector("#installation")
+      ?.scrollIntoView({ behavior: reduce ? "auto" : "smooth" });
   }, []);
 
   const scrollToTop = useCallback(() => {
-    window.scrollTo({ behavior: "smooth", top: 0 });
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ behavior: reduce ? "auto" : "smooth", top: 0 });
   }, []);
 
   return (
     <>
       {/* Scroll to documentation */}
-      <div className="pointer-events-none fixed inset-x-0 bottom-8 z-50 flex justify-center">
+      <div className="lt-float-wrap">
         <button
-          className="pointer-events-auto flex items-center gap-2 rounded-full border border-accent/30 bg-bg-primary/80 px-5 py-2.5 font-medium text-accent-light text-sm shadow-lg backdrop-blur-md transition-all hover:border-accent/50 hover:bg-bg-primary/90"
+          className={`lt-float lt-float--docs flex items-center gap-2 rounded-full border border-accent/30 bg-bg-primary/80 px-5 py-2.5 font-medium text-accent-light text-sm shadow-lg backdrop-blur-md ${
+            showDocs ? "is-visible" : "is-hidden"
+          }`}
           onClick={scrollToDocs}
-          style={{
-            opacity: showDocs ? 1 : 0,
-            pointerEvents: showDocs ? "auto" : "none",
-            transform: showDocs ? "translateY(0)" : "translateY(20px)",
-            transition: "opacity 0.3s, transform 0.3s",
-          }}
           type="button"
         >
           <BookOpen size={14} />
@@ -161,18 +161,14 @@ const FloatingButtons = () => {
       </div>
 
       {/* Scroll to top */}
-      <div className="pointer-events-none fixed inset-x-0 bottom-8 z-50 mx-auto flex max-w-5xl justify-end px-6">
+      <div className="lt-float-wrap lt-float-wrap--end">
         <button
-          className="pointer-events-auto flex size-10 items-center justify-center rounded-full border border-border-secondary bg-bg-primary/80 text-text-muted shadow-md backdrop-blur-md transition-all hover:border-accent/40 hover:text-accent-light"
+          className={`lt-float lt-float--top lt-hit-44 flex size-10 items-center justify-center rounded-full border border-border-secondary bg-bg-primary/80 text-text-muted shadow-md backdrop-blur-md ${
+            showTop ? "is-visible" : "is-hidden"
+          }`}
           onClick={scrollToTop}
           onMouseEnter={startArrow}
           onMouseLeave={stopArrow}
-          style={{
-            opacity: showTop ? 1 : 0,
-            pointerEvents: showTop ? "auto" : "none",
-            transform: showTop ? "translateY(0)" : "translateY(20px)",
-            transition: "opacity 0.3s, transform 0.3s",
-          }}
           title="Scroll to top"
           type="button"
         >
@@ -186,53 +182,64 @@ const FloatingButtons = () => {
 export const DocsPage = () => (
   <div className="text-text-secondary">
     {/* Hero */}
-    <section className="relative overflow-hidden py-32">
+    <section className="relative overflow-clip" style={{ paddingBlock: "var(--space-hero-block)" }}>
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.08),transparent_70%)]" />
-      <div className="relative mx-auto max-w-3xl px-6 text-center">
-        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border-secondary bg-bg-secondary px-4 py-1.5 text-sm text-text-muted">
-          <span className="size-2 rounded-full bg-accent-green" />
-          Built for{" "}
-          <a
-            className="text-text-primary underline decoration-border-secondary underline-offset-2 transition-colors hover:decoration-accent"
-            href="https://logtape.org"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            LogTape
-          </a>
-          {" & "}
-          <a
-            className="text-text-primary underline decoration-border-secondary underline-offset-2 transition-colors hover:decoration-accent"
-            href="https://tanstack.com/devtools"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            TanStack DevTools
-          </a>
-        </div>
-        <div className="mb-6 flex flex-col items-center gap-4">
-          <img alt="" className="size-24 rounded-2xl" height={96} src="/logo-192.png" width={96} />
-          <h1 className="font-bold text-5xl text-text-primary leading-tight tracking-tight">
-            LogTape DevTools
-          </h1>
-        </div>
-        <p className="mx-auto mb-10 max-w-xl text-lg text-text-muted leading-relaxed">
-          A TanStack DevTools plugin that brings your LogTape logs into a dedicated, filterable
-          panel. See everything your app is logging without leaving DevTools.
-        </p>
-        <div className="flex justify-center gap-4">
-          <a
-            className="rounded-lg bg-accent px-6 py-3 font-semibold text-white transition-colors hover:bg-accent-light"
-            href="#installation"
-          >
-            Get Started
-          </a>
-          <Link
-            className="rounded-lg border border-border-secondary bg-bg-secondary px-6 py-3 font-semibold text-text-primary transition-colors hover:border-accent/40 hover:bg-bg-tertiary"
-            to="/playground"
-          >
-            Try Playground
-          </Link>
+      <div className="relative content-grid">
+        <div className="text-center">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border-secondary bg-bg-secondary px-4 py-1.5 text-sm text-text-muted">
+            <span className="size-2 shrink-0 rounded-full bg-accent-green" />
+            Built for{" "}
+            <a
+              className="lt-link-underline text-text-primary underline decoration-border-secondary underline-offset-2"
+              href="https://logtape.org"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              LogTape
+            </a>
+            {" & "}
+            <a
+              className="lt-link-underline text-text-primary underline decoration-border-secondary underline-offset-2"
+              href="https://tanstack.com/devtools"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              TanStack DevTools
+            </a>
+          </div>
+          <div className="mb-6 flex flex-col items-center gap-4">
+            <img
+              alt=""
+              className="size-24 shrink-0 rounded-2xl"
+              height={96}
+              src="/logo-192.png"
+              width={96}
+            />
+            <h1
+              className="font-bold text-text-primary leading-tight tracking-tight"
+              style={{ fontSize: "var(--text-hero)" }}
+            >
+              LogTape DevTools
+            </h1>
+          </div>
+          <p className="mx-auto mb-10 max-w-xl text-lg text-text-muted leading-relaxed">
+            A TanStack DevTools plugin that brings your LogTape logs into a dedicated, filterable
+            panel. See everything your app is logging without leaving DevTools.
+          </p>
+          <div className="flex justify-center gap-4">
+            <a
+              className="lt-control lt-control--filled rounded-lg bg-accent px-6 py-3 font-semibold text-white"
+              href="#installation"
+            >
+              Get Started
+            </a>
+            <Link
+              className="lt-control lt-control--ghost rounded-lg border border-border-secondary bg-bg-secondary px-6 py-3 font-semibold text-text-primary"
+              to="/playground"
+            >
+              Try Playground
+            </Link>
+          </div>
         </div>
       </div>
     </section>
@@ -241,7 +248,7 @@ export const DocsPage = () => (
     <FeaturesSection />
 
     {/* Docs content */}
-    <div className="mx-auto max-w-3xl px-6 pb-40">
+    <div className="pb-40 content-grid">
       {/* Installation */}
       <section className="mb-16" id="installation">
         <SectionTitle id="install" subtitle="Add to your project as a dev dependency">
@@ -393,7 +400,7 @@ export const DocsPage = () => (
               Returns <code className="text-text-primary">&#123; sink, plugin &#125;</code>. This is
               the recommended entry point.
             </p>
-            <div className="overflow-x-auto rounded-lg border border-border-secondary">
+            <div className="lt-scroll-x lt-scroll-x--table rounded-lg border border-border-secondary">
               <table className="w-full min-w-[480px] text-left text-sm">
                 <thead className="border-border-secondary border-b bg-bg-tertiary">
                   <tr>
@@ -447,7 +454,7 @@ export const DocsPage = () => (
               from the React-free{" "}
               <code className="text-text-primary">@mugenlabs/logtape-devtools/sink</code> subpath.
             </p>
-            <div className="overflow-x-auto rounded-lg border border-border-secondary">
+            <div className="lt-scroll-x lt-scroll-x--table rounded-lg border border-border-secondary">
               <table className="w-full min-w-[480px] text-left text-sm">
                 <thead className="border-border-secondary border-b bg-bg-tertiary">
                   <tr>
@@ -504,7 +511,7 @@ export const DocsPage = () => (
             <p className="mb-3 text-sm text-text-muted">
               Creates a TanStack DevTools plugin config object.
             </p>
-            <div className="overflow-x-auto rounded-lg border border-border-secondary">
+            <div className="lt-scroll-x lt-scroll-x--table rounded-lg border border-border-secondary">
               <table className="w-full min-w-[480px] text-left text-sm">
                 <thead className="border-border-secondary border-b bg-bg-tertiary">
                   <tr>
@@ -556,7 +563,7 @@ export const DocsPage = () => (
               notifications are coalesced into a microtask, so a synchronous burst of log calls
               triggers a single re-render.
             </p>
-            <div className="overflow-x-auto rounded-lg border border-border-secondary">
+            <div className="lt-scroll-x lt-scroll-x--table rounded-lg border border-border-secondary">
               <table className="w-full min-w-[480px] text-left text-sm">
                 <thead className="border-border-secondary border-b bg-bg-tertiary">
                   <tr>

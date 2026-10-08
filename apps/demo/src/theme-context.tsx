@@ -39,54 +39,11 @@ const playLightSwitchSound = (targetTheme: Theme) => {
   }
 };
 
-// ---- CSS variables for each theme ----
-const themeVars: Record<Theme, Record<string, string>> = {
-  dark: {
-    "--accent": "#6366f1",
-    "--accent-green": "#4ade80",
-    "--accent-light": "#818cf8",
-    "--bg-primary": "#0a0a0a",
-    "--bg-secondary": "#111",
-    "--bg-tertiary": "#1a1a1a",
-    "--border-primary": "#222",
-    "--border-secondary": "#333",
-    "--card-bg": "#111",
-    "--code-bg": "rgba(255,255,255,0.06)",
-    "--code-block-bg": "#0d1117",
-    "--header-bg": "rgba(10, 10, 10, 0.85)",
-    "--text-dimmed": "#666",
-    "--text-muted": "#888",
-    "--text-primary": "#fff",
-    "--text-secondary": "#e0e0e0",
-    "--text-tertiary": "#aaa",
-  },
-  light: {
-    "--accent": "#4f46e5",
-    "--accent-green": "#16a34a",
-    "--accent-light": "#6366f1",
-    "--bg-primary": "#f8f8f8",
-    "--bg-secondary": "#fff",
-    "--bg-tertiary": "#eee",
-    "--border-primary": "#ddd",
-    "--border-secondary": "#ccc",
-    "--card-bg": "#fff",
-    "--code-bg": "rgba(0,0,0,0.05)",
-    "--code-block-bg": "#1e293b",
-    "--header-bg": "rgba(248, 248, 248, 0.85)",
-    "--text-dimmed": "#999",
-    "--text-muted": "#666",
-    "--text-primary": "#1a1a1a",
-    "--text-secondary": "#333",
-    "--text-tertiary": "#555",
-  },
-};
-
-const applyThemeVars = (theme: Theme) => {
-  const vars = themeVars[theme];
-  for (const [key, value] of Object.entries(vars)) {
-    document.documentElement.style.setProperty(key, value);
-  }
-  document.documentElement.dataset.theme = theme;
+/** Flip data-theme / color-scheme only — tokens live in styles.css (light-dark). */
+const applyTheme = (theme: Theme) => {
+  const root = document.documentElement;
+  root.dataset.theme = theme;
+  root.style.colorScheme = theme;
 };
 
 const THEME_KEY = "logtape-devtools:theme";
@@ -113,7 +70,12 @@ const animateViewTransition = (x: number, y: number) => {
   );
   document.documentElement.animate(
     { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${maxRadius}px at ${x}px ${y}px)`] },
-    { duration: 500, easing: "ease-in-out", pseudoElement: "::view-transition-new(root)" }
+    {
+      // Theme view-transition duration is an explicit exception to motion tokens (M6).
+      duration: 500,
+      easing: "ease-in-out",
+      pseudoElement: "::view-transition-new(root)",
+    }
   );
 };
 
@@ -123,7 +85,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (!initialized.current) {
-      applyThemeVars(theme);
+      applyTheme(theme);
       initialized.current = true;
     }
   }, [theme]);
@@ -142,7 +104,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
       const applyNext = () => {
         setTheme(next);
-        applyThemeVars(next);
+        applyTheme(next);
         try {
           localStorage.setItem(THEME_KEY, next);
         } catch {

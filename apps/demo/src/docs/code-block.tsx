@@ -22,43 +22,6 @@ const getHighlighter = () => {
 };
 
 // ---------------------------------------------------------------------------
-// Global style injection (once) — fixes shiki pre styling
-// ---------------------------------------------------------------------------
-let stylesInjected = false;
-const injectShikiStyles = () => {
-  if (stylesInjected) {
-    return;
-  }
-  stylesInjected = true;
-  const style = document.createElement("style");
-  style.textContent = `
-		.shiki-wrapper pre.shiki {
-			margin: 0 !important;
-			padding: 16px 20px !important;
-			border-radius: 0 !important;
-			background: var(--code-block-bg) !important;
-			overflow-x: auto !important;
-			counter-reset: line;
-		}
-		.shiki-wrapper code {
-			font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace !important;
-		}
-		.shiki-wrapper .line::before {
-			counter-increment: line;
-			content: counter(line);
-			display: inline-block;
-			width: 2ch;
-			margin-right: 1.5ch;
-			text-align: right;
-			color: rgba(255, 255, 255, 0.2);
-			user-select: none;
-			-webkit-user-select: none;
-		}
-	`;
-  document.head.append(style);
-};
-
-// ---------------------------------------------------------------------------
 // WindowDots — macOS traffic-light dots (decorative)
 // ---------------------------------------------------------------------------
 const dotColors = ["#ff5f56", "#ffbd2e", "#27c93f"] as const;
@@ -105,29 +68,18 @@ const CopyButton = ({ text }: { text: string }) => {
     resetTimerRef.current = setTimeout(() => setCopied(false), 2000);
   }, [text]);
 
-  const handleMouseEnter = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => {
-      iconRef.current?.startAnimation();
-      if (!copied) {
-        e.currentTarget.style.opacity = "1";
-      }
-    },
-    [copied]
-  );
+  const handleMouseEnter = useCallback(() => {
+    iconRef.current?.startAnimation();
+  }, []);
 
-  const handleMouseLeave = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => {
-      iconRef.current?.stopAnimation();
-      if (!copied) {
-        e.currentTarget.style.opacity = "0.6";
-      }
-    },
-    [copied]
-  );
+  const handleMouseLeave = useCallback(() => {
+    iconRef.current?.stopAnimation();
+  }, []);
 
   return (
     <button
       aria-label="Copy code"
+      className="lt-control lt-hit-44"
       onClick={handleCopy}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -137,16 +89,17 @@ const CopyButton = ({ text }: { text: string }) => {
         border: "1px solid",
         borderColor: copied ? "rgba(74, 222, 128, 0.3)" : "rgba(255,255,255,0.1)",
         borderRadius: 6,
-        color: copied ? "var(--accent-green)" : "#888",
+        color: copied ? "var(--accent-green)" : "var(--text-muted)",
         cursor: "pointer",
         display: "flex",
+        insetBlockStart: 10,
+        insetInlineEnd: 10,
         justifyContent: "center",
-        opacity: copied ? 1 : 0.6,
+        opacity: copied ? 1 : 0.75,
         padding: "5px 6px",
         position: "absolute",
-        right: 10,
-        top: 10,
-        transition: "all 0.15s",
+        transition:
+          "opacity var(--duration-fast) var(--ease-out), background-color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out)",
       }}
       type="button"
     >
@@ -169,7 +122,6 @@ export const CodeBlock = ({
   const trimmed = code.trim();
 
   useEffect(() => {
-    injectShikiStyles();
     let cancelled = false;
     const load = async () => {
       const hl = await getHighlighter();
@@ -191,7 +143,7 @@ export const CodeBlock = ({
         border: "1px solid var(--border-secondary)",
         borderRadius: 12,
         boxShadow: "0 20px 40px -20px rgba(0,0,0,0.5)",
-        overflow: "hidden",
+        overflow: "clip",
         position: "relative",
       }}
     >
@@ -202,7 +154,8 @@ export const CodeBlock = ({
           borderBottom: "1px solid var(--border-secondary)",
           display: "flex",
           gap: 6,
-          padding: "12px 16px",
+          paddingBlock: 12,
+          paddingInline: 16,
         }}
       >
         <WindowDots />
@@ -211,24 +164,25 @@ export const CodeBlock = ({
             color: "var(--text-dimmed)",
             fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
             fontSize: 12,
-            marginLeft: "auto",
+            marginInlineStart: "auto",
           }}
         >
           {lang}
         </span>
       </div>
-      <div style={{ position: "relative" }}>
+      <div className="lt-scroll-x" style={{ position: "relative" }}>
         <CopyButton text={trimmed} />
         {html == null ? (
           <pre
             style={{
               background: "transparent",
-              color: "#e0e0e0",
+              color: "var(--text-secondary)",
               fontFamily: "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace",
               fontSize: 13,
               lineHeight: 1.6,
               margin: 0,
-              padding: "16px 20px",
+              paddingBlock: 16,
+              paddingInline: 20,
             }}
           >
             <code>
