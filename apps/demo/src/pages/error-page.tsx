@@ -19,13 +19,13 @@ export const ErrorPage = ({ error }: ErrorComponentProps) => {
         {error instanceof Error ? error.message : "An unexpected error occurred."}
       </p>
       <button
-        className="flex items-center gap-2 rounded-lg bg-accent/15 px-5 py-2.5 font-semibold text-accent-light text-sm transition-colors hover:bg-accent/25"
+        className="lt-control lt-control--accent-soft flex items-center gap-2 rounded-lg bg-accent/15 px-5 py-2.5 font-semibold text-accent-light text-sm"
         onClick={() => router.invalidate()}
         onMouseEnter={start}
         onMouseLeave={stop}
         type="button"
       >
-        <RotateCCWIcon ref={iconRef} size={14} />
+        <RotateCCWIcon className="lt-icon-cap" ref={iconRef} size={14} />
         Try again
       </button>
     </div>
@@ -40,7 +40,7 @@ export const NotFoundPage = () => (
     <h1 className="m-0 font-bold text-2xl text-text-primary">Page not found</h1>
     <p className="mt-3 text-sm text-text-muted">There is nothing at this address.</p>
     <Link
-      className="mt-6 rounded-md border border-border-secondary px-4 py-2 text-sm text-text-primary no-underline transition-colors hover:bg-white/5"
+      className="lt-control lt-nav-link mt-6 rounded-md border border-border-secondary px-4 py-2 text-sm text-text-primary no-underline"
       to="/"
     >
       Back to the docs

@@ -1,6 +1,7 @@
 import { motion, useAnimation } from "motion/react";
 import type { HTMLAttributes } from "react";
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
+import { shouldReduceMotion } from "./prefers-reduced-motion";
 
 export interface RotateCCWIconHandle {
   startAnimation: () => void;
@@ -19,7 +20,11 @@ const RotateCCWIcon = forwardRef<RotateCCWIconHandle, RotateCCWIconProps>(
     useImperativeHandle(ref, () => {
       isControlledRef.current = true;
       return {
-        startAnimation: () => controls.start("animate"),
+        startAnimation: () => {
+          if (!shouldReduceMotion()) {
+            void controls.start("animate");
+          }
+        },
         stopAnimation: () => controls.start("normal"),
       };
     });
@@ -28,8 +33,8 @@ const RotateCCWIcon = forwardRef<RotateCCWIconHandle, RotateCCWIconProps>(
       (e: React.MouseEvent<HTMLDivElement>) => {
         if (isControlledRef.current) {
           onMouseEnter?.(e);
-        } else {
-          controls.start("animate");
+        } else if (!shouldReduceMotion()) {
+          void controls.start("animate");
         }
       },
       [controls, onMouseEnter]

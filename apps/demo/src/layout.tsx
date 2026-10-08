@@ -1,9 +1,10 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { BookOpen } from "lucide-react";
 import { useCallback, useRef } from "react";
-import { PACKAGE_NAME, SITE_URL } from "./content/site";
+import { SITE_URL } from "./content/site";
 import { GradualBlur } from "./gradual-blur";
 import { type AnimatedIconHandle, GithubIcon, PlayIcon } from "./icons";
+import { PackageName } from "./package-name";
 import { ThemeToggle } from "./theme-toggle";
 
 const NavLink = ({
@@ -12,7 +13,7 @@ const NavLink = ({
   children,
 }: {
   to: string;
-  icon: React.ComponentType<{ size: number }>;
+  icon: React.ComponentType<{ className?: string; size?: number }>;
   children: React.ReactNode;
 }) => {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -20,14 +21,12 @@ const NavLink = ({
 
   return (
     <Link
-      className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 font-medium text-sm transition-colors ${
-        isActive
-          ? "bg-accent/15 text-accent-light"
-          : "text-text-muted hover:bg-white/5 hover:text-text-primary"
+      className={`lt-nav-link lt-control inline-flex items-center gap-[0.4em] rounded-md px-3 py-1.5 font-medium text-sm ${
+        isActive ? "bg-accent/15 text-accent-light" : "text-text-muted"
       }`}
       to={to}
     >
-      <Icon size={14} />
+      <Icon className="lt-icon-cap" size={14} />
       <span className="hidden sm:inline">{children}</span>
     </Link>
   );
@@ -40,102 +39,106 @@ const GithubLink = () => {
 
   return (
     <a
-      className="ml-2 flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-text-muted transition-colors hover:text-text-primary"
+      className="lt-nav-link--muted lt-control inline-flex items-center gap-[0.4em] rounded-md px-3 py-1.5 text-sm text-text-muted"
       href="https://github.com/mugenlabs-dev/logtape-devtools"
       onMouseEnter={start}
       onMouseLeave={stop}
       rel="noopener noreferrer"
       target="_blank"
     >
-      <GithubIcon ref={iconRef} size={14} />
+      <GithubIcon className="lt-icon-cap" ref={iconRef} size={14} />
       <span className="hidden sm:inline">GitHub</span>
     </a>
   );
 };
 
-const footerLinkClass = "text-accent-light no-underline hover:underline";
+const footerLinkClass = "lt-footer-link text-accent-light no-underline";
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isDocsPage = pathname === "/" || pathname === "/docs";
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-svh">
       {/* Header */}
-      <a
-        className="sr-only z-[60] rounded-md bg-accent px-3 py-2 text-sm text-white focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
-        href="#main-content"
-      >
+      <a className="lt-skip-link sr-only z-[60] bg-accent text-sm text-white" href="#main-content">
         Skip to content
       </a>
-      <header className="fixed top-0 right-0 left-0 z-50 border-border-primary border-b bg-header-bg backdrop-blur-md">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
-          <Link className="flex items-center gap-2 font-semibold text-text-primary" to="/">
-            <img
-              alt="LogTape DevTools"
-              className="size-7 rounded-md"
-              height={28}
-              src="/logo-192.png"
-              width={28}
-            />
-            <span>LogTape DevTools</span>
-          </Link>
-          <nav className="flex items-center gap-1">
-            <NavLink icon={BookOpen} to="/">
-              Docs
-            </NavLink>
-            <NavLink icon={PlayIcon} to="/playground">
-              Playground
-            </NavLink>
-            <GithubLink />
-            <ThemeToggle />
-          </nav>
+      <header className="lt-site-header border-border-primary border-b bg-header-bg backdrop-blur-md">
+        <div className="content-grid content-grid--header">
+          <div className="flex items-center justify-between py-3">
+            <Link
+              className="flex shrink-0 items-center gap-2 font-semibold text-text-primary"
+              to="/"
+            >
+              <img
+                alt="LogTape DevTools"
+                className="size-7 shrink-0 rounded-md"
+                height={28}
+                src="/logo-192.png"
+                width={28}
+              />
+              <span>LogTape DevTools</span>
+            </Link>
+            <nav className="lt-icon-nav shrink-0">
+              <NavLink icon={BookOpen} to="/">
+                Docs
+              </NavLink>
+              <NavLink icon={PlayIcon} to="/playground">
+                Playground
+              </NavLink>
+              <GithubLink />
+              <ThemeToggle />
+            </nav>
+          </div>
         </div>
       </header>
 
-      {/* Main content */}
+      {/* Main content — pt matches --header-block-size / scroll-padding */}
       <main className="pt-14" id="main-content">
         {children}
       </main>
 
       {/* Footer — extra bottom padding so links clear the fixed GradualBlur on docs */}
-      <footer
-        className={`border-border-primary border-t px-6 py-10 ${isDocsPage ? "pb-40" : "pb-16"}`}
-      >
-        <div className="mx-auto flex max-w-3xl flex-col gap-4 text-sm text-text-muted">
-          <p className="m-0 font-mono text-text-secondary">{PACKAGE_NAME}</p>
-          <p className="m-0">
-            Mugenlabs open-source LogTape DevTools plugin. Documentation and playground for agents
-            and humans.
-          </p>
-          <nav className="flex flex-wrap gap-x-4 gap-y-2">
-            <Link className={footerLinkClass} to="/docs">
-              Docs
-            </Link>
-            <Link className={footerLinkClass} to="/developers">
-              Developers
-            </Link>
-            <Link className={footerLinkClass} to="/about">
-              About
-            </Link>
-            <Link className={footerLinkClass} to="/contact">
-              Contact
-            </Link>
-            <Link className={footerLinkClass} to="/privacy">
-              Privacy
-            </Link>
-            <a className={footerLinkClass} href={`${SITE_URL}llms.txt`}>
-              llms.txt
-            </a>
-            <a
-              className={footerLinkClass}
-              href="https://github.com/mugenlabs-dev/logtape-devtools"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              GitHub
-            </a>
-          </nav>
+      <footer className={`border-border-primary border-t py-10 ${isDocsPage ? "pb-40" : "pb-16"}`}>
+        <div className="content-grid">
+          <div className="flex flex-col gap-4 text-sm text-text-muted">
+            <p className="m-0 font-mono text-text-secondary">
+              <PackageName />
+            </p>
+            <p className="m-0">
+              Mugenlabs open-source LogTape DevTools plugin. Documentation and playground for agents
+              and humans.
+            </p>
+            <nav className="lt-wrap-safe gap-x-4 gap-y-2">
+              <Link className={footerLinkClass} to="/docs">
+                Docs
+              </Link>
+              <Link className={footerLinkClass} to="/developers">
+                Developers
+              </Link>
+              <Link className={footerLinkClass} to="/about">
+                About
+              </Link>
+              <Link className={footerLinkClass} to="/contact">
+                Contact
+              </Link>
+              <Link className={footerLinkClass} to="/privacy">
+                Privacy
+              </Link>
+              <a className={footerLinkClass} href={`${SITE_URL}llms.txt`}>
+                llms.txt
+              </a>
+              <a
+                className={footerLinkClass}
+                href="https://github.com/mugenlabs-dev/logtape-devtools"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                GitHub
+              </a>
+            </nav>
+          </div>
         </div>
       </footer>
 
