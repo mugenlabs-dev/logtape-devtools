@@ -21,9 +21,9 @@ export const ThemeToggle = () => {
       type="button"
     >
       {theme === "dark" ? (
-        <SunIcon ref={iconRef} size={15} />
+        <SunIcon className="lt-icon-cap" ref={iconRef} size={15} />
       ) : (
-        <MoonIcon ref={iconRef} size={15} />
+        <MoonIcon className="lt-icon-cap" ref={iconRef} size={15} />
       )}
     </button>
   );

@@ -524,6 +524,107 @@ details.lt-accordion[open]::details-content {
 }
 
 /* -------------------------------------------------------------------------- */
+/* L1 — Icon sized by adjacent text                                            */
+/* -------------------------------------------------------------------------- */
+.lt-icon-cap {
+  flex-shrink: 0;
+  width: 1.2cap;
+  height: 1.2cap;
+}
+
+.lt-icon-cap svg {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* L3 — Tabular numbers (scoped — not global)                                  */
+/* -------------------------------------------------------------------------- */
+.lt-tabular,
+.lt-scroll-x--table table {
+  font-variant-numeric: tabular-nums;
+}
+
+/* -------------------------------------------------------------------------- */
+/* L4 — Concentric nested radius                                               */
+/* -------------------------------------------------------------------------- */
+.lt-card {
+  --lt-r: 12px;
+  --lt-pad: 8px;
+  overflow: clip;
+  border-radius: var(--lt-r);
+}
+
+.lt-card--sm {
+  --lt-r: 8px;
+  --lt-pad: 6px;
+}
+
+.lt-card > .lt-card-chrome,
+.lt-card > .lt-card-inner {
+  border-radius: 0;
+}
+
+/* Inner frames inset from the outer radius by the chrome padding */
+.lt-card > .lt-card-inner {
+  border-radius: calc(var(--lt-r) - var(--lt-pad));
+}
+
+/* -------------------------------------------------------------------------- */
+/* L5 — Parent owns prose sibling spacing                                      */
+/* -------------------------------------------------------------------------- */
+.lt-prose {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.625;
+  color: var(--text-muted);
+}
+
+.lt-prose > * {
+  margin-block: 0;
+}
+
+.lt-prose > h2 {
+  margin-block-start: 0.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.lt-prose a {
+  color: var(--accent-light);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.lt-prose ul {
+  padding-inline-start: 1.25rem;
+  list-style: disc;
+}
+
+.lt-prose li {
+  margin-block: 0.25rem;
+}
+
+/* -------------------------------------------------------------------------- */
+/* L6 — text-box trim on CTA labels (progressive)                              */
+/* -------------------------------------------------------------------------- */
+.lt-cta {
+  text-box: trim-both cap alphabetic;
+  padding-block: 0.95rem;
+}
+
+/* -------------------------------------------------------------------------- */
+/* L7 — Safe alignment on wrapping toolbars                                    */
+/* -------------------------------------------------------------------------- */
+.lt-wrap-safe {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: safe start;
+}
+
+/* -------------------------------------------------------------------------- */
 /* View Transition — suppress default cross-fade so only the circular reveal  */
 /* -------------------------------------------------------------------------- */
 ::view-transition-old(root),

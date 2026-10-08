@@ -3,7 +3,7 @@ import { type ComponentType, useCallback, useRef, useState } from "react";
 import { type AnimatedIconHandle, CheckIcon, CopyIcon } from "../icons";
 import { MANAGERS, type PM, usePm } from "./pm-context";
 
-const pmIcons: Record<PM, ComponentType<{ size: number; color: string }>> = {
+const pmIcons: Record<PM, ComponentType<{ className?: string; size: number; color: string }>> = {
   bun: SiBun,
   npm: SiNpm,
   pnpm: SiPnpm,
@@ -53,9 +53,9 @@ const CopyButton = ({ text }: { text: string }) => {
       type="button"
     >
       {copied ? (
-        <CheckIcon className="text-accent-green" ref={iconRef} size={14} />
+        <CheckIcon className="lt-icon-cap text-accent-green" ref={iconRef} size={14} />
       ) : (
-        <CopyIcon ref={iconRef} size={14} />
+        <CopyIcon className="lt-icon-cap" ref={iconRef} size={14} />
       )}
     </button>
   );
@@ -66,27 +66,27 @@ export const InstallBlock = ({ dev = true, packages }: { dev?: boolean; packages
   const command = getCommand(pm, packages, dev);
 
   return (
-    <div className="overflow-clip rounded-lg border border-border-secondary">
-      <div className="flex border-border-secondary border-b bg-bg-tertiary">
+    <div className="lt-card lt-card--sm border border-border-secondary">
+      <div className="lt-card-chrome flex border-border-secondary border-b bg-bg-tertiary">
         {MANAGERS.map((m) => {
           const Icon = pmIcons[m];
           const active = pm === m;
           return (
             <button
-              className={`lt-control lt-pm-tab flex items-center gap-1.5 px-4 py-2 font-medium text-sm ${
+              className={`lt-control lt-pm-tab inline-flex items-center gap-[0.4em] px-4 py-2 font-medium text-sm ${
                 active ? "border-accent border-b-2 text-accent-light" : "text-text-muted"
               }`}
               key={m}
               onClick={() => setPm(m)}
               type="button"
             >
-              <Icon color="currentColor" size={14} />
+              <Icon className="lt-icon-cap" color="currentColor" size={14} />
               {m}
             </button>
           );
         })}
       </div>
-      <div className="flex items-center justify-between bg-code-block-bg px-4 py-3">
+      <div className="lt-card-inner m-[6px] flex items-center justify-between bg-code-block-bg px-4 py-3">
         <code className="font-mono text-accent-green text-sm">{command}</code>
         <CopyButton text={command} />
       </div>

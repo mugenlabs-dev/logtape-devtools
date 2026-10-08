@@ -238,9 +238,9 @@ export const PlaygroundPage = () => {
         {ready ? (
           <div className="space-y-6">
             {/* Auto-log controls */}
-            <div className="flex flex-wrap items-center gap-4 rounded-xl border border-border-secondary bg-card-bg p-5">
+            <div className="lt-wrap-safe lt-card items-center gap-4 border border-border-secondary bg-card-bg p-5">
               <button
-                className={`lt-control rounded-lg px-5 py-2.5 font-semibold text-sm ${
+                className={`lt-control lt-cta rounded-lg px-5 font-semibold text-sm ${
                   autoLog
                     ? "lt-control--danger-soft bg-red-500/15 text-red-400"
                     : "lt-control--accent-soft bg-accent/15 text-accent-light"
@@ -266,9 +266,9 @@ export const PlaygroundPage = () => {
             </div>
 
             {/* Manual log buttons */}
-            <div className="rounded-xl border border-border-secondary bg-card-bg p-5">
+            <div className="lt-card border border-border-secondary bg-card-bg p-5">
               <h3 className="mb-3 font-medium text-sm text-text-muted">Emit single log:</h3>
-              <div className="flex flex-wrap gap-2">
+              <div className="lt-wrap-safe gap-2">
                 {levels.map((level) => {
                   const colorMap: Record<string, string> = {
                     debug: "bg-[#55aa55]/20 text-[#88bb88]",
@@ -280,7 +280,7 @@ export const PlaygroundPage = () => {
                   };
                   return (
                     <button
-                      className={`lt-control rounded-md px-4 py-2 font-mono font-semibold text-sm ${colorMap[level]}`}
+                      className={`lt-control lt-cta rounded-md px-4 font-mono font-semibold text-sm ${colorMap[level]}`}
                       key={level}
                       onClick={() => emitOne(level)}
                       type="button"
@@ -298,10 +298,10 @@ export const PlaygroundPage = () => {
             </p>
 
             {/* Source code reference — padding on inner wrapper, not ::details-content (M7) */}
-            <details className="lt-accordion group rounded-xl border border-border-secondary bg-card-bg">
-              <summary className="flex cursor-pointer list-none items-center gap-2 p-5 font-medium text-sm text-text-muted [&::-webkit-details-marker]:hidden">
+            <details className="lt-accordion lt-card group border border-border-secondary bg-card-bg">
+              <summary className="inline-flex w-full cursor-pointer list-none items-center gap-[0.4em] p-5 font-medium text-sm text-text-muted [&::-webkit-details-marker]:hidden">
                 <ChevronRightIcon
-                  className="lt-chevron transition-transform duration-200 group-open:rotate-90"
+                  className="lt-chevron lt-icon-cap transition-transform duration-200 group-open:rotate-90"
                   size={14}
                   style={{ transitionTimingFunction: "var(--ease-out)" }}
                 />

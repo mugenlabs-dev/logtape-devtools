@@ -103,7 +103,11 @@ const CopyButton = ({ text }: { text: string }) => {
       }}
       type="button"
     >
-      {copied ? <CheckIcon ref={iconRef} size={14} /> : <CopyIcon ref={iconRef} size={14} />}
+      {copied ? (
+        <CheckIcon className="lt-icon-cap" ref={iconRef} size={14} />
+      ) : (
+        <CopyIcon className="lt-icon-cap" ref={iconRef} size={14} />
+      )}
     </button>
   );
 };
@@ -138,16 +142,16 @@ export const CodeBlock = ({
 
   return (
     <div
+      className="lt-card"
       style={{
         background: "var(--code-block-bg)",
         border: "1px solid var(--border-secondary)",
-        borderRadius: 12,
         boxShadow: "0 20px 40px -20px rgba(0,0,0,0.5)",
-        overflow: "clip",
         position: "relative",
       }}
     >
       <div
+        className="lt-card-chrome"
         style={{
           alignItems: "center",
           background: "rgba(255, 255, 255, 0.02)",
@@ -170,7 +174,7 @@ export const CodeBlock = ({
           {lang}
         </span>
       </div>
-      <div className="lt-scroll-x" style={{ position: "relative" }}>
+      <div className="lt-scroll-x lt-card-inner" style={{ margin: 8, position: "relative" }}>
         <CopyButton text={trimmed} />
         {html == null ? (
           <pre

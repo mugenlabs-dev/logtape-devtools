@@ -81,9 +81,9 @@ const useDemoTick = (intervalMs: number) => {
 };
 
 const DemoShell = ({ caption, children }: { caption: string; children: ReactNode }) => (
-  <div className="w-full rounded-xl border border-[#333] bg-[#1e1e1e] p-4 font-mono text-[11px] shadow-[0_12px_32px_rgba(0,0,0,0.3)]">
+  <div className="lt-card w-full border border-[#333] bg-[#1e1e1e] p-4 font-mono text-[11px] shadow-[0_12px_32px_rgba(0,0,0,0.3)]">
     <div className="flex h-[148px] flex-col justify-center gap-1.5">{children}</div>
-    <div className="mt-3 border-[#2a2a2a] border-t pt-2.5">
+    <div className="lt-card-chrome mt-3 border-[#2a2a2a] border-t pt-2.5">
       <p className="m-0 h-[30px] overflow-clip font-sans text-[#888] text-[11px] leading-[15px]">
         {caption}
       </p>

@@ -13,7 +13,7 @@ const NavLink = ({
   children,
 }: {
   to: string;
-  icon: React.ComponentType<{ size: number }>;
+  icon: React.ComponentType<{ className?: string; size?: number }>;
   children: React.ReactNode;
 }) => {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -21,12 +21,12 @@ const NavLink = ({
 
   return (
     <Link
-      className={`lt-nav-link lt-control flex items-center gap-1.5 rounded-md px-3 py-1.5 font-medium text-sm ${
+      className={`lt-nav-link lt-control inline-flex items-center gap-[0.4em] rounded-md px-3 py-1.5 font-medium text-sm ${
         isActive ? "bg-accent/15 text-accent-light" : "text-text-muted"
       }`}
       to={to}
     >
-      <Icon size={14} />
+      <Icon className="lt-icon-cap" size={14} />
       <span className="hidden sm:inline">{children}</span>
     </Link>
   );
@@ -39,14 +39,14 @@ const GithubLink = () => {
 
   return (
     <a
-      className="lt-nav-link--muted lt-control flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-text-muted"
+      className="lt-nav-link--muted lt-control inline-flex items-center gap-[0.4em] rounded-md px-3 py-1.5 text-sm text-text-muted"
       href="https://github.com/mugenlabs-dev/logtape-devtools"
       onMouseEnter={start}
       onMouseLeave={stop}
       rel="noopener noreferrer"
       target="_blank"
     >
-      <GithubIcon ref={iconRef} size={14} />
+      <GithubIcon className="lt-icon-cap" ref={iconRef} size={14} />
       <span className="hidden sm:inline">GitHub</span>
     </a>
   );
@@ -110,7 +110,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
               Mugenlabs open-source LogTape DevTools plugin. Documentation and playground for agents
               and humans.
             </p>
-            <nav className="flex flex-wrap gap-x-4 gap-y-2">
+            <nav className="lt-wrap-safe gap-x-4 gap-y-2">
               <Link className={footerLinkClass} to="/docs">
                 Docs
               </Link>

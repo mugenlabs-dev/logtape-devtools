@@ -14,7 +14,7 @@ import {
 const FEATURES: {
   demo: ComponentType;
   description: string;
-  icon: ComponentType<{ size: number }>;
+  icon: ComponentType<{ className?: string; size?: number }>;
   title: string;
 }[] = [
   {
@@ -67,8 +67,8 @@ export const FeaturesSection = () => (
       {FEATURES.map((feature, index) => (
         <div className="feature-grid" key={feature.title}>
           <div className={index % 2 === 1 ? "lg:order-2" : ""}>
-            <div className="mb-2 flex items-center gap-2.5 text-accent-light">
-              <feature.icon size={20} />
+            <div className="mb-2 inline-flex items-center gap-[0.4em] text-accent-light">
+              <feature.icon className="lt-icon-cap" size={20} />
               <h2 className="m-0 font-semibold text-[17px] text-text-primary">{feature.title}</h2>
             </div>
             <p className="m-0 text-sm text-text-muted leading-relaxed">{feature.description}</p>

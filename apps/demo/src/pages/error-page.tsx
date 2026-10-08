@@ -25,7 +25,7 @@ export const ErrorPage = ({ error }: ErrorComponentProps) => {
         onMouseLeave={stop}
         type="button"
       >
-        <RotateCCWIcon ref={iconRef} size={14} />
+        <RotateCCWIcon className="lt-icon-cap" ref={iconRef} size={14} />
         Try again
       </button>
     </div>

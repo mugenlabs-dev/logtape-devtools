@@ -149,13 +149,13 @@ const FloatingButtons = () => {
       {/* Scroll to documentation */}
       <div className="lt-float-wrap">
         <button
-          className={`lt-float lt-float--docs flex items-center gap-2 rounded-full border border-accent/30 bg-bg-primary/80 px-5 py-2.5 font-medium text-accent-light text-sm shadow-lg backdrop-blur-md ${
+          className={`lt-float lt-float--docs lt-cta inline-flex items-center gap-[0.4em] rounded-full border border-accent/30 bg-bg-primary/80 px-5 font-medium text-accent-light text-sm shadow-lg backdrop-blur-md ${
             showDocs ? "is-visible" : "is-hidden"
           }`}
           onClick={scrollToDocs}
           type="button"
         >
-          <BookOpen size={14} />
+          <BookOpen className="lt-icon-cap" size={14} />
           Go to Documentation
         </button>
       </div>
@@ -172,7 +172,7 @@ const FloatingButtons = () => {
           title="Scroll to top"
           type="button"
         >
-          <ArrowUpIcon ref={arrowRef} size={16} />
+          <ArrowUpIcon className="lt-icon-cap" ref={arrowRef} size={16} />
         </button>
       </div>
     </>
@@ -228,13 +228,13 @@ export const DocsPage = () => (
           </p>
           <div className="flex justify-center gap-4">
             <a
-              className="lt-control lt-control--filled rounded-lg bg-accent px-6 py-3 font-semibold text-white"
+              className="lt-control lt-control--filled lt-cta rounded-lg bg-accent px-6 font-semibold text-white"
               href="#installation"
             >
               Get Started
             </a>
             <Link
-              className="lt-control lt-control--ghost rounded-lg border border-border-secondary bg-bg-secondary px-6 py-3 font-semibold text-text-primary"
+              className="lt-control lt-control--ghost lt-cta rounded-lg border border-border-secondary bg-bg-secondary px-6 font-semibold text-text-primary"
               to="/playground"
             >
               Try Playground
@@ -400,8 +400,8 @@ export const DocsPage = () => (
               Returns <code className="text-text-primary">&#123; sink, plugin &#125;</code>. This is
               the recommended entry point.
             </p>
-            <div className="lt-scroll-x lt-scroll-x--table rounded-lg border border-border-secondary">
-              <table className="w-full min-w-[480px] text-left text-sm">
+            <div className="lt-scroll-x lt-scroll-x--table lt-card lt-card--sm border border-border-secondary">
+              <table className="lt-tabular w-full min-w-[480px] text-left text-sm">
                 <thead className="border-border-secondary border-b bg-bg-tertiary">
                   <tr>
                     <th className="px-4 py-2 font-medium text-text-muted">Option</th>
@@ -454,8 +454,8 @@ export const DocsPage = () => (
               from the React-free{" "}
               <code className="text-text-primary">@mugenlabs/logtape-devtools/sink</code> subpath.
             </p>
-            <div className="lt-scroll-x lt-scroll-x--table rounded-lg border border-border-secondary">
-              <table className="w-full min-w-[480px] text-left text-sm">
+            <div className="lt-scroll-x lt-scroll-x--table lt-card lt-card--sm border border-border-secondary">
+              <table className="lt-tabular w-full min-w-[480px] text-left text-sm">
                 <thead className="border-border-secondary border-b bg-bg-tertiary">
                   <tr>
                     <th className="px-4 py-2 font-medium text-text-muted">Option</th>
@@ -511,8 +511,8 @@ export const DocsPage = () => (
             <p className="mb-3 text-sm text-text-muted">
               Creates a TanStack DevTools plugin config object.
             </p>
-            <div className="lt-scroll-x lt-scroll-x--table rounded-lg border border-border-secondary">
-              <table className="w-full min-w-[480px] text-left text-sm">
+            <div className="lt-scroll-x lt-scroll-x--table lt-card lt-card--sm border border-border-secondary">
+              <table className="lt-tabular w-full min-w-[480px] text-left text-sm">
                 <thead className="border-border-secondary border-b bg-bg-tertiary">
                   <tr>
                     <th className="px-4 py-2 font-medium text-text-muted">Option</th>
@@ -563,8 +563,8 @@ export const DocsPage = () => (
               notifications are coalesced into a microtask, so a synchronous burst of log calls
               triggers a single re-render.
             </p>
-            <div className="lt-scroll-x lt-scroll-x--table rounded-lg border border-border-secondary">
-              <table className="w-full min-w-[480px] text-left text-sm">
+            <div className="lt-scroll-x lt-scroll-x--table lt-card lt-card--sm border border-border-secondary">
+              <table className="lt-tabular w-full min-w-[480px] text-left text-sm">
                 <thead className="border-border-secondary border-b bg-bg-tertiary">
                   <tr>
                     <th className="px-4 py-2 font-medium text-text-muted">Option</th>
