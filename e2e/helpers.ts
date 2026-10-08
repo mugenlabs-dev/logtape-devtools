@@ -27,7 +27,14 @@ export const openDevToolsPanel = async (page: Page) => {
 
 export const emitLog = async (page: Page, level: string) => {
   const button = page.locator("button.rounded-md.px-4.py-2").filter({ hasText: level });
-  await button.click();
+  await button.waitFor({ state: "attached", timeout: 10_000 });
+  // Fixed site chrome and the TanStack DevTools shell can cover the playground
+  // emit controls after scrollIntoView; dispatch the click in-page like
+  // clickInDevTools so Playwright hit-testing does not flake.
+  await button.evaluate((el) => {
+    el.scrollIntoView({ block: "center", inline: "nearest" });
+    (el as HTMLButtonElement).click();
+  });
 };
 
 export const emitAllLevels = async (page: Page) => {
