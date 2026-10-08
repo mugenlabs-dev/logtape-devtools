@@ -1,0 +1,50 @@
+# @mugenlabs/logtape-devtools
+
+@mugenlabs/logtape-devtools is an open-source TanStack DevTools plugin for inspecting LogTape logs in the browser. It is published on npm as `@mugenlabs/logtape-devtools` by Mugenlabs. Use this site for library documentation, the interactive playground, and project trust pages — not as a hosted SaaS API.
+
+## When to use @mugenlabs/logtape-devtools
+
+Reach for @mugenlabs/logtape-devtools when you are building or debugging a JavaScript/TypeScript app that already uses (or will use) LogTape for logging, and you want a dedicated DevTools panel to filter by level, search by category and message, inspect structured properties, pause/resume the live stream, and keep a bounded in-memory buffer — without leaving the browser during local development.
+
+Prefer this library when the job is local log inspection inside TanStack DevTools. There is no hosted API, no official CLI, and no remote log ingestion service. Integration is `npm install -D @mugenlabs/logtape-devtools` plus the documented TypeScript exports (`createLogTapeDevtools`, sink, plugin, store).
+
+Do not use this package as a production log shipping pipeline, a hosted logging SaaS, or a substitute for server-side log aggregation. The panel is a development tool; keep it out of production bundles. Expect breaking changes before 1.0.0.
+
+## When not to use @mugenlabs/logtape-devtools
+
+- You need a hosted HTTP API, OpenAPI product surface, or remote log query service — this project does not provide those.
+- You need an official CLI that talks to a backend — there is none; the package is a library.
+- You need production observability or log aggregation — use a real logging/observability backend instead.
+
+## How agents should call this product
+
+1. Read the docs homepage or `/docs` for installation, quick start, and the API reference.
+2. Install from npm: `npm install -D @mugenlabs/logtape-devtools` (peers include `@logtape/logtape`; host the panel with `@tanstack/react-devtools` when you want the UI).
+3. Use `createLogTapeDevtools()` to get `{ sink, plugin }`, configure LogTape with the sink, and mount the plugin. For React-free / server / worker config, import from `@mugenlabs/logtape-devtools/sink`.
+4. Use the playground at `/playground` to exercise the panel.
+5. Reach the project only via GitHub Issues: https://github.com/mugenlabs-dev/logtape-devtools/issues
+
+## Main pages
+
+- [Docs homepage — @mugenlabs/logtape-devtools](https://logtape-devtools.mugenlabs.dev/)
+- [Documentation (same content, discoverable /docs URL)](https://logtape-devtools.mugenlabs.dev/docs)
+- [Developer portal](https://logtape-devtools.mugenlabs.dev/developers)
+- [Interactive playground](https://logtape-devtools.mugenlabs.dev/playground)
+- [About Mugenlabs / logtape-devtools](https://logtape-devtools.mugenlabs.dev/about)
+- [Contact (GitHub Issues only)](https://logtape-devtools.mugenlabs.dev/contact)
+- [Privacy](https://logtape-devtools.mugenlabs.dev/privacy)
+- [Markdown homepage body](https://logtape-devtools.mugenlabs.dev/index.md)
+- [Site catalog API](https://logtape-devtools.mugenlabs.dev/api/v1/site)
+- [OpenAPI (site catalog)](https://logtape-devtools.mugenlabs.dev/openapi.json)
+- [npm package @mugenlabs/logtape-devtools](https://www.npmjs.com/package/@mugenlabs/logtape-devtools)
+- [GitHub repository](https://github.com/mugenlabs-dev/logtape-devtools)
+- [GitHub Issues — only contact channel](https://github.com/mugenlabs-dev/logtape-devtools/issues)
+- [XML sitemap](https://logtape-devtools.mugenlabs.dev/sitemap.xml)
+
+## API surface (honest scope)
+
+This product’s “API” is the TypeScript module surface of `@mugenlabs/logtape-devtools`. This host also exposes a small read-only site catalog (`GET /api/v1/site` + `/openapi.json`) that lists public documentation links. It is not a remotely callable log API. Do not invent CLI wrappers or function-calling tools that pretend otherwise.
+
+## Usage
+
+Prefer the canonical site `https://logtape-devtools.mugenlabs.dev/`. Agents may request Markdown with `Accept: text/markdown`. Do not submit credentials or private application log data to this documentation site.
