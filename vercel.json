@@ -4,9 +4,9 @@
   "installCommand": "pnpm install --frozen-lockfile",
   "buildCommand": "pnpm build && pnpm --filter demo run build",
   "outputDirectory": "apps/demo/dist",
-  "rewrites": [
+  "routes": [
     {
-      "source": "/",
+      "src": "^/$",
       "has": [
         {
           "type": "header",
@@ -14,119 +14,53 @@
           "value": "(.*)text/markdown(.*)"
         }
       ],
-      "destination": "/index.md"
+      "dest": "/index.md",
+      "headers": {
+        "Cache-Control": "public, max-age=0, must-revalidate",
+        "Content-Type": "text/markdown; charset=utf-8",
+        "Vary": "Accept"
+      }
     },
     {
-      "source": "/api/v1/site",
-      "destination": "/api/v1/site.json"
+      "src": "^/$",
+      "dest": "/index.html",
+      "headers": {
+        "Vary": "Accept"
+      }
     },
     {
-      "source": "/playground",
-      "destination": "/index.html"
+      "src": "^/api/v1/site/?$",
+      "dest": "/api/v1/site.json",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Cache-Control": "public, max-age=300",
+        "Content-Type": "application/json; charset=utf-8",
+        "Link": "</openapi.json>; rel=\"service-desc\"; type=\"application/vnd.oai.openapi+json\", </.well-known/api-catalog>; rel=\"api-catalog\""
+      }
     },
     {
-      "source": "/playground/",
-      "destination": "/index.html"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/",
-      "headers": [
-        {
-          "key": "Vary",
-          "value": "Accept"
-        }
-      ]
+      "src": "^/openapi\\.json$",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Content-Type": "application/vnd.oai.openapi+json;version=3.1; charset=utf-8",
+        "Link": "</.well-known/api-catalog>; rel=\"api-catalog\""
+      },
+      "continue": true
     },
     {
-      "source": "/index.md",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "text/markdown; charset=utf-8"
-        },
-        {
-          "key": "Vary",
-          "value": "Accept"
-        },
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=0, must-revalidate"
-        }
-      ]
+      "src": "^/\\.well-known/api-catalog$",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Content-Type": "application/linkset+json; charset=utf-8"
+      },
+      "continue": true
     },
     {
-      "source": "/api/v1/site.json",
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Content-Type",
-          "value": "application/json; charset=utf-8"
-        },
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=300"
-        },
-        {
-          "key": "Link",
-          "value": "</openapi.json>; rel=\"service-desc\"; type=\"application/vnd.oai.openapi+json\", </.well-known/api-catalog>; rel=\"api-catalog\""
-        }
-      ]
+      "handle": "filesystem"
     },
     {
-      "source": "/api/v1/site",
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Content-Type",
-          "value": "application/json; charset=utf-8"
-        },
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=300"
-        },
-        {
-          "key": "Link",
-          "value": "</openapi.json>; rel=\"service-desc\"; type=\"application/vnd.oai.openapi+json\", </.well-known/api-catalog>; rel=\"api-catalog\""
-        }
-      ]
-    },
-    {
-      "source": "/openapi.json",
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Content-Type",
-          "value": "application/vnd.oai.openapi+json;version=3.1; charset=utf-8"
-        },
-        {
-          "key": "Link",
-          "value": "</.well-known/api-catalog>; rel=\"api-catalog\""
-        }
-      ]
-    },
-    {
-      "source": "/.well-known/api-catalog",
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Content-Type",
-          "value": "application/linkset+json; charset=utf-8"
-        }
-      ]
+      "src": "^/playground/?$",
+      "dest": "/index.html"
     }
   ]
 }
