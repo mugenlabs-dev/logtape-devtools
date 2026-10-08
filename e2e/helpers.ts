@@ -26,7 +26,9 @@ export const openDevToolsPanel = async (page: Page) => {
 };
 
 export const emitLog = async (page: Page, level: string) => {
-  const button = page.locator("button.rounded-md.px-4.py-2").filter({ hasText: level });
+  // Level emit chips in the playground — match by label, not padding utilities
+  // (good-css L6 text-box trim dropped py-* in favor of padding-block).
+  const button = page.getByRole("button", { name: level, exact: true });
   await button.waitFor({ state: "attached", timeout: 10_000 });
   // Fixed site chrome and the TanStack DevTools shell can cover the playground
   // emit controls after scrollIntoView; dispatch the click in-page like
