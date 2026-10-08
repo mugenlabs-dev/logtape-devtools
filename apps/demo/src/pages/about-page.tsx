@@ -1,4 +1,5 @@
-import { GITHUB_REPO_URL, NPM_URL, ORG_NAME, PACKAGE_NAME, SITE_NAME } from "../content/site";
+import { GITHUB_REPO_URL, NPM_URL, ORG_NAME, SITE_NAME } from "../content/site";
+import { PackageName } from "../package-name";
 import { ContentPage } from "./content-page";
 
 export const AboutPage = () => (
@@ -9,7 +10,7 @@ export const AboutPage = () => (
     <p>
       {ORG_NAME} publishes {SITE_NAME} as the npm package{" "}
       <a href={NPM_URL} rel="noopener noreferrer" target="_blank">
-        {PACKAGE_NAME}
+        <PackageName />
       </a>
       . The package connects a LogTape sink to an in-memory store and a TanStack DevTools panel so
       you can filter by level, search by category and message, expand structured properties, pause

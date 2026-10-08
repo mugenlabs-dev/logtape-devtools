@@ -1,4 +1,4 @@
-import type { ReactElement } from "react";
+import type { CSSProperties, ReactElement } from "react";
 
 interface GradualBlurProps {
   direction?: "top" | "bottom";
@@ -38,18 +38,20 @@ export const GradualBlur = ({
   }
 
   const gradientDir = direction === "bottom" ? "to bottom" : "to top";
+  const edgeStyle: CSSProperties =
+    direction === "bottom"
+      ? { insetBlockEnd: 0, insetInline: 0 }
+      : { insetBlockStart: 0, insetInline: 0 };
 
   return (
     <div
       style={{
-        [direction]: 0,
-        background: `linear-gradient(${gradientDir}, transparent 0%, var(--bg-primary, #0a0a0a) 100%)`,
+        ...edgeStyle,
+        background: `linear-gradient(${gradientDir}, transparent 0%, var(--bg-primary) 100%)`,
         height,
         isolation: "isolate",
-        left: 0,
         pointerEvents: "none",
         position: "fixed",
-        right: 0,
         zIndex: 40,
       }}
     >

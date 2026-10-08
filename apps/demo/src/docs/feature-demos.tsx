@@ -81,10 +81,10 @@ const useDemoTick = (intervalMs: number) => {
 };
 
 const DemoShell = ({ caption, children }: { caption: string; children: ReactNode }) => (
-  <div className="w-full rounded-xl border border-[#333] bg-[#1e1e1e] p-4 font-mono text-[11px] shadow-[0_12px_32px_rgba(0,0,0,0.3)]">
+  <div className="lt-card w-full border border-[#333] bg-[#1e1e1e] p-4 font-mono text-[11px] shadow-[0_12px_32px_rgba(0,0,0,0.3)]">
     <div className="flex h-[148px] flex-col justify-center gap-1.5">{children}</div>
-    <div className="mt-3 border-[#2a2a2a] border-t pt-2.5">
-      <p className="m-0 h-[30px] overflow-hidden font-sans text-[#888] text-[11px] leading-[15px]">
+    <div className="lt-card-chrome mt-3 border-[#2a2a2a] border-t pt-2.5">
+      <p className="m-0 h-[30px] overflow-clip font-sans text-[#888] text-[11px] leading-[15px]">
         {caption}
       </p>
     </div>
@@ -111,7 +111,7 @@ interface DemoLog {
 }
 
 const LogRow = ({ log }: { log: DemoLog }) => (
-  <div className="flex h-[24px] items-center gap-1.5 overflow-hidden rounded bg-[#1a1a1a] px-2">
+  <div className="flex h-[24px] items-center gap-1.5 overflow-clip rounded bg-[#1a1a1a] px-2">
     <span className="shrink-0 text-[#555] text-[9px]">{log.time}</span>
     <span className={`shrink-0 rounded px-1 py-px text-[8px] ${LEVEL_BADGES[log.level].className}`}>
       {LEVEL_BADGES[log.level].abbr}
@@ -169,14 +169,14 @@ const AnimatedLogStack = ({ tick, visible }: { tick: number; visible: number }) 
 
   return (
     <div
-      className="relative overflow-hidden"
+      className="relative overflow-clip"
       style={{ height: visible * STACK_SLOT - STACK_ROW_GAP }}
     >
       {items.map(({ log, seq }) => {
         const offset = seq - tick;
         return (
           <div
-            className="absolute inset-x-0 top-0 transition-[transform,opacity] duration-500 ease-out"
+            className="lt-demo-stack-row absolute inset-x-0 top-0"
             key={seq}
             style={{
               opacity: offset < 0 ? 0 : 1,
@@ -251,7 +251,7 @@ export const LevelFilterDemo = () => {
             const visible = step.active.length === 0 || step.active.includes(log.level);
             return (
               <div
-                className={`overflow-hidden transition-all duration-300 ${visible ? "max-h-8 opacity-100" : "max-h-0 opacity-0"}`}
+                className={`lt-demo-collapse overflow-hidden ${visible ? "max-h-8 opacity-100" : "max-h-0 opacity-0"}`}
                 key={`${log.time}-${log.message}`}
               >
                 <LogRow log={log} />
@@ -287,7 +287,7 @@ export const CategorySearchDemo = () => {
         <div className="mb-0.5 flex items-center gap-1.5 rounded border border-[#444] bg-[#252525] px-2 py-1 text-[#e0e0e0]">
           <span className="text-[#666]">⌕</span>
           <span>{step.query}</span>
-          <span className="-ml-1 animate-pulse text-[#6366f1]">▏</span>
+          <span className="lt-pulse -ms-1 animate-pulse text-[#6366f1]">▏</span>
           {step.query === "" ? <span className="text-[#555]">Filter by category…</span> : null}
         </div>
         {/* Fixed-height list so collapsing rows never re-center the search box. */}
@@ -296,7 +296,7 @@ export const CategorySearchDemo = () => {
             const visible = step.query === "" || log.category.includes(step.query);
             return (
               <div
-                className={`overflow-hidden transition-all duration-300 ${visible ? "max-h-8 opacity-100" : "max-h-0 opacity-0"}`}
+                className={`lt-demo-collapse overflow-hidden ${visible ? "max-h-8 opacity-100" : "max-h-0 opacity-0"}`}
                 key={`${log.time}-${log.message}`}
               >
                 <LogRow log={log} />
@@ -326,10 +326,11 @@ export const StructuredInspectionDemo = () => {
     <div ref={ref}>
       <DemoShell caption={INSPECT_STEPS[phase]}>
         {/* Fixed-height card so the payload unfolds downward without re-centering. */}
-        <div className="h-[104px] overflow-hidden rounded bg-[#1a1a1a]">
+        <div className="h-[104px] overflow-clip rounded bg-[#1a1a1a]">
           <div className="flex items-center gap-1.5 px-2 py-1">
             <span
               className={`text-[#666] text-[9px] transition-transform duration-300 ${expanded ? "rotate-90" : ""}`}
+              style={{ transitionTimingFunction: "var(--ease-out)" }}
             >
               ▶
             </span>
@@ -342,7 +343,7 @@ export const StructuredInspectionDemo = () => {
             <span className="truncate text-[#c9c9c9]">POST /api/checkout failed (502)</span>
           </div>
           <div
-            className={`overflow-hidden pl-7 transition-all duration-300 ${expanded ? "max-h-24 pb-1.5 opacity-100" : "max-h-0 opacity-0"}`}
+            className={`lt-demo-collapse overflow-hidden ps-7 ${expanded ? "max-h-24 pb-1.5 opacity-100" : "max-h-0 opacity-0"}`}
           >
             <div className="text-[#8b8b8b] leading-relaxed">
               <div>

@@ -1,5 +1,59 @@
 @import "tailwindcss";
 
+/* -------------------------------------------------------------------------- */
+/* M1 — One set of color tokens (light-dark + OKLCH) + color-scheme            */
+/* -------------------------------------------------------------------------- */
+:root {
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
+  --duration-fast: 120ms;
+  --duration-med: 300ms;
+
+  /* Fluid type / space (M2) — max/min ≤ 2.5× for text */
+  --text-hero: clamp(1.75rem, 1.1rem + 3.2vw, 3rem);
+  --text-page-title: clamp(1.5rem, 1.2rem + 1.2vw, 1.875rem);
+  --space-hero-block: clamp(3.5rem, 2rem + 6vw, 8rem);
+
+  /* Shared chrome offsets (H2 / H5) */
+  --header-block-size: 3.5rem;
+  --floating-cta-block: 5.5rem;
+
+  /*
+   * M1 — one token table via light-dark() + color-scheme.
+   * Keep current hex values for a no-shift first pass (OKLCH/color-mix optional later).
+   */
+  --accent: light-dark(#4f46e5, #6366f1);
+  --accent-light: light-dark(#6366f1, #818cf8);
+  --accent-green: light-dark(#16a34a, #4ade80);
+
+  --bg-primary: light-dark(#f8f8f8, #0a0a0a);
+  --bg-secondary: light-dark(#fff, #111);
+  --bg-tertiary: light-dark(#eee, #1a1a1a);
+
+  --border-primary: light-dark(#ddd, #222);
+  --border-secondary: light-dark(#ccc, #333);
+
+  --card-bg: light-dark(#fff, #111);
+  --code-bg: light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.06));
+  --code-block-bg: light-dark(#1e293b, #0d1117);
+  --header-bg: light-dark(rgba(248, 248, 248, 0.85), rgba(10, 10, 10, 0.85));
+
+  --text-primary: light-dark(#1a1a1a, #fff);
+  --text-secondary: light-dark(#333, #e0e0e0);
+  --text-tertiary: light-dark(#555, #aaa);
+  --text-muted: light-dark(#666, #888);
+  --text-dimmed: light-dark(#999, #666);
+  color-scheme: light dark;
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+}
+
 @theme {
   --color-bg-primary: var(--bg-primary);
   --color-bg-secondary: var(--bg-secondary);
@@ -23,15 +77,556 @@
   --color-accent-green: var(--accent-green);
 }
 
+/* -------------------------------------------------------------------------- */
+/* H1 — good-css reset (incremental)                                           */
+/* -------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:where(*) {
+  min-width: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  hanging-punctuation: first last;
+  /* H2 / H5 — clear fixed header + floating CTAs (outside reduced-motion) */
+  scroll-padding-block-start: var(--header-block-size);
+  scroll-padding-block-end: var(--floating-cta-block);
+}
+
+@supports (interpolate-size: allow-keywords) {
+  html {
+    interpolate-size: allow-keywords; /* enables M7 accordion height */
+  }
+}
+
+:where(html) {
+  scrollbar-gutter: stable;
+}
+
 body {
+  min-height: 100svh;
   margin: 0;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   color: var(--text-secondary);
+  text-wrap: pretty;
+  overflow-wrap: break-word;
   background: var(--bg-primary);
 }
 
-/* View Transition — suppress default cross-fade so only the circular reveal runs */
+:where(h1, h2, h3, h4, h5, h6) {
+  text-wrap: balance;
+}
+
+:where(img, svg, video, canvas) {
+  flex-shrink: 0;
+}
+
+:where(button, input, select, textarea) {
+  font: inherit;
+  letter-spacing: inherit;
+}
+
+@media (pointer: coarse) {
+  :where(button, a, [role="button"]) {
+    touch-action: manipulation;
+  }
+}
+
+input,
+textarea,
+select {
+  font-size: max(1rem, 100%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* H3 — One focus ring with :focus-visible                                     */
+/* -------------------------------------------------------------------------- */
+/* High-contrast ring from theme accent — not currentColor (muted/nav icons stay visible) */
+:where(a, button, [href], input, select, textarea, summary):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+:where(a, button, summary):focus:not(:focus-visible) {
+  outline: none;
+}
+
+:where(.lt-control--filled):focus-visible {
+  outline-color: var(--accent-light);
+}
+
+/* -------------------------------------------------------------------------- */
+/* H4 / M6 — Press feedback, hover only where hover exists, motion tokens      */
+/* -------------------------------------------------------------------------- */
+.lt-control {
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    filter var(--duration-fast) var(--ease-out),
+    background-color 0.15s var(--ease-out),
+    border-color 0.15s var(--ease-out),
+    color 0.15s var(--ease-out),
+    opacity var(--duration-med) var(--ease-out);
+}
+
+.lt-control:active {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lt-control {
+    transition: none;
+  }
+
+  .lt-control:active {
+    transform: none;
+  }
+}
+
+/* Floating docs chrome (H4 / M6 / H5) */
+.lt-float-wrap {
+  position: fixed;
+  inset-block-end: calc(2rem + env(safe-area-inset-bottom, 0px));
+  inset-inline: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.lt-float-wrap--end {
+  justify-content: flex-end;
+  max-width: 64rem;
+  padding-inline: 1.5rem;
+  margin-inline: auto;
+}
+
+.lt-float {
+  pointer-events: auto;
+  transition:
+    opacity var(--duration-med) var(--ease-out),
+    transform var(--duration-med) var(--ease-out),
+    background-color 0.15s var(--ease-out),
+    border-color 0.15s var(--ease-out),
+    color 0.15s var(--ease-out);
+}
+
+.lt-float:active {
+  transform: scale(0.97);
+}
+
+.lt-float.is-hidden {
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.lt-float.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lt-float {
+    transition: opacity var(--duration-med) var(--ease-out);
+  }
+
+  .lt-float.is-hidden,
+  .lt-float.is-visible,
+  .lt-float:active {
+    transform: none !important;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .lt-control--ghost:hover {
+    background-color: var(--bg-tertiary);
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+
+  .lt-control--filled:hover {
+    background-color: var(--accent-light);
+  }
+
+  .lt-float--docs:hover {
+    background-color: color-mix(in srgb, var(--bg-primary) 90%, transparent);
+    border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+  }
+
+  .lt-float--top:hover {
+    color: var(--accent-light);
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+
+  .lt-nav-link:hover {
+    color: var(--text-primary);
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .lt-nav-link--muted:hover {
+    color: var(--text-primary);
+  }
+
+  .lt-copy:hover {
+    color: var(--text-primary);
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .lt-pm-tab:hover {
+    color: var(--text-primary);
+  }
+
+  .lt-link-underline:hover {
+    text-decoration-color: var(--accent);
+  }
+
+  .lt-footer-link:hover {
+    text-decoration: underline;
+  }
+
+  .lt-control--accent-soft:hover {
+    background-color: color-mix(in srgb, var(--accent) 25%, transparent);
+  }
+
+  .lt-control--danger-soft:hover {
+    background-color: color-mix(in srgb, #ef4444 25%, transparent);
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* H5 — Safe area for fixed chrome                                             */
+/* -------------------------------------------------------------------------- */
+.lt-site-header {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline: 0;
+  z-index: 50;
+  padding-block-start: env(safe-area-inset-top, 0px);
+}
+
+.lt-skip-link:focus-visible {
+  position: fixed;
+  inset-block-start: 0.5rem;
+  inset-inline-start: 0.5rem;
+  width: auto;
+  height: auto;
+  padding: 0.5rem 0.75rem;
+  margin: 0;
+  overflow: visible;
+  white-space: normal;
+  border-radius: 0.375rem;
+  clip: auto;
+}
+
+/* -------------------------------------------------------------------------- */
+/* M3 — Content grid with breakouts                                            */
+/* -------------------------------------------------------------------------- */
+.content-grid {
+  display: grid;
+  grid-template-columns:
+    [full-start] minmax(1.5rem, 1fr)
+    [content-start] minmax(0, 48rem)
+    [content-end] minmax(1.5rem, 1fr)
+    [full-end];
+}
+
+.content-grid--wide {
+  grid-template-columns:
+    [full-start] minmax(1.5rem, 1fr)
+    [content-start] minmax(0, 56rem)
+    [content-end] minmax(1.5rem, 1fr)
+    [full-end];
+}
+
+.content-grid--header {
+  grid-template-columns:
+    [full-start] minmax(1.5rem, 1fr)
+    [content-start] minmax(0, 64rem)
+    [content-end] minmax(1.5rem, 1fr)
+    [full-end];
+}
+
+.content-grid > :not(.full-bleed) {
+  grid-column: content;
+}
+
+.content-grid > .full-bleed {
+  grid-column: full;
+}
+
+/* -------------------------------------------------------------------------- */
+/* M4 — Intrinsic grid for feature rows                                        */
+/* -------------------------------------------------------------------------- */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: 1.5rem;
+  align-items: center;
+}
+
+@media (min-width: 64rem) {
+  .feature-grid {
+    gap: 3rem;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* M7 — Accordion height animation for playground details                      */
+/* -------------------------------------------------------------------------- */
+details.lt-accordion::details-content {
+  height: 0;
+  overflow: clip;
+  transition:
+    height 0.25s var(--ease-out),
+    content-visibility 0.25s allow-discrete;
+}
+
+details.lt-accordion[open]::details-content {
+  height: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  details.lt-accordion::details-content {
+    transition: none;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* M8 — Scroll-overflow edge fade on wide tables / code                        */
+/* -------------------------------------------------------------------------- */
+.lt-scroll-x {
+  --lt-fade: 1.5rem;
+  overflow-x: auto;
+}
+
+@supports (animation-timeline: scroll(self inline)) {
+  @property --lt-fade-start {
+    syntax: "<number>";
+    inherits: false;
+    initial-value: 0;
+  }
+
+  @property --lt-fade-end {
+    syntax: "<number>";
+    inherits: false;
+    initial-value: 0;
+  }
+
+  .lt-scroll-x {
+    animation:
+      lt-fade-start linear both,
+      lt-fade-end linear both;
+    animation-timeline: scroll(self inline);
+    animation-range:
+      entry 0% entry 1%,
+      exit 99% exit 100%;
+    mask-image: linear-gradient(
+      to right,
+      rgb(0 0 0 / calc(1 - var(--lt-fade-start))) 0,
+      #000 var(--lt-fade),
+      #000 calc(100% - var(--lt-fade)),
+      rgb(0 0 0 / calc(1 - var(--lt-fade-end))) 100%
+    );
+  }
+
+  @keyframes lt-fade-start {
+    from {
+      --lt-fade-start: 0;
+    }
+    to {
+      --lt-fade-start: 1;
+    }
+  }
+
+  @keyframes lt-fade-end {
+    from {
+      --lt-fade-end: 1;
+    }
+    to {
+      --lt-fade-end: 0;
+    }
+  }
+}
+
+/* Fallback when scroll timelines unavailable: static edge hint on tables */
+@supports not (animation-timeline: scroll(self inline)) {
+  .lt-scroll-x--table {
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 var(--lt-fade),
+      #000 calc(100% - var(--lt-fade)),
+      transparent
+    );
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* M9 — Hit area ≥ 44px for icon controls (widen gaps so ::before won't overlap) */
+/* -------------------------------------------------------------------------- */
+.lt-hit-44 {
+  position: relative;
+}
+
+.lt-hit-44::before {
+  position: absolute;
+  inset: -6px; /* 32 + 12 = 44 */
+  content: ""; /* 32 + 12 = 44 */
+}
+
+.lt-icon-nav {
+  display: flex;
+  /* ≥12px between 32px visuals so 44px hit targets do not overlap */
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Reduced motion — demos, pulse, named transitions (not only theme toggle)    */
+/* -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .lt-demo-collapse,
+  .lt-demo-stack-row {
+    transition: none !important;
+  }
+
+  .lt-pulse {
+    animation: none !important;
+  }
+
+  .lt-accordion summary .lt-chevron {
+    transition: none !important;
+  }
+}
+
+.lt-demo-collapse {
+  transition:
+    max-height var(--duration-med) var(--ease-out),
+    opacity var(--duration-med) var(--ease-out),
+    padding-block var(--duration-med) var(--ease-out);
+}
+
+.lt-demo-stack-row {
+  transition:
+    transform 500ms var(--ease-out),
+    opacity 500ms var(--ease-out);
+}
+
+/* -------------------------------------------------------------------------- */
+/* L1 — Icon sized by adjacent text                                            */
+/* -------------------------------------------------------------------------- */
+.lt-icon-cap {
+  flex-shrink: 0;
+  width: 1.2cap;
+  height: 1.2cap;
+}
+
+.lt-icon-cap svg {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* L3 — Tabular numbers (scoped — not global)                                  */
+/* -------------------------------------------------------------------------- */
+.lt-tabular,
+.lt-scroll-x--table table {
+  font-variant-numeric: tabular-nums;
+}
+
+/* -------------------------------------------------------------------------- */
+/* L4 — Concentric nested radius                                               */
+/* -------------------------------------------------------------------------- */
+.lt-card {
+  --lt-r: 12px;
+  --lt-pad: 8px;
+  overflow: clip;
+  border-radius: var(--lt-r);
+}
+
+.lt-card--sm {
+  --lt-r: 8px;
+  --lt-pad: 6px;
+}
+
+.lt-card > .lt-card-chrome,
+.lt-card > .lt-card-inner {
+  border-radius: 0;
+}
+
+/* Inner frames inset from the outer radius by the chrome padding */
+.lt-card > .lt-card-inner {
+  border-radius: calc(var(--lt-r) - var(--lt-pad));
+}
+
+/* -------------------------------------------------------------------------- */
+/* L5 — Parent owns prose sibling spacing                                      */
+/* -------------------------------------------------------------------------- */
+.lt-prose {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.625;
+  color: var(--text-muted);
+}
+
+.lt-prose > * {
+  margin-block: 0;
+}
+
+.lt-prose > h2 {
+  margin-block-start: 0.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.lt-prose a {
+  color: var(--accent-light);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.lt-prose ul {
+  padding-inline-start: 1.25rem;
+  list-style: disc;
+}
+
+.lt-prose li {
+  margin-block: 0.25rem;
+}
+
+/* -------------------------------------------------------------------------- */
+/* L6 — text-box trim on CTA labels (progressive)                              */
+/* -------------------------------------------------------------------------- */
+.lt-cta {
+  text-box: trim-both cap alphabetic;
+  padding-block: 0.95rem;
+}
+
+/* -------------------------------------------------------------------------- */
+/* L7 — Safe alignment on wrapping toolbars                                    */
+/* -------------------------------------------------------------------------- */
+.lt-wrap-safe {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: safe start;
+}
+
+/* -------------------------------------------------------------------------- */
+/* View Transition — suppress default cross-fade so only the circular reveal  */
+/* -------------------------------------------------------------------------- */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   mix-blend-mode: normal;
@@ -46,7 +641,7 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border-secondary, #333);
+  background: var(--border-secondary);
   border-radius: 3px;
 }
 
@@ -57,4 +652,30 @@ body {
   font-size: 13px;
   line-height: 1.6;
   border-radius: 8px;
+}
+
+.shiki-wrapper pre.shiki {
+  padding: 16px 20px !important;
+  margin: 0 !important;
+  overflow-x: auto !important;
+  counter-reset: line;
+  background: var(--code-block-bg) !important;
+  border-radius: 0 !important;
+}
+
+.shiki-wrapper code {
+  font-family:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace !important;
+}
+
+.shiki-wrapper .line::before {
+  display: inline-block;
+  width: 2ch;
+  margin-inline-end: 1.5ch;
+  color: rgba(255, 255, 255, 0.2);
+  text-align: end;
+  -webkit-user-select: none;
+  user-select: none;
+  content: counter(line);
+  counter-increment: line;
 }
