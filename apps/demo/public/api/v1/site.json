@@ -5,7 +5,15 @@
     "name": "Mugenlabs",
     "url": "https://github.com/mugenlabs-dev"
   },
-  "routes": ["/", "/docs", "/developers", "/playground", "/about", "/contact", "/privacy"],
+  "routes": [
+    "/",
+    "/docs",
+    "/developers",
+    "/playground",
+    "/about",
+    "/contact",
+    "/privacy"
+  ],
   "links": {
     "homepage": "https://logtape-devtools.mugenlabs.dev/",
     "docs": "https://logtape-devtools.mugenlabs.dev/docs",
