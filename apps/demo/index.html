@@ -8,6 +8,8 @@
       content="A TanStack DevTools plugin for inspecting LogTape logs in the browser"
       name="description"
     >
+    <meta content="content" name="is-agentic-site-type">
+    <link href="https://logtape-devtools.mugenlabs.dev/" rel="canonical">
     <link href="/favicon.png" rel="icon" type="image/png">
     <meta content="#0a0a0a" name="theme-color">
     <!-- Open Graph -->
@@ -50,7 +52,122 @@
     </script>
   </head>
   <body>
-    <div id="root"></div>
+    <!--
+      Prerendered snapshot of EXISTING homepage copy for no-JS agents/crawlers.
+      React replaces #root on hydrate; wording matches apps/demo/src/pages/docs-page.tsx
+      and features-section.tsx (no new marketing text).
+    -->
+    <div id="root">
+      <main>
+        <h1>LogTape DevTools</h1>
+        <p>
+          A TanStack DevTools plugin that brings your LogTape logs into a dedicated, filterable
+          panel. See everything your app is logging without leaving DevTools.
+        </p>
+        <p>
+          Built for
+          <a href="https://logtape.org">LogTape</a>
+          &amp;
+          <a href="https://tanstack.com/devtools">TanStack DevTools</a>.
+        </p>
+        <p><a href="#installation">Get Started</a> · <a href="/playground">Try Playground</a></p>
+
+        <h2>Live Log Stream</h2>
+        <p>
+          Watch logs appear in real time as your application runs. No more switching between browser
+          console and your app.
+        </p>
+
+        <h2>Level Filtering</h2>
+        <p>
+          Filter logs by severity level — trace, debug, info, warning, error, fatal. Focus on what
+          matters.
+        </p>
+
+        <h2>Category Search</h2>
+        <p>
+          Filter by category prefix and search across log messages. Find the needle in the haystack.
+        </p>
+
+        <h2>Structured Inspection</h2>
+        <p>
+          Click any log entry to expand and inspect the full payload, including structured
+          properties and metadata.
+        </p>
+
+        <h2>Pause &amp; Resume</h2>
+        <p>
+          Pause the live stream to inspect logs without them scrolling away. Resume when you're
+          ready.
+        </p>
+
+        <h2>Bounded Memory</h2>
+        <p>
+          A configurable buffer keeps memory usage under control. Old logs are dropped
+          automatically.
+        </p>
+
+        <h2 id="installation">Installation</h2>
+        <p>Add to your project as a dev dependency</p>
+        <p>Install logtape-devtools:</p>
+        <pre><code>npm install -D @mugenlabs/logtape-devtools</code></pre>
+        <p>Or install everything at once (including peer dependencies):</p>
+        <pre
+        ><code>npm install -D @mugenlabs/logtape-devtools @logtape/logtape @tanstack/react-devtools</code></pre>
+
+        <h2>Quick Start</h2>
+        <p>Two steps: configure the sink, add the plugin</p>
+        <h3>Configure the LogTape sink</h3>
+        <h3>Add the DevTools plugin</h3>
+
+        <h2>Advanced Setup</h2>
+        <p>Hold on to the store yourself, or keep React out of your logging setup</p>
+        <p>
+          createLogTapeDevtools() is a thin wrapper over createDevtoolsSink and
+          createLogTapeDevtoolsPlugin. Call them separately when you need a reference to the store —
+          for a custom buffer size, isolated stores in tests, or clearing logs programmatically.
+        </p>
+        <p>
+          The package root pulls in React, since the panel is a React component. If your LogTape
+          configuration is shared with a server entry point, a worker, or any non-React bundle,
+          import from the @mugenlabs/logtape-devtools/sink subpath instead — it exports the sink,
+          the store and the types with no React dependency.
+        </p>
+
+        <h2>Production</h2>
+        <p>Keep the panel out of your production bundle</p>
+        <p>
+          The panel is a development tool. Guard the mount behind a build-time flag so your bundler
+          can tree-shake it — and @tanstack/react-devtools along with it — out of production builds.
+        </p>
+
+        <h2>API Reference</h2>
+        <p>Exported functions and types</p>
+        <h3>createLogTapeDevtools(options?)</h3>
+        <p>
+          Creates a LogTape sink and its matching DevTools plugin, both wired to the same store.
+          Returns { sink, plugin }. This is the recommended entry point.
+        </p>
+        <h3>createDevtoolsSink(options?)</h3>
+        <p>
+          Creates a LogTape sink that forwards log records to the devtools panel. Also available
+          from the React-free @mugenlabs/logtape-devtools/sink subpath.
+        </p>
+        <h3>createLogTapeDevtoolsPlugin(options?)</h3>
+        <p>Creates a TanStack DevTools plugin config object.</p>
+        <h3>createLogStore(options?)</h3>
+        <p>
+          Creates an isolated log store. Records live in a fixed-capacity ring buffer, so appending
+          is O(1) and the oldest record is evicted once the buffer is full.
+        </p>
+        <h3>Compatibility</h3>
+        <p>
+          Requires @logtape/logtape ^2.0.0 and React 18 or 19. @tanstack/react-devtools ^0.9.0 is an
+          optional peer dependency — you only need it to host the panel, so you can depend on this
+          package purely for the sink via the /sink subpath. Node 24 LTS or newer.
+        </p>
+      </main>
+    </div>
     <script src="/src/main.tsx" type="module"></script>
   </body>
 </html>
