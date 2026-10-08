@@ -1,0 +1,14 @@
+{
+  "type": "https://logtape-devtools.mugenlabs.dev/openapi.json#not_found",
+  "title": "Not found",
+  "status": 404,
+  "code": "not_found",
+  "message": "No API resource exists at this path.",
+  "detail": "The only catalog endpoint on this host is GET /api/v1/site.",
+  "resolution": "Call GET /api/v1/site, or read /openapi.json and /llms.txt for public documentation links.",
+  "links": {
+    "openapi": "/openapi.json",
+    "llms": "/llms.txt",
+    "siteCatalog": "/api/v1/site"
+  }
+}

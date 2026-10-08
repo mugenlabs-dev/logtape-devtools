@@ -59,8 +59,46 @@
       "handle": "filesystem"
     },
     {
+      "src": "^/api/(.*)$",
+      "dest": "/api-404.json",
+      "status": 404,
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Cache-Control": "no-store",
+        "Content-Type": "application/problem+json; charset=utf-8",
+        "Link": "</openapi.json>; rel=\"service-desc\"; type=\"application/vnd.oai.openapi+json\", </llms.txt>; rel=\"alternate\""
+      }
+    },
+    {
       "src": "^/playground/?$",
       "dest": "/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "accept",
+          "value": ".*text/markdown.*"
+        }
+      ],
+      "dest": "/404.md",
+      "status": 404,
+      "headers": {
+        "Cache-Control": "public, max-age=0, must-revalidate",
+        "Content-Type": "text/markdown; charset=utf-8",
+        "Vary": "Accept"
+      }
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/404.html",
+      "status": 404,
+      "headers": {
+        "Cache-Control": "public, max-age=0, must-revalidate",
+        "Content-Type": "text/html; charset=utf-8",
+        "Vary": "Accept"
+      }
     }
   ]
 }
