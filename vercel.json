@@ -74,7 +74,26 @@
       "dest": "/index.html"
     },
     {
-<<<<<<< HEAD
+      "src": "^/docs/?$",
+      "dest": "/index.html"
+    },
+    {
+      "src": "^/developers/?$",
+      "dest": "/index.html"
+    },
+    {
+      "src": "^/about/?$",
+      "dest": "/index.html"
+    },
+    {
+      "src": "^/contact/?$",
+      "dest": "/index.html"
+    },
+    {
+      "src": "^/privacy/?$",
+      "dest": "/index.html"
+    },
+    {
       "src": "/(.*)",
       "has": [
         {
@@ -100,26 +119,6 @@
         "Content-Type": "text/html; charset=utf-8",
         "Vary": "Accept"
       }
-=======
-      "src": "^/docs/?$",
-      "dest": "/index.html"
-    },
-    {
-      "src": "^/developers/?$",
-      "dest": "/index.html"
-    },
-    {
-      "src": "^/about/?$",
-      "dest": "/index.html"
-    },
-    {
-      "src": "^/contact/?$",
-      "dest": "/index.html"
-    },
-    {
-      "src": "^/privacy/?$",
-      "dest": "/index.html"
->>>>>>> 0c199f2 (docs(demo): Is Agentic content for Yago review (do not merge))
     }
   ]
 }
