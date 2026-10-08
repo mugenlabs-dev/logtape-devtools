@@ -1,0 +1,105 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "logtape-devtools demo site catalog API",
+    "version": "1.0.0",
+    "description": "Read-only discovery API for the @mugenlabs/logtape-devtools demo site. It lists public documentation routes and package links. The product is an npm library (TanStack DevTools panel for LogTape), not a hosted log ingestion or remote control API.",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    },
+    "contact": {
+      "name": "Mugenlabs",
+      "url": "https://github.com/mugenlabs-dev/logtape-devtools/issues"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://logtape-devtools.mugenlabs.dev",
+      "description": "Canonical demo / docs site"
+    }
+  ],
+  "paths": {
+    "/api/v1/site": {
+      "get": {
+        "operationId": "getSiteCatalog",
+        "summary": "Get the public site catalog",
+        "description": "Returns public routes and package links for the LogTape DevTools documentation site. No authentication.",
+        "responses": {
+          "200": {
+            "description": "Site catalog",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteCatalog"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SiteCatalog": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "description",
+          "routes",
+          "links",
+          "github",
+          "npm",
+          "organization",
+          "serverApi"
+        ],
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "routes": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "links": {
+            "type": "object",
+            "additionalProperties": { "type": "string", "format": "uri" }
+          },
+          "github": { "type": "string", "format": "uri" },
+          "githubIssues": { "type": "string", "format": "uri" },
+          "npm": { "type": "string", "format": "uri" },
+          "organization": {
+            "type": "object",
+            "required": ["name", "url"],
+            "properties": {
+              "name": { "type": "string" },
+              "url": { "type": "string", "format": "uri" }
+            }
+          },
+          "serverApi": {
+            "type": "object",
+            "required": ["note", "openapi"],
+            "properties": {
+              "note": { "type": "string" },
+              "openapi": { "type": "string", "format": "uri" }
+            }
+          }
+        }
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "required": ["type", "title", "status", "detail", "code"],
+        "properties": {
+          "type": { "type": "string", "format": "uri" },
+          "title": { "type": "string" },
+          "status": { "type": "integer" },
+          "detail": { "type": "string" },
+          "code": { "type": "string" },
+          "resolution": { "type": "string" },
+          "documentation_url": { "type": "string", "format": "uri" }
+        }
+      }
+    }
+  }
+}

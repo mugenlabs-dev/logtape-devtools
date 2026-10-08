@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://logtape-devtools.mugenlabs.dev/sitemap.xml
