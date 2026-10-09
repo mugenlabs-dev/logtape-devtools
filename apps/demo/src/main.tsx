@@ -1,9 +1,12 @@
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { createRoot } from "react-dom/client";
 
+import { initPostHog } from "./lib/analytics";
 import { routeTree } from "./router";
 import "./styles.css";
 import { ThemeProvider } from "./theme-context";
+
+initPostHog();
 
 const router = createRouter({ routeTree });
 
