@@ -45,6 +45,10 @@ Do not use this package as a production log shipping pipeline, a hosted logging 
 
 This product’s “API” is the TypeScript module surface of `@mugenlabs/logtape-devtools`. This host also exposes a small read-only site catalog (`GET /api/v1/site` + `/openapi.json`) that lists public documentation links. It is not a remotely callable log API. Do not invent CLI wrappers or function-calling tools that pretend otherwise.
 
+## Privacy
+
+The site uses PostHog (EU) to count page visits and catch errors. It runs without cookies or persistent identifiers and is not used to identify you. The npm library itself sends nothing to Mugenlabs.
+
 ## Usage
 
 Prefer the canonical site `https://logtape-devtools.mugenlabs.dev/`. Agents may request Markdown with `Accept: text/markdown`. Do not submit credentials or private application log data to this documentation site.

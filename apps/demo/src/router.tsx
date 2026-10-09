@@ -1,6 +1,14 @@
-import { createRootRoute, createRoute, HeadContent, Outlet } from "@tanstack/react-router";
+import {
+  createRootRoute,
+  createRoute,
+  HeadContent,
+  Outlet,
+  useLocation,
+} from "@tanstack/react-router";
+import { useEffect } from "react";
 import { ORG_NAME, PACKAGE_NAME, SITE_DESCRIPTION, SITE_NAME } from "./content/site";
 import { Layout } from "./layout";
+import { capturePageview } from "./lib/analytics";
 import { AboutPage } from "./pages/about-page";
 import { ContactPage } from "./pages/contact-page";
 import { DevelopersPage } from "./pages/developers-page";
@@ -9,10 +17,24 @@ import { ErrorPage, NotFoundPage } from "./pages/error-page";
 import { PlaygroundPage } from "./pages/playground-page";
 import { PrivacyPage } from "./pages/privacy-page";
 
+const Analytics = () => {
+  const href = useLocation({ select: (location) => location.href });
+
+  useEffect(() => {
+    if (!href) {
+      return;
+    }
+    capturePageview();
+  }, [href]);
+
+  return null;
+};
+
 const rootRoute = createRootRoute({
   component: () => (
     <>
       <HeadContent />
+      <Analytics />
       <Layout>
         <Outlet />
       </Layout>
@@ -107,7 +129,7 @@ const privacyRoute = createRoute({
   head: () => ({
     meta: [
       {
-        content: `Privacy for ${SITE_NAME} — no accounts, no analytics, local data only.`,
+        content: `Privacy for ${SITE_NAME} — PostHog (EU) for page visits and errors; cookieless; npm library sends nothing to Mugenlabs.`,
         name: "description",
       },
     ],
