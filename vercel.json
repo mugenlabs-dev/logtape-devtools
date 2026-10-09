@@ -56,6 +56,17 @@
       "continue": true
     },
     {
+      "src": "^/ingest/static/(.*)$",
+      "dest": "https://eu-assets.i.posthog.com/static/$1",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "src": "^/ingest/(.*)$",
+      "dest": "https://eu.i.posthog.com/$1"
+    },
+    {
       "handle": "filesystem"
     },
     {
