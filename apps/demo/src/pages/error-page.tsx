@@ -1,13 +1,18 @@
 import { type ErrorComponentProps, Link, useRouter } from "@tanstack/react-router";
 import { AlertTriangle, Compass } from "lucide-react";
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { type AnimatedIconHandle, RotateCCWIcon } from "../icons";
+import { captureException } from "../lib/analytics";
 
 export const ErrorPage = ({ error }: ErrorComponentProps) => {
   const router = useRouter();
   const iconRef = useRef<AnimatedIconHandle>(null);
   const start = useCallback(() => iconRef.current?.startAnimation(), []);
   const stop = useCallback(() => iconRef.current?.stopAnimation(), []);
+
+  useEffect(() => {
+    captureException(error);
+  }, [error]);
 
   return (
     <div className="mx-auto flex max-w-xl flex-col items-center justify-center px-6 py-24 text-center">
