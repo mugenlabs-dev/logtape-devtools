@@ -18,14 +18,15 @@ import { PlaygroundPage } from "./pages/playground-page";
 import { PrivacyPage } from "./pages/privacy-page";
 
 const Analytics = () => {
-  const href = useLocation({ select: (location) => location.href });
+  // Hash changes (in-page anchors) are not new pages.
+  const page = useLocation({ select: (location) => location.pathname + location.searchStr });
 
   useEffect(() => {
-    if (!href) {
+    if (!page) {
       return;
     }
     capturePageview();
-  }, [href]);
+  }, [page]);
 
   return null;
 };
