@@ -8,15 +8,37 @@ on:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
-  # ─────────────────────────────────────────────
-  # Job 1: Lint, Format & Unit Tests
-  # ─────────────────────────────────────────────
+  changes:
+    name: Path filter
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - run: bash scripts/ci-changed.sh test
+
+      - id: filter
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PUSH_SHA: ${{ github.sha }}
+          BEFORE_SHA: ${{ github.event.before }}
+        run: bash scripts/ci-changed.sh gha
+
   check:
     name: Lint & Unit Tests
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 2
     steps:
       - uses: actions/checkout@v4
 
@@ -25,7 +47,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
-          cache: pnpm
 
       - run: pnpm install --frozen-lockfile
 
@@ -38,12 +59,12 @@ jobs:
       - name: Run unit tests
         run: pnpm test:ci
 
-  # ─────────────────────────────────────────────
-  # Job 2: Storybook interaction tests
-  # ─────────────────────────────────────────────
   storybook:
     name: Storybook Tests
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 3
     steps:
       - uses: actions/checkout@v4
 
@@ -52,34 +73,21 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
-          cache: pnpm
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Cache Playwright browsers
-        id: playwright-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-
       - name: Install Playwright browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: pnpm exec playwright install --with-deps chromium
-
-      - name: Install Playwright deps (cached)
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: pnpm exec playwright install-deps chromium
 
       - name: Run Storybook tests
         run: pnpm test-storybook
 
-  # ─────────────────────────────────────────────
-  # Job 3: Build & Typecheck
-  # ─────────────────────────────────────────────
   build:
     name: Build & Typecheck
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 3
     steps:
       - uses: actions/checkout@v4
 
@@ -88,7 +96,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
-          cache: pnpm
 
       - run: pnpm install --frozen-lockfile
 
@@ -98,14 +105,12 @@ jobs:
       - name: Typecheck
         run: pnpm exec tsgo -p packages/core --noEmit && pnpm exec tsgo -p apps/demo --noEmit
 
-  # ─────────────────────────────────────────────
-  # Job 4: Deploy Preview to Vercel
-  # ─────────────────────────────────────────────
   deploy-preview:
     name: Deploy Preview
     runs-on: ubuntu-latest
-    needs: [check, storybook, build]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [changes, check, storybook, build]
+    if: needs.changes.outputs.code == 'true' && github.ref == 'refs/heads/main' && github.event_name == 'push'
+    timeout-minutes: 4
     outputs:
       preview-url: ${{ steps.deploy.outputs.preview-url }}
     env:
@@ -119,7 +124,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
-          cache: pnpm
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm add -g vercel
@@ -133,12 +137,12 @@ jobs:
           url=$(vercel deploy --prebuilt --prod --skip-domain --token=${{ secrets.VERCEL_TOKEN }})
           echo "preview-url=$url" >> "$GITHUB_OUTPUT"
 
-  # ─────────────────────────────────────────────
-  # Job 5: E2E tests against localhost (PRs and main)
-  # ─────────────────────────────────────────────
   e2e:
     name: E2E Tests
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 4
     container:
       image: mcr.microsoft.com/playwright:v1.62.1-noble
       options: --user 1001
@@ -150,7 +154,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
-          cache: pnpm
 
       - run: pnpm install --frozen-lockfile
 
@@ -167,13 +170,12 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
-  # ─────────────────────────────────────────────
-  # Job 6: E2E tests against the main preview deploy
-  # ─────────────────────────────────────────────
   e2e-preview:
     name: E2E Tests (preview)
-    needs: deploy-preview
+    needs: [changes, deploy-preview]
+    if: needs.changes.outputs.code == 'true' && github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
+    timeout-minutes: 3
     container:
       image: mcr.microsoft.com/playwright:v1.62.1-noble
       options: --user 1001
@@ -185,7 +187,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
-          cache: pnpm
 
       - run: pnpm install --frozen-lockfile
 
@@ -204,13 +205,12 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
-  # ─────────────────────────────────────────────
-  # Job 7: Promote to Production
-  # ─────────────────────────────────────────────
   promote:
     name: Promote to Production
     runs-on: ubuntu-latest
-    needs: [e2e, e2e-preview, deploy-preview]
+    needs: [changes, e2e, e2e-preview, deploy-preview]
+    if: needs.changes.outputs.code == 'true' && github.ref == 'refs/heads/main' && github.event_name == 'push'
+    timeout-minutes: 2
     steps:
       - run: npm add -g vercel
       - name: Promote preview to production
