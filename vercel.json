@@ -12,6 +12,16 @@
   "outputDirectory": "apps/demo/dist",
   "routes": [
     {
+      "src": "/(.*)",
+      "headers": {
+        "Permissions-Policy": "camera=(), geolocation=(), microphone=()",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY"
+      },
+      "continue": true
+    },
+    {
       "src": "^/$",
       "has": [
         {

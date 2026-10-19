@@ -128,7 +128,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm add -g vercel
 
-      - run: vercel pull --yes --token=${{ secrets.VERCEL_TOKEN }}
+      # Production env, so `vercel build --prod` bakes in VITE_PUBLIC_POSTHOG_KEY.
+      - run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
       - run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Deploy preview (skip production alias)
