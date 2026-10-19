@@ -1,6 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
+  "git": {
+    "deploymentEnabled": {
+      "main": false
+    }
+  },
+  "ignoreCommand": "bash scripts/ci-changed.sh vercel",
   "installCommand": "pnpm install --frozen-lockfile",
   "buildCommand": "pnpm build && pnpm --filter demo run build",
   "outputDirectory": "apps/demo/dist",
