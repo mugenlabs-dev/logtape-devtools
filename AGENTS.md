@@ -1,33 +1,42 @@
-# Standing rules
+# Agent guidelines
 
-Every worker on logtape-devtools follows these.
+Guidance for coding agents and automated contributors working in this repository. Human contributors should read [CONTRIBUTING.md](CONTRIBUTING.md), which covers the repo layout, commands, and release process; everything there applies here too.
 
-## Ship report
+## Before you finish
 
-Any run that ships something (a push to main, a deploy, a PR opened, or a PR going green) must end with a full ship report: the PR or commit link, the deploy state, which checks passed, and screenshot paths for visual work. Never reply "nothing to send" or "same status" after a ship.
+Run the same checks CI runs and report the results:
+
+```bash
+pnpm lint:fix
+pnpm typecheck
+pnpm test:ci
+```
+
+Also run `pnpm test-storybook` and `pnpm test:e2e` if you touched the panel UI or the demo.
+
+Changes to `packages/core` that affect users need a changeset (`pnpm changeset`). The demo app is never published and does not need one.
+
+## Reporting
+
+When you push, deploy, or open a pull request, end with a summary: the commit or PR link, the deploy state, which checks passed, and screenshot paths for visual changes.
 
 ## Visual changes
 
-Unless the brief picks one approach, deliver 2–3 options as screenshots in one round so the maintainer can choose, and keep every constraint the brief lists. Never swap the test you were asked for with a weaker one. Before calling visual work done, look at the screenshot yourself and say in one line what you checked.
+Unless the request picks one approach, offer two or three options as screenshots and keep every constraint the request lists. Look at the screenshots yourself before calling visual work done.
 
-## Small asks
+Do not replace a requested test with a weaker one.
 
-One worker, no side agents, and one push at the end.
+## Scope
 
-Company spelling: **Mugenlabs**.
+Keep changes to what was asked. Small requests should land as one focused change, not a series of pushes.
 
-## CI baseline
+The organization is spelled **Mugenlabs**.
 
-Mugenlabs CI for this repo.
+## CI
 
-Docs-only changes (`*.md` and `docs/`) skip lint, tests, build, and deploy. The workflow still starts. `scripts/ci-changed.sh` classifies the diff, and each other job has an `if`, so a required check reports skipped instead of staying pending.
-
-The suite is under 2 minutes, so pull requests run all of it. On the 2026-10-19 docs run the unit step took 4s, Storybook tests took 7s, and the e2e step took 25s. There is no affected-test split, no nightly full run, and no sharding.
-
-A change runs this workflow once. `pull_request` covers branches. `push` covers `main` only.
-
-Each job sets `timeout-minutes` from runs through 2026-10-19. Path filter, lint, promote, and release use 2 minutes. Storybook, build, and preview e2e use 3. Local e2e and the preview deploy use 4. Build is 3 because one run took 82s, above 3× its 21s median.
-
-The pnpm store cache and the Playwright browser cache do not beat a fresh install here. A warm pnpm cache tied a fresh install once restore time was included, and saving the cache on the e2e container took 22–24s. A Playwright cache hit was 17s, 17s, and 46s against a fresh browser install of 23–27s. CI does not cache either.
-
-Production deploys once per code commit, from the CI promote job. Vercel git deploys are off for `main`. Docs-only commits do not deploy. Preview builds use the same path rule through `ignoreCommand`.
+- Docs-only changes (`*.md` and `docs/`) skip lint, tests, build, and deploy. The workflow still starts. `scripts/ci-changed.sh` classifies the diff, and each job checks the result, so required checks report skipped instead of staying pending.
+- The full suite takes a couple of minutes, so pull requests run all of it.
+- `pull_request` covers branches. `push` covers `main` only, so each change runs the workflow once.
+- Every job sets `timeout-minutes`. Keep timeouts tight, with headroom over the slowest observed run.
+- CI does not cache the pnpm store or Playwright browsers. Measured, neither beat a fresh install.
+- Production deploys once per code commit, from the CI promote job. Vercel git deploys are off for `main`. Preview builds use the same path rule through `ignoreCommand`.
