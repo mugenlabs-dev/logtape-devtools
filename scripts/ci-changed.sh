@@ -95,6 +95,56 @@ cmd_test() {
       exit 1
     fi
     echo "ok gha docs pull_request"
+    : >"$out"
+    set +e
+    EVENT_NAME=push \
+      BEFORE_SHA=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa \
+      PUSH_SHA="$(git rev-parse HEAD)" \
+      GITHUB_OUTPUT="$out" \
+      bash "$0" gha >/dev/null 2>&1
+    status=$?
+    set -e
+    if [ "$status" -ne 0 ] || ! grep -qx 'code=true' "$out"; then
+      echo "FAIL gha missing base exit=$status out=$(cat "$out")" >&2
+      exit 1
+    fi
+    echo "ok gha missing base"
+
+    local tmp script gone_sha docs_sha
+    script="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
+    tmp=$(mktemp -d)
+    git init -q "$tmp"
+    git -C "$tmp" config user.email "ci@example.com"
+    git -C "$tmp" config user.name "ci"
+    echo docs >"$tmp/readme.md"
+    git -C "$tmp" add readme.md
+    git -C "$tmp" commit -qm docs
+    docs_sha=$(git -C "$tmp" rev-parse HEAD)
+    echo gone >"$tmp/gone.md"
+    git -C "$tmp" add gone.md
+    git -C "$tmp" commit -qm gone
+    gone_sha=$(git -C "$tmp" rev-parse HEAD)
+    git -C "$tmp" reset --hard "$docs_sha" >/dev/null
+    git -C "$tmp" reflog expire --expire=now --all
+    git -C "$tmp" -c gc.reflogExpire=now -c gc.reflogExpireUnreachable=now gc --prune=now --quiet
+    : >"$out"
+    set +e
+    (
+      cd "$tmp"
+      EVENT_NAME=push \
+        BEFORE_SHA="$gone_sha" \
+        PUSH_SHA="$docs_sha" \
+        GITHUB_OUTPUT="$out" \
+        bash "$script" gha >/dev/null 2>&1
+    )
+    status=$?
+    set -e
+    rm -rf "$tmp"
+    if [ "$status" -ne 0 ] || ! grep -qx 'code=true' "$out"; then
+      echo "FAIL gha force-push base exit=$status out=$(cat "$out")" >&2
+      exit 1
+    fi
+    echo "ok gha force-push base"
     rm -f "$out"
   fi
 }
