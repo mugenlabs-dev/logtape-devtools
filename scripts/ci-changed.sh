@@ -150,12 +150,15 @@ cmd_test() {
 }
 
 cmd_gha() {
-  local files base head code
+  local files base head code status=0
   case "${EVENT_NAME}" in
     pull_request)
       base="${BASE_SHA}"
       head="${PR_HEAD_SHA}"
-      files=$(git diff --name-only "$base...$head")
+      set +e
+      files=$(git diff --name-only "$base...$head" 2>/dev/null)
+      status=$?
+      set -e
       ;;
     push)
       base="${BEFORE_SHA}"
@@ -164,13 +167,21 @@ cmd_gha() {
         echo "code=true" >> "$GITHUB_OUTPUT"
         return
       fi
-      files=$(git diff --name-only "$base" "$head")
+      set +e
+      files=$(git diff --name-only "$base" "$head" 2>/dev/null)
+      status=$?
+      set -e
       ;;
     *)
       echo "code=true" >> "$GITHUB_OUTPUT"
       return
       ;;
   esac
+  if [ "$status" -ne 0 ]; then
+    echo "Cannot diff ${base} ${head}; running full suite." >&2
+    echo "code=true" >> "$GITHUB_OUTPUT"
+    return
+  fi
   code=$(printf '%s\n' "$files" | should_run_ci)
   echo "code=$code" >> "$GITHUB_OUTPUT"
   echo "run_ci=$code"
