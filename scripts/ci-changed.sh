@@ -44,25 +44,25 @@ cmd_test() {
   check vercel "vercel.json" true
   check empty "" true
 
-  if git rev-parse --verify f8f566e >/dev/null 2>&1; then
-    got=$(git diff --name-only f8f566e^ f8f566e | should_run_ci)
+  if git rev-parse --verify ef9fa09 >/dev/null 2>&1; then
+    got=$(git diff --name-only ef9fa09^ ef9fa09 | should_run_ci)
     if [ "$got" != "false" ]; then
-      echo "FAIL f8f566e got=$got" >&2
+      echo "FAIL ef9fa09 got=$got" >&2
       exit 1
     fi
-    echo "ok f8f566e"
-    got=$(git diff --name-only f634bcd^1 f634bcd | should_run_ci)
+    echo "ok ef9fa09"
+    got=$(git diff --name-only f19ebdf^1 f19ebdf | should_run_ci)
     if [ "$got" != "true" ]; then
-      echo "FAIL f634bcd got=$got" >&2
+      echo "FAIL f19ebdf got=$got" >&2
       exit 1
     fi
-    echo "ok f634bcd"
+    echo "ok f19ebdf"
 
     local out
     out=$(mktemp)
     EVENT_NAME=push \
-      BEFORE_SHA="$(git rev-parse f8f566e^)" \
-      PUSH_SHA=f8f566e \
+      BEFORE_SHA="$(git rev-parse ef9fa09^)" \
+      PUSH_SHA=ef9fa09 \
       GITHUB_OUTPUT="$out" \
       bash "$0" gha >/dev/null
     if ! grep -qx 'code=false' "$out"; then
@@ -73,8 +73,8 @@ cmd_test() {
     echo "ok gha docs push"
     : >"$out"
     EVENT_NAME=push \
-      BEFORE_SHA="$(git rev-parse f634bcd^1)" \
-      PUSH_SHA=f634bcd \
+      BEFORE_SHA="$(git rev-parse f19ebdf^1)" \
+      PUSH_SHA=f19ebdf \
       GITHUB_OUTPUT="$out" \
       bash "$0" gha >/dev/null
     if ! grep -qx 'code=true' "$out"; then
@@ -85,8 +85,8 @@ cmd_test() {
     echo "ok gha code push"
     : >"$out"
     EVENT_NAME=pull_request \
-      BASE_SHA="$(git rev-parse f8f566e^)" \
-      PR_HEAD_SHA=f8f566e \
+      BASE_SHA="$(git rev-parse ef9fa09^)" \
+      PR_HEAD_SHA=ef9fa09 \
       GITHUB_OUTPUT="$out" \
       bash "$0" gha >/dev/null
     if ! grep -qx 'code=false' "$out"; then
