@@ -32,7 +32,7 @@ Keep changes to what was asked. Small requests should land as one focused change
 
 The organization is spelled **Mugenlabs**.
 
-Commits must be authored and committed as `Yago Gonzalez <6538706+Yagogc@users.noreply.github.com>` with no `Co-authored-by:` trailer (including Cursor's); CI enforces this so GitHub history stays under that identity.
+Commits must be authored and committed as `Yago Gonzalez <6538706+Yagogc@users.noreply.github.com>` with no `Co-authored-by:` trailer (including Cursor's); CI enforces this so GitHub history stays under that identity. Workers set `git config user.name` / `user.email` before committing.
 
 ## CI
 
