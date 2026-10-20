@@ -32,6 +32,8 @@ Keep changes to what was asked. Small requests should land as one focused change
 
 The organization is spelled **Mugenlabs**.
 
+Commits must be authored and committed as `Yago Gonzalez <6538706+Yagogc@users.noreply.github.com>` with no `Co-authored-by:` trailer (including Cursor's); CI enforces this so GitHub history stays under that identity.
+
 ## CI
 
 - Docs-only changes (`*.md` and `docs/`) skip lint, tests, build, and deploy. The workflow still starts. `scripts/ci-changed.sh` classifies the diff, and each job checks the result, so required checks report skipped instead of staying pending.

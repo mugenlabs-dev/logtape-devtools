@@ -11,6 +11,25 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
+  authors:
+    name: Commit authors
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - run: bash scripts/check-commit-authors.sh test
+
+      - env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PUSH_SHA: ${{ github.sha }}
+          BEFORE_SHA: ${{ github.event.before }}
+        run: bash scripts/check-commit-authors.sh gha
+
   changes:
     name: Path filter
     runs-on: ubuntu-latest
