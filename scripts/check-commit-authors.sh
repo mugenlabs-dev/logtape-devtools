@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Author and committer email for every new commit. No Co-authored-by trailers.
+# Author must be Yago. Committer may be Yago or GitHub (squash). No Co-authored-by.
 EXPECTED_EMAIL='6538706+Yagogc@users.noreply.github.com'
+GITHUB_COMMITTER_EMAIL='noreply@github.com'
 
 check_range() {
   local repo="${REPO:-.}" base="$1" head="$2" sha ae ce msg fail=0
@@ -15,8 +16,8 @@ check_range() {
       echo "FAIL $sha author email=$ae want=$EXPECTED_EMAIL" >&2
       fail=1
     fi
-    if [ "$ce" != "$EXPECTED_EMAIL" ]; then
-      echo "FAIL $sha committer email=$ce want=$EXPECTED_EMAIL" >&2
+    if [ "$ce" != "$EXPECTED_EMAIL" ] && [ "$ce" != "$GITHUB_COMMITTER_EMAIL" ]; then
+      echo "FAIL $sha committer email=$ce want=$EXPECTED_EMAIL or $GITHUB_COMMITTER_EMAIL" >&2
       fail=1
     fi
     if printf '%s\n' "$msg" | grep -qiE '^[[:space:]]*Co-authored-by:'; then
@@ -62,7 +63,7 @@ cmd_gha() {
 }
 
 cmd_test() {
-  local script base good bad_author bad_committer bad_co
+  local script base good gh_committer bad_author bad_committer bad_co
   script="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
   TEST_TMP=$(mktemp -d)
   trap 'rm -rf "${TEST_TMP:-}"' EXIT
@@ -85,17 +86,31 @@ cmd_test() {
   fi
   echo "ok good author"
 
+  echo g >"$TEST_TMP/g.txt"
+  git -C "$TEST_TMP" add g.txt
+  GIT_AUTHOR_NAME="Yago Gonzalez" \
+    GIT_AUTHOR_EMAIL="$EXPECTED_EMAIL" \
+    GIT_COMMITTER_NAME="GitHub" \
+    GIT_COMMITTER_EMAIL="$GITHUB_COMMITTER_EMAIL" \
+    git -C "$TEST_TMP" commit -qm github-squash
+  gh_committer=$(git -C "$TEST_TMP" rev-parse HEAD)
+  if ! REPO="$TEST_TMP" bash "$script" check "$good" "$gh_committer"; then
+    echo "FAIL expected GitHub committer with Yago author to pass" >&2
+    exit 1
+  fi
+  echo "ok GitHub committer"
+
   echo c >"$TEST_TMP/c.txt"
   git -C "$TEST_TMP" add c.txt
   git -C "$TEST_TMP" -c user.email=agent@example.com commit -qm bad-author
   bad_author=$(git -C "$TEST_TMP" rev-parse HEAD)
-  if REPO="$TEST_TMP" bash "$script" check "$good" "$bad_author"; then
+  if REPO="$TEST_TMP" bash "$script" check "$gh_committer" "$bad_author"; then
     echo "FAIL expected wrong author to fail" >&2
     exit 1
   fi
   echo "ok rejects wrong author"
 
-  git -C "$TEST_TMP" reset --hard "$good" >/dev/null
+  git -C "$TEST_TMP" reset --hard "$gh_committer" >/dev/null
   echo d >"$TEST_TMP/d.txt"
   git -C "$TEST_TMP" add d.txt
   GIT_AUTHOR_NAME="Yago Gonzalez" \
@@ -104,18 +119,18 @@ cmd_test() {
     GIT_COMMITTER_EMAIL="committer@example.com" \
     git -C "$TEST_TMP" commit -qm bad-committer
   bad_committer=$(git -C "$TEST_TMP" rev-parse HEAD)
-  if REPO="$TEST_TMP" bash "$script" check "$good" "$bad_committer"; then
+  if REPO="$TEST_TMP" bash "$script" check "$gh_committer" "$bad_committer"; then
     echo "FAIL expected wrong committer to fail" >&2
     exit 1
   fi
   echo "ok rejects wrong committer"
 
-  git -C "$TEST_TMP" reset --hard "$good" >/dev/null
+  git -C "$TEST_TMP" reset --hard "$gh_committer" >/dev/null
   echo e >"$TEST_TMP/e.txt"
   git -C "$TEST_TMP" add e.txt
   git -C "$TEST_TMP" commit -qm "$(printf 'bad co\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n')"
   bad_co=$(git -C "$TEST_TMP" rev-parse HEAD)
-  if REPO="$TEST_TMP" bash "$script" check "$good" "$bad_co"; then
+  if REPO="$TEST_TMP" bash "$script" check "$gh_committer" "$bad_co"; then
     echo "FAIL expected Co-authored-by to fail" >&2
     exit 1
   fi
