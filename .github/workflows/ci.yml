@@ -20,7 +20,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - run: bash scripts/check-commit-authors.sh test
+      - run: bash scripts/check-commit-authors.test.sh
 
       - env:
           EVENT_NAME: ${{ github.event_name }}

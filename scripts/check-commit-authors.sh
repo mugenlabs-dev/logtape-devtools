@@ -62,93 +62,11 @@ cmd_gha() {
   check_range "$base" "$head"
 }
 
-cmd_test() {
-  local script base good gh_committer bad_author bad_committer bad_co
-  script="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
-  TEST_TMP=$(mktemp -d)
-  trap 'rm -rf "${TEST_TMP:-}"' EXIT
-
-  git init -q "$TEST_TMP"
-  git -C "$TEST_TMP" config user.name "Yago Gonzalez"
-  git -C "$TEST_TMP" config user.email "$EXPECTED_EMAIL"
-  echo a >"$TEST_TMP/a.txt"
-  git -C "$TEST_TMP" add a.txt
-  git -C "$TEST_TMP" commit -qm base
-  base=$(git -C "$TEST_TMP" rev-parse HEAD)
-
-  echo b >"$TEST_TMP/b.txt"
-  git -C "$TEST_TMP" add b.txt
-  git -C "$TEST_TMP" commit -qm good
-  good=$(git -C "$TEST_TMP" rev-parse HEAD)
-  if ! REPO="$TEST_TMP" bash "$script" check "$base" "$good"; then
-    echo "FAIL expected good commit to pass" >&2
-    exit 1
-  fi
-  echo "ok good author"
-
-  echo g >"$TEST_TMP/g.txt"
-  git -C "$TEST_TMP" add g.txt
-  GIT_AUTHOR_NAME="Yago Gonzalez" \
-    GIT_AUTHOR_EMAIL="$EXPECTED_EMAIL" \
-    GIT_COMMITTER_NAME="GitHub" \
-    GIT_COMMITTER_EMAIL="$GITHUB_COMMITTER_EMAIL" \
-    git -C "$TEST_TMP" commit -qm github-squash
-  gh_committer=$(git -C "$TEST_TMP" rev-parse HEAD)
-  if ! REPO="$TEST_TMP" bash "$script" check "$good" "$gh_committer"; then
-    echo "FAIL expected GitHub committer with Yago author to pass" >&2
-    exit 1
-  fi
-  echo "ok GitHub committer"
-
-  echo c >"$TEST_TMP/c.txt"
-  git -C "$TEST_TMP" add c.txt
-  git -C "$TEST_TMP" -c user.email=agent@example.com commit -qm bad-author
-  bad_author=$(git -C "$TEST_TMP" rev-parse HEAD)
-  if REPO="$TEST_TMP" bash "$script" check "$gh_committer" "$bad_author"; then
-    echo "FAIL expected wrong author to fail" >&2
-    exit 1
-  fi
-  echo "ok rejects wrong author"
-
-  git -C "$TEST_TMP" reset --hard "$gh_committer" >/dev/null
-  echo d >"$TEST_TMP/d.txt"
-  git -C "$TEST_TMP" add d.txt
-  GIT_AUTHOR_NAME="Yago Gonzalez" \
-    GIT_AUTHOR_EMAIL="$EXPECTED_EMAIL" \
-    GIT_COMMITTER_NAME="Other" \
-    GIT_COMMITTER_EMAIL="committer@example.com" \
-    git -C "$TEST_TMP" commit -qm bad-committer
-  bad_committer=$(git -C "$TEST_TMP" rev-parse HEAD)
-  if REPO="$TEST_TMP" bash "$script" check "$gh_committer" "$bad_committer"; then
-    echo "FAIL expected wrong committer to fail" >&2
-    exit 1
-  fi
-  echo "ok rejects wrong committer"
-
-  git -C "$TEST_TMP" reset --hard "$gh_committer" >/dev/null
-  echo e >"$TEST_TMP/e.txt"
-  git -C "$TEST_TMP" add e.txt
-  git -C "$TEST_TMP" commit -qm "$(printf 'bad co\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n')"
-  bad_co=$(git -C "$TEST_TMP" rev-parse HEAD)
-  if REPO="$TEST_TMP" bash "$script" check "$gh_committer" "$bad_co"; then
-    echo "FAIL expected Co-authored-by to fail" >&2
-    exit 1
-  fi
-  echo "ok rejects Co-authored-by"
-
-  if ! REPO="$TEST_TMP" bash "$script" check "$good" "$good"; then
-    echo "FAIL expected empty range to pass" >&2
-    exit 1
-  fi
-  echo "ok empty range"
-}
-
 case "${1:-}" in
-  test) cmd_test ;;
   check) shift; cmd_check "$@" ;;
   gha) cmd_gha ;;
   *)
-    echo "usage: check-commit-authors.sh test|check <base> <head>|gha" >&2
+    echo "usage: check-commit-authors.sh check <base> <head>|gha" >&2
     exit 2
     ;;
 esac
