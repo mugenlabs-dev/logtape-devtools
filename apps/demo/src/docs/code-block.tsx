@@ -165,7 +165,7 @@ export const CodeBlock = ({
         <WindowDots />
         <span
           style={{
-            color: "var(--text-dimmed)",
+            color: "var(--code-dimmed)",
             fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
             fontSize: 12,
             marginInlineStart: "auto",

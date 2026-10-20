@@ -152,6 +152,7 @@ const FloatingButtons = () => {
           className={`lt-float lt-float--docs lt-cta inline-flex items-center gap-[0.4em] rounded-full border border-accent/30 bg-bg-primary/80 px-5 font-medium text-accent-light text-sm shadow-lg backdrop-blur-md ${
             showDocs ? "is-visible" : "is-hidden"
           }`}
+          inert={!showDocs}
           onClick={scrollToDocs}
           type="button"
         >
@@ -166,6 +167,7 @@ const FloatingButtons = () => {
           className={`lt-float lt-float--top lt-hit-44 flex size-10 items-center justify-center rounded-full border border-border-secondary bg-bg-primary/80 text-text-muted shadow-md backdrop-blur-md ${
             showTop ? "is-visible" : "is-hidden"
           }`}
+          inert={!showTop}
           onClick={scrollToTop}
           onMouseEnter={startArrow}
           onMouseLeave={stopArrow}

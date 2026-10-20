@@ -4,6 +4,7 @@ import { TanStackDevtools } from "@tanstack/react-devtools";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CodeBlock } from "../docs/code-block";
 import { ChevronRightIcon } from "../icons";
+import { captureException } from "../lib/analytics";
 
 // --- Source code shown to the user ---
 const EXAMPLE_CODE = `import { configure, getLogger } from "@logtape/logtape";
@@ -194,7 +195,9 @@ export const PlaygroundPage = () => {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    setupLogTape().then(() => setReady(true));
+    setupLogTape()
+      .then(() => setReady(true))
+      .catch(captureException);
   }, []);
 
   useEffect(() => {

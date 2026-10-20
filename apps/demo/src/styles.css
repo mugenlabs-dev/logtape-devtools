@@ -42,7 +42,9 @@
   --text-secondary: light-dark(#333, #e0e0e0);
   --text-tertiary: light-dark(#555, #aaa);
   --text-muted: light-dark(#666, #888);
-  --text-dimmed: light-dark(#999, #666);
+  --text-dimmed: light-dark(#6b6b6b, #808080);
+  /* Code blocks are dark in both themes. */
+  --code-dimmed: light-dark(#999, #808080);
   color-scheme: light dark;
 }
 
@@ -68,6 +70,7 @@ html[data-theme="dark"] {
   --color-text-tertiary: var(--text-tertiary);
   --color-text-muted: var(--text-muted);
   --color-text-dimmed: var(--text-dimmed);
+  --color-code-dimmed: var(--code-dimmed);
 
   --color-border-primary: var(--border-primary);
   --color-border-secondary: var(--border-secondary);

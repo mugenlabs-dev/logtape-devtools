@@ -5,7 +5,9 @@ export const openDevToolsPanel = async (page: Page) => {
   const openButton = page.getByRole("button", {
     name: "Open TanStack Devtools",
   });
-  if (await openButton.isVisible({ timeout: 5000 }).catch(() => false)) {
+  // isVisible() does not wait, so wait for the button or an open panel first.
+  await expect(openButton.or(page.getByTestId("toolbar")).first()).toBeVisible({ timeout: 15_000 });
+  if (await openButton.isVisible()) {
     await openButton.click();
   }
   // TanStack DevTools renders plugins inside a SolidJS shell with its own

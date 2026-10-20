@@ -1,5 +1,5 @@
 import { SiBun, SiNpm, SiPnpm, SiYarn } from "@icons-pack/react-simple-icons";
-import { type ComponentType, useCallback, useRef, useState } from "react";
+import { type ComponentType, useCallback, useEffect, useRef, useState } from "react";
 import { type AnimatedIconHandle, CheckIcon, CopyIcon } from "../icons";
 import { MANAGERS, type PM, usePm } from "./pm-context";
 
@@ -28,7 +28,18 @@ function getCommand(pm: PM, packages: string, dev: boolean): string {
 
 const CopyButton = ({ text }: { text: string }) => {
   const [copied, setCopied] = useState(false);
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const iconRef = useRef<AnimatedIconHandle>(null);
+
+  useEffect(
+    () => () => {
+      if (resetTimerRef.current != null) {
+        clearTimeout(resetTimerRef.current);
+      }
+    },
+    []
+  );
+
   const startAnimation = useCallback(() => iconRef.current?.startAnimation(), []);
   const stopAnimation = useCallback(() => iconRef.current?.stopAnimation(), []);
 
@@ -36,7 +47,10 @@ const CopyButton = ({ text }: { text: string }) => {
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      if (resetTimerRef.current != null) {
+        clearTimeout(resetTimerRef.current);
+      }
+      resetTimerRef.current = setTimeout(() => setCopied(false), 2000);
     } catch {
       // clipboard not available
     }
@@ -45,7 +59,7 @@ const CopyButton = ({ text }: { text: string }) => {
   return (
     <button
       aria-label="Copy to clipboard"
-      className="lt-control lt-copy lt-hit-44 flex items-center justify-center rounded-md p-1.5 text-text-dimmed"
+      className="lt-control lt-copy lt-hit-44 flex items-center justify-center rounded-md p-1.5 text-code-dimmed"
       onClick={handleCopy}
       onMouseEnter={startAnimation}
       onMouseLeave={stopAnimation}
