@@ -38,7 +38,7 @@ All of these run from the repo root:
 | `pnpm dev` | Rebuilds the package on change |
 | `pnpm dev:demo` | Runs the demo site on port 3001 |
 | `pnpm typecheck` | Builds, then typechecks `packages/core` and `apps/demo` |
-| `pnpm test --run` | Unit tests (Vitest, jsdom) |
+| `pnpm test` / `pnpm test:ci` | Unit tests (Vitest, jsdom), in watch mode or once |
 | `pnpm test-storybook` | Storybook component tests (Vitest browser mode, Chromium) |
 | `pnpm test:e2e` | Playwright end-to-end tests against the demo |
 | `pnpm lint` / `pnpm lint:fix` | Biome check, with or without `--write` |
@@ -52,7 +52,7 @@ All of these run from the repo root:
 ```bash
 pnpm lint:fix
 pnpm typecheck
-pnpm test --run
+pnpm test:ci
 ```
 
 Run `pnpm test-storybook` and `pnpm test:e2e` too if you touched the panel UI. CI runs the same checks.
@@ -65,7 +65,7 @@ Releases are driven by [Changesets](https://github.com/changesets/changesets).
 2. Run `pnpm changeset`, pick `@mugenlabs/logtape-devtools`, choose the bump (patch / minor / major), and write a short user-facing description. This writes a markdown file into `.changeset/` — commit it with your PR.
 3. Open the PR. Any PR that changes package behaviour should include a changeset; docs-only or demo-only changes do not need one.
 4. Once merged to `main`, the release workflow opens (or updates) a "Version Packages" PR that consumes the pending changesets, bumps the version, and updates the changelog.
-5. Merging that release PR publishes to npm.
+5. Merging that release PR publishes to npm through [trusted publishing](https://docs.npmjs.com/trusted-publishers), so no npm token is stored in the repo.
 
 The demo app is ignored by Changesets and is never versioned or published.
 

@@ -46,7 +46,7 @@ Common checks:
 
 ```bash
 pnpm typecheck        # build + tsgo across package and demo
-pnpm test --run       # unit tests (Vitest)
+pnpm test:ci          # unit tests (Vitest)
 pnpm test-storybook   # component tests via Storybook + Vitest browser mode
 pnpm test:e2e         # Playwright end-to-end tests
 pnpm lint:fix         # Biome check --write

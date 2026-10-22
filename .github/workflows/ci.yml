@@ -10,6 +10,9 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
+env:
+  VERCEL_CLI_VERSION: 65.1.0
+
 jobs:
   changes:
     name: Path filter
@@ -126,7 +129,7 @@ jobs:
           node-version-file: ".nvmrc"
 
       - run: pnpm install --frozen-lockfile
-      - run: pnpm add -g vercel
+      - run: pnpm add -g "vercel@$VERCEL_CLI_VERSION"
 
       # Production env, so `vercel build --prod` bakes in VITE_PUBLIC_POSTHOG_KEY.
       - run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
@@ -213,6 +216,6 @@ jobs:
     if: needs.changes.outputs.code == 'true' && github.ref == 'refs/heads/main' && github.event_name == 'push'
     timeout-minutes: 2
     steps:
-      - run: npm add -g vercel
+      - run: npm add -g "vercel@$VERCEL_CLI_VERSION"
       - name: Promote preview to production
         run: vercel promote ${{ needs.deploy-preview.outputs.preview-url }} --yes --scope=${{ secrets.VERCEL_ORG_ID }} --token=${{ secrets.VERCEL_TOKEN }}
