@@ -121,14 +121,14 @@ function normalizeRecord(record: LogRecord, captureStack: boolean, id: string): 
 
 function isProductionEnv(): boolean {
   try {
-    // Bundlers (Vite, webpack, etc.) statically replace this at build time
-    if (typeof process !== "undefined" && process.env?.NODE_ENV === "production") {
-      return true;
-    }
+    // Written out literally so bundlers (Vite, webpack, etc.) replace it at build
+    // time. A `typeof process` guard or `?.` would stop the replacement, and the
+    // check would then always be false in the browser.
+    return process.env.NODE_ENV === "production";
   } catch {
-    // process may not exist in browser environments
+    // No bundler replaced it and `process` does not exist (e.g. a plain browser).
+    return false;
   }
-  return false;
 }
 
 /** Options for {@link createDevtoolsSink}. */

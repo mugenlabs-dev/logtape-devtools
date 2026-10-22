@@ -73,6 +73,11 @@ const compactButtonStyle = {
   transition: "filter 0.1s",
 } as const;
 
+// The store is process-wide, so on a server it holds every request's logs.
+// Render the panel empty there; the client fills it in after hydration.
+const serverSnapshot: DevtoolsLogRecord[] = [];
+const getServerSnapshot = () => serverSnapshot;
+
 function categoryKeyOf(record: DevtoolsLogRecord): string {
   return record.categoryKey ?? record.category.join(".");
 }
@@ -86,21 +91,18 @@ export const LogTapeDevtoolsPlugin = ({ store }: Props) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  // While paused, unsubscribe so coalesced store flushes do not re-render the
-  // panel/toolbar/virtualizer. Resuming recreates the subscribe callback and
+  // While paused, subscribe a listener that ignores changes, so coalesced store
+  // flushes do not re-render the panel/toolbar/virtualizer. It still counts as a
+  // listener, so the sink keeps capturing callers for logs that arrive during
+  // the pause. The store keeps listeners in a Set, so each subscription gets its
+  // own function. Resuming recreates the subscribe callback and
   // useSyncExternalStore re-reads the live snapshot.
   const subscribe = useCallback(
-    (onStoreChange: () => void) => {
-      if (paused) {
-        // No-op unsubscribe: skip store notifications for the pause window.
-        return () => undefined;
-      }
-      return store.subscribe(onStoreChange);
-    },
+    (onStoreChange: () => void) => store.subscribe(paused ? () => undefined : onStoreChange),
     [store, paused]
   );
 
-  const allRecords = useSyncExternalStore(subscribe, store.getSnapshot, store.getSnapshot);
+  const allRecords = useSyncExternalStore(subscribe, store.getSnapshot, getServerSnapshot);
 
   const handlePause = useCallback(() => {
     setPausedRecords(store.getSnapshot());
@@ -120,13 +122,15 @@ export const LogTapeDevtoolsPlugin = ({ store }: Props) => {
 
   const records = paused ? pausedRecords : allRecords;
 
+  // Selected categories stay in the list even when no record has them (after
+  // Clear, or once evicted), so their chips stay visible and removable.
   const uniqueCategories = useMemo(() => {
-    const seen = new Set<string>();
+    const seen = new Set<string>(categoryFilter);
     for (const r of records) {
       seen.add(categoryKeyOf(r));
     }
     return Array.from(seen).sort();
-  }, [records]);
+  }, [records, categoryFilter]);
 
   const filteredRecords = useMemo(() => {
     const term = searchText ? searchText.toLowerCase() : "";

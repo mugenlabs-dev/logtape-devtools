@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { expect, waitFor } from "storybook/test";
+import { expect, waitFor, within } from "storybook/test";
 import { getActiveStoryStore, withLogStore, withPluginContainer } from "./__stories__/decorators";
 import { allLevelRecords, makeRecord, typicalRecords } from "./__stories__/fixtures";
 import { LogTapeDevtoolsPlugin } from "./logtape-devtools-plugin";
@@ -78,6 +78,9 @@ export const PauseResume: Story = {
       await expect(canvas.getAllByTestId("log-row")).toHaveLength(before);
       await expect(canvas.queryByText("emitted-while-paused-unique")).not.toBeInTheDocument();
     });
+    await step("Paused panel still counts as a listener, so callers are captured", async () => {
+      await expect(getActiveStoryStore().hasListeners()).toBe(true);
+    });
     await step("Resume shows logs emitted while paused", async () => {
       const resumeBtn = canvas.getByRole("button", { name: /Resume/ });
       await userEvent.click(resumeBtn);
@@ -100,6 +103,30 @@ export const ClearLogs: Story = {
       await waitFor(() => {
         expect(canvas.getByText("No logs yet")).toBeInTheDocument();
       });
+    });
+  },
+};
+
+export const ClearKeepsCategoryFilter: Story = {
+  decorators: [withLogStore(typicalRecords)],
+  name: "Clear Keeps Category Filter Visible",
+  play: async ({ canvas, userEvent, step }) => {
+    await step("Select a category", async () => {
+      await userEvent.type(canvas.getByTestId("category-input"), "lib.http");
+      const body = within(document.body);
+      await userEvent.click(await body.findByRole("option", { name: "lib.http" }));
+      await expect(canvas.getByTitle("Remove lib.http")).toBeInTheDocument();
+    });
+    await step("Clear keeps the active filter's chip", async () => {
+      await userEvent.click(canvas.getByRole("button", { name: /Clear/ }));
+      await waitFor(() => {
+        expect(canvas.getByText("No logs yet")).toBeInTheDocument();
+      });
+      await expect(canvas.getByTitle("Remove lib.http")).toBeInTheDocument();
+    });
+    await step("The chip can still be removed", async () => {
+      await userEvent.click(canvas.getByTitle("Remove lib.http"));
+      await expect(canvas.queryByTitle("Remove lib.http")).not.toBeInTheDocument();
     });
   },
 };

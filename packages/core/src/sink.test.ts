@@ -145,6 +145,34 @@ describe("createDevtoolsSink", () => {
     expect(hasListeners).toHaveReturnedWith(true);
   });
 
+  describe("in production builds", () => {
+    afterEach(() => {
+      vi.unstubAllEnvs();
+    });
+
+    it("skips stack capture even with a listener", () => {
+      vi.stubEnv("NODE_ENV", "production");
+      const store = createLogStore();
+      store.subscribe(() => {
+        // panel mounted
+      });
+      const hasListeners = vi.spyOn(store, "hasListeners");
+      const sink = createDevtoolsSink({ store });
+
+      sink(makeLogRecord());
+
+      // Capture is off for this sink, so it never asks whether a panel is open.
+      expect(hasListeners).not.toHaveBeenCalled();
+      expect(store.getSnapshot()[0].caller).toBeUndefined();
+    });
+
+    it("reads process.env.NODE_ENV literally so bundlers can replace it", async () => {
+      const { readFile } = await import("node:fs/promises");
+      const source = await readFile(`${import.meta.dirname}/sink.ts`, "utf8");
+      expect(source).toContain('return process.env.NODE_ENV === "production";');
+    });
+  });
+
   it("does not gate on listeners when forceStackTrace is set", () => {
     const store = createLogStore();
     const hasListeners = vi.spyOn(store, "hasListeners");
