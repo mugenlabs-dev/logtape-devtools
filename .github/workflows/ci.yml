@@ -10,6 +10,10 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
+# Jobs only read the repo. Deploys authenticate with VERCEL_TOKEN, not GITHUB_TOKEN.
+permissions:
+  contents: read
+
 env:
   VERCEL_CLI_VERSION: 65.1.0
 
@@ -131,14 +135,22 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm add -g "vercel@$VERCEL_CLI_VERSION"
 
+      # The Vercel CLI reads VERCEL_TOKEN from the environment. It is set per step,
+      # so the token stays off command lines and away from `pnpm install` scripts.
       # Production env, so `vercel build --prod` bakes in VITE_PUBLIC_POSTHOG_KEY.
-      - run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-      - run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - run: vercel pull --yes --environment=production
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      - run: vercel build --prod
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
       - name: Deploy preview (skip production alias)
         id: deploy
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          url=$(vercel deploy --prebuilt --prod --skip-domain --token=${{ secrets.VERCEL_TOKEN }})
+          url=$(vercel deploy --prebuilt --prod --skip-domain)
           echo "preview-url=$url" >> "$GITHUB_OUTPUT"
 
   e2e:
@@ -218,4 +230,6 @@ jobs:
     steps:
       - run: npm add -g "vercel@$VERCEL_CLI_VERSION"
       - name: Promote preview to production
-        run: vercel promote ${{ needs.deploy-preview.outputs.preview-url }} --yes --scope=${{ secrets.VERCEL_ORG_ID }} --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: vercel promote ${{ needs.deploy-preview.outputs.preview-url }} --yes --scope=${{ secrets.VERCEL_ORG_ID }}
