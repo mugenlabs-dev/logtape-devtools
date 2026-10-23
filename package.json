@@ -2,7 +2,8 @@
   "name": "logtape-devtools",
   "private": true,
   "scripts": {
-    "audit": "pnpm audit --audit-level=moderate",
+    "audit:published": "bash scripts/audit-published.sh",
+    "audit:workspace": "pnpm audit --audit-level=moderate",
     "build": "pnpm --filter ./packages/core run build",
     "build-storybook": "pnpm --filter ./packages/core run build-storybook",
     "changeset": "changeset",
