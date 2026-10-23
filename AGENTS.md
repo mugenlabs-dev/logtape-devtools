@@ -34,7 +34,7 @@ The organization is spelled **Mugenlabs**.
 
 ## CI
 
-- Docs-only changes (`*.md` and `docs/`) skip lint, tests, build, and deploy. The workflow still starts. `scripts/ci-changed.sh` classifies the diff, and each job checks the result, so required checks report skipped instead of staying pending.
+- Docs-only changes (`*.md` and `docs/`) skip lint, tests, build, and deploy. Changesets (`.changeset/*.md`) count as code, because they drive the next release. The workflow still starts. `scripts/ci-changed.sh` classifies the diff, and each job checks the result, so required checks report skipped instead of staying pending.
 - The full suite takes a couple of minutes, so pull requests run all of it.
 - `pull_request` covers branches. `push` covers `main` only, so each change runs the workflow once.
 - Actions are pinned to a full commit SHA with the version in a comment (`uses: actions/checkout@<sha> # v4.4.0`). To bump one, resolve the new tag with `git ls-remote --tags https://github.com/<owner>/<repo>` (use the `^{}` line for annotated tags) and update the SHA and the comment together.
