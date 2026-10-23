@@ -103,6 +103,40 @@ jobs:
       - name: Run Storybook tests with coverage
         run: pnpm test:coverage
 
+  peers:
+    name: Peer versions (${{ matrix.peers }})
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --user 1001
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        # The oldest and newest versions the peer ranges allow
+        peers: [oldest, latest]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: ".nvmrc"
+
+      - name: Pin peer dependencies
+        run: node scripts/pin-peer-versions.mjs ${{ matrix.peers }}
+
+      - run: pnpm install --no-frozen-lockfile
+
+      - name: Unit tests
+        run: pnpm test:ci
+
+      - name: Storybook tests
+        run: pnpm test-storybook
+
   build:
     name: Build & Typecheck
     needs: changes
