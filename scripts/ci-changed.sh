@@ -110,6 +110,16 @@ cmd_test() {
     fi
     echo "ok gha missing base"
 
+    set +e
+    VERCEL_GIT_PREVIOUS_SHA=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa bash "$0" vercel >/dev/null 2>&1
+    status=$?
+    set -e
+    if [ "$status" -ne 1 ]; then
+      echo "FAIL vercel missing base exit=$status (want 1, build)" >&2
+      exit 1
+    fi
+    echo "ok vercel missing base"
+
     local tmp script gone_sha docs_sha
     script="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
     tmp=$(mktemp -d)
@@ -191,8 +201,10 @@ cmd_gha() {
 # Exit 0 skips the Vercel build. Exit 1 builds.
 cmd_vercel() {
   local base="${VERCEL_GIT_PREVIOUS_SHA:-HEAD^}" files code
-  git rev-parse --verify "$base" >/dev/null 2>&1 || exit 1
-  files=$(git diff --name-only "$base" HEAD)
+  # ^{commit} makes git check the object exists. A bare 40-char SHA always
+  # "verifies", even when history was rewritten or the clone is too shallow.
+  git rev-parse --verify --quiet "$base^{commit}" >/dev/null 2>&1 || exit 1
+  files=$(git diff --name-only "$base" HEAD 2>/dev/null) || exit 1
   code=$(printf '%s\n' "$files" | should_run_ci)
   if [ "$code" = "true" ]; then
     exit 1
