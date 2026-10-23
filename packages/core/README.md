@@ -260,7 +260,7 @@ The shared `LogStore` instance (created with the default `maxRecords: 1000`) use
 | `react-dom` | `^18.0.0 \|\| ^19.0.0` | Required for the panel |
 | `@tanstack/react-devtools` | `^0.9.0` | **Optional** — only needed to host the panel. Bound to 0.9.x because 0.10 changed how props are passed into plugins |
 
-Node `>=24.0.0` (Active LTS). The package is published as ESM. Node 24 can also `require()` it, and tools that do not set the `import` condition resolve it through `default`. `@tanstack/react-devtools` being optional means you can depend on this package purely for the sink (via `@mugenlabs/logtape-devtools/sink`) without installing the DevTools shell.
+Node `>=20.0.0`. The package is published as ESM. Node 20.19+ and 22.12+ can also `require()` it, and tools that do not set the `import` condition resolve it through `default`. `@tanstack/react-devtools` being optional means you can depend on this package purely for the sink (via `@mugenlabs/logtape-devtools/sink`) without installing the DevTools shell.
 
 ## Demo
 
