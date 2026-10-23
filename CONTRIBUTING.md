@@ -42,6 +42,7 @@ All of these run from the repo root:
 | `pnpm test-storybook` | Storybook component tests (Vitest browser mode, Chromium) |
 | `pnpm test:e2e` | Playwright end-to-end tests against the demo |
 | `pnpm lint` / `pnpm lint:fix` | Biome check, with or without `--write` |
+| `pnpm lint:package` | Checks the built package's `exports` and types with publint and are-the-types-wrong (run `pnpm build` first) |
 | `pnpm audit:published` | Audits the dependencies users install with the library; fails CI on a moderate or higher advisory |
 | `pnpm audit:workspace` | Audits the whole workspace, including the demo and dev tools; CI reports it without failing |
 | `pnpm storybook` | Storybook dev server on port 6006 |
