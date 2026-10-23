@@ -124,6 +124,16 @@ cmd_test() {
     fi
     echo "ok vercel missing base"
 
+    set +e
+    VERCEL_ENV=production VERCEL_GIT_PREVIOUS_SHA=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa bash "$0" vercel >/dev/null 2>&1
+    status=$?
+    set -e
+    if [ "$status" -ne 0 ]; then
+      echo "FAIL vercel production exit=$status (want 0, skip)" >&2
+      exit 1
+    fi
+    echo "ok vercel production"
+
     local tmp script gone_sha docs_sha
     script="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
     tmp=$(mktemp -d)
@@ -205,6 +215,10 @@ cmd_gha() {
 # Exit 0 skips the Vercel build. Exit 1 builds.
 cmd_vercel() {
   local base="${VERCEL_GIT_PREVIOUS_SHA:-HEAD^}" files code
+  # Production deploys come from the CI promote job, never from a Git build.
+  if [ "${VERCEL_ENV:-}" = "production" ]; then
+    exit 0
+  fi
   # ^{commit} makes git check the object exists. A bare 40-char SHA always
   # "verifies", even when history was rewritten or the clone is too shallow.
   git rev-parse --verify --quiet "$base^{commit}" >/dev/null 2>&1 || exit 1
