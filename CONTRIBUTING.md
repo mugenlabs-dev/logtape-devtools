@@ -44,6 +44,7 @@ All of these run from the repo root:
 | `pnpm test:e2e` | Playwright end-to-end tests against the demo |
 | `pnpm lint` / `pnpm lint:fix` | Biome check, with or without `--write` |
 | `pnpm lint:package` | Checks the built package's `exports` and types with publint and are-the-types-wrong (run `pnpm build` first) |
+| `pnpm readme:sync` | Regenerates the npm README (`packages/core/README.md`) from the root `README.md`; CI fails if it's out of date |
 | `pnpm audit:published` | Audits the dependencies users install with the library; fails CI on a moderate or higher advisory |
 | `pnpm audit:workspace` | Audits the whole workspace, including the demo and dev tools; CI reports it without failing |
 | `pnpm storybook` | Storybook dev server on port 6006 |
@@ -80,5 +81,5 @@ The demo app is ignored by Changesets and is never versioned or published.
 - **Formatting and linting**: [Biome](https://biomejs.dev) with the [Ultracite](https://www.ultracite.ai) preset (`biome.jsonc`), 100-column lines. Run `pnpm lint:fix` rather than hand-formatting.
 - **TypeScript**: strict, ESM only. Public API surface is re-exported from `packages/core/src/index.ts` (and the React-free `src/sink-entry.ts` for the `/sink` subpath) — add new exports there.
 - **Tests**: [Vitest](https://vitest.dev). Unit tests are colocated with their source. Behaviour changes should come with a test.
-- **Keep the docs in sync**: the public API is documented in three places — `packages/core/README.md`, the docs site (`apps/demo/src/pages/docs-page.tsx`), and the JSDoc on the exported functions. Update all three when an option changes.
+- **Keep the docs in sync**: the public API is documented in three places — the root `README.md` (`pnpm readme:sync` copies it to `packages/core/README.md` for npm), the docs site (`apps/demo/src/pages/docs-page.tsx`), and the JSDoc on the exported functions. Update all three when an option changes.
 - **Commits**: no strict convention enforced; a clear imperative subject line is enough.

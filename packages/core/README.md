@@ -1,10 +1,16 @@
+<!-- Generated from the root README.md by scripts/sync-readme.mjs. Edit that file instead. -->
+
 # @mugenlabs/logtape-devtools
+
+[![npm](https://img.shields.io/npm/v/@mugenlabs/logtape-devtools)](https://www.npmjs.com/package/@mugenlabs/logtape-devtools)
+[![CI](https://github.com/mugenlabs-dev/logtape-devtools/actions/workflows/ci.yml/badge.svg)](https://github.com/mugenlabs-dev/logtape-devtools/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/npm/l/@mugenlabs/logtape-devtools)](https://github.com/mugenlabs-dev/logtape-devtools/blob/main/LICENSE)
 
 A [TanStack DevTools](https://tanstack.com/devtools) plugin for inspecting [LogTape](https://logtape.org) logs in the browser.
 
 Filter, search, and inspect structured logs in real time — without leaving the browser DevTools overlay.
 
-![The LogTape DevTools panel](./assets/panel.png)
+![The LogTape DevTools panel](https://raw.githubusercontent.com/mugenlabs-dev/logtape-devtools/main/packages/core/assets/panel.png)
 
 ## Features
 
@@ -268,4 +274,4 @@ See the live demo and full documentation at [logtape-devtools.mugenlabs.dev](htt
 
 ## License
 
-MIT
+[MIT](https://github.com/mugenlabs-dev/logtape-devtools/blob/main/LICENSE)

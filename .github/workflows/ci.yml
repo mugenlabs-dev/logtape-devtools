@@ -42,6 +42,10 @@ jobs:
           BEFORE_SHA: ${{ github.event.before }}
         run: bash scripts/ci-changed.sh gha
 
+      # Runs here because README-only changes skip the other jobs.
+      - name: npm README in sync
+        run: node scripts/sync-readme.mjs --check
+
   check:
     name: Lint & Unit Tests
     needs: changes
