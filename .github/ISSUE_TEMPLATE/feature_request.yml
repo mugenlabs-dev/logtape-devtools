@@ -13,4 +13,6 @@ body:
     id: proposal
     attributes:
       label: Proposal
-      description: How you would like it to work.
+      description: How you would like it to work, and any alternatives you considered.
+    validations:
+      required: true
