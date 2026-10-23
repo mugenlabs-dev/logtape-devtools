@@ -1,14 +1,16 @@
 name: CI/CD
 
 on:
+  pull_request:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
+  # Nightly full run, so new advisories and upstream breakage show up between changes
+  schedule:
+    - cron: "17 6 * * *"
 
 concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+  group: ci-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 # Jobs only read the repo. Deploys authenticate with VERCEL_TOKEN, not GITHUB_TOKEN.
 permissions:
