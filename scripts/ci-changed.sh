@@ -100,6 +100,16 @@ cmd_test() {
     fi
     echo "ok gha docs pull_request"
     : >"$out"
+    EVENT_NAME=schedule \
+      GITHUB_OUTPUT="$out" \
+      bash "$0" gha >/dev/null
+    if ! grep -qx 'code=true' "$out"; then
+      echo "FAIL gha schedule" >&2
+      cat "$out" >&2
+      exit 1
+    fi
+    echo "ok gha schedule"
+    : >"$out"
     set +e
     EVENT_NAME=push \
       BEFORE_SHA=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa \
