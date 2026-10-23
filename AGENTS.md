@@ -4,7 +4,7 @@ Guidance for coding agents and automated contributors working in this repository
 
 ## Before you finish
 
-Run the same checks CI runs and report the results:
+Use pnpm and the root scripts, not the underlying tools directly. Run the same checks CI runs and report the results:
 
 ```bash
 pnpm lint:fix
