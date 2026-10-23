@@ -61,6 +61,8 @@ pnpm test:ci
 
 Run `pnpm test-storybook` and `pnpm test:e2e` too if you touched the panel UI. CI runs the same checks.
 
+CI also runs the unit and Storybook tests against the oldest and the newest versions the peer ranges in `packages/core/package.json` allow (React 18 and 19, `@logtape/logtape` 2.0 and the latest 2.x, and so on). `scripts/pin-peer-versions.mjs` reads those ranges, so changing a peer range changes what gets tested. To reproduce a failure locally, run `node scripts/pin-peer-versions.mjs oldest` (or `latest`) and `pnpm install --no-frozen-lockfile`, then revert `package.json` and `pnpm-lock.yaml` when you're done.
+
 ## Releases
 
 Releases are driven by [Changesets](https://github.com/changesets/changesets).
