@@ -17,6 +17,7 @@
     "storybook": "pnpm --filter ./packages/core run storybook",
     "test": "vitest --project=unit",
     "test:ci": "vitest run --project=unit",
+    "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test-storybook": "vitest run --project=storybook",
     "typecheck": "pnpm build && tsgo -p packages/core --noEmit && tsgo -p apps/demo --noEmit"
@@ -34,6 +35,7 @@
     "@typescript/native-preview": "7.0.0-dev.20260412.1",
     "@vitest/browser": "^4.1.12",
     "@vitest/browser-playwright": "^4.1.12",
+    "@vitest/coverage-v8": "^4.1.12",
     "jsdom": "^28.1.0",
     "publint": "^0.3.25",
     "satori": "^0.26.0",
