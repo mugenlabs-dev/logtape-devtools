@@ -127,6 +127,23 @@ jobs:
       - name: Typecheck
         run: pnpm exec tsgo -p packages/core --noEmit && pnpm exec tsgo -p apps/demo --noEmit
 
+  changeset:
+    name: Changeset
+    needs: changes
+    if: github.event_name == 'pull_request' && needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+
+      - name: Require changeset when packages/core changes
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: bash scripts/check-changeset.sh "$BASE_SHA" "$HEAD_SHA"
+
   deploy-preview:
     name: Deploy Preview
     runs-on: ubuntu-latest
