@@ -27,25 +27,21 @@ const v8FrameRe = /at\s+(?:.*?\s+\()?(.+?):(\d+):(\d+)\)?$/;
 // SpiderMonkey (Firefox) / JSC (Safari): "functionName@file:line:col"
 const smFrameRe = /(?:^|@)(.+?):(\d+):(\d+)$/;
 
-function captureCallerInfo(): string | undefined {
-  // biome-ignore lint/suspicious/useErrorMessage: we only need the stack trace, not the message
-  const { stack } = new Error();
-  if (!stack) {
-    return undefined;
-  }
+// Frames from LogTape and from this package, matched on the file path only so
+// user files and functions with "logtape" in their name still count:
+// - installed packages, including pnpm's store and bundler prebundles
+//   (`@logtape/logtape`, `@logtape_logtape.js`, `@mugenlabs/logtape-devtools`)
+// - this repo's own source and build, when the demo links the workspace package
+const internalFrameRe =
+  /@logtape[/_]|@mugenlabs[/_]logtape-devtools|[/\\]logtape-devtools[/\\]packages[/\\]core[/\\]/;
 
-  const lines = stack.split("\n");
-
-  for (const line of lines) {
+/** First stack frame outside LogTape and this package, as `file:line:col`. */
+export function parseCallerFrame(stack: string): string | undefined {
+  for (const line of stack.split("\n")) {
     const trimmed = line.trim();
 
     // Skip empty lines and the "Error" header
     if (!trimmed || trimmed === "Error") {
-      continue;
-    }
-
-    // Skip frames from logtape internals (both @logtape/logtape and @mugenlabs/logtape-devtools)
-    if (/logtape/i.test(trimmed)) {
       continue;
     }
 
@@ -56,6 +52,9 @@ function captureCallerInfo(): string | undefined {
     }
 
     const [, filePath, lineNo, colNo] = match;
+    if (internalFrameRe.test(filePath)) {
+      continue;
+    }
 
     // Extract just the filename from the full path/URL
     const fileName =
@@ -68,6 +67,12 @@ function captureCallerInfo(): string | undefined {
   }
 
   return undefined;
+}
+
+function captureCallerInfo(): string | undefined {
+  // biome-ignore lint/suspicious/useErrorMessage: we only need the stack trace, not the message
+  const { stack } = new Error();
+  return stack ? parseCallerFrame(stack) : undefined;
 }
 
 function normalizeRecord(record: LogRecord, captureStack: boolean, id: string): DevtoolsLogRecord {

@@ -92,6 +92,8 @@ import { createDevtoolsSink, createLogStore } from "@mugenlabs/logtape-devtools/
 
 Exported from `/sink`: `createDevtoolsSink`, `createLogStore`, `defaultLogStore`, `LOG_LEVELS`, and the types `DevtoolsSink`, `DevtoolsSinkOptions`, `LogStore`, `LogStoreOptions`, `DevtoolsLogRecord`, `LogLevel`.
 
+With React Server Components (Next.js App Router), the package root is marked `"use client"`, so a Server Component can render the panel. Anything server code imports from the root is a client reference, not a function it can call, so configure LogTape on the server from `/sink`.
+
 ## Production
 
 The panel is a development tool. Guard the mount so bundlers can tree-shake it — and `@tanstack/react-devtools` along with it — out of production builds:
@@ -242,7 +244,7 @@ The shared `LogStore` instance (created with the default `maxRecords: 1000`) use
 
 - In production builds stack capture is disabled by design. Pass `forceStackTrace: true` if your build is unminified and you want it anyway.
 - With the panel closed, capture is skipped because nothing is subscribed. Open the panel and log again, or pass `forceStackTrace: true`.
-- Stack parsing depends on the JS engine's `Error.stack` format. Frames matching `logtape` are skipped; if your own wrapper module has "logtape" in its path, its frames are skipped too and you may see the wrong location.
+- Stack parsing depends on the JS engine's `Error.stack` format. Frames from `@logtape/*` packages and from this package are skipped, matched on the file path. If you log through your own wrapper module, the location shown is the line inside the wrapper.
 
 **Several sinks writing into one store.**
 
@@ -258,7 +260,7 @@ The shared `LogStore` instance (created with the default `maxRecords: 1000`) use
 | `react-dom` | `^18.0.0 \|\| ^19.0.0` | Required for the panel |
 | `@tanstack/react-devtools` | `^0.9.0` | **Optional** — only needed to host the panel. Bound to 0.9.x because 0.10 changed how props are passed into plugins |
 
-Node `>=24.0.0` (Active LTS). The package is published as ESM only (`import` condition, no `require()`). `@tanstack/react-devtools` being optional means you can depend on this package purely for the sink (via `@mugenlabs/logtape-devtools/sink`) without installing the DevTools shell.
+Node `>=24.0.0` (Active LTS). The package is published as ESM. Node 24 can also `require()` it, and tools that do not set the `import` condition resolve it through `default`. `@tanstack/react-devtools` being optional means you can depend on this package purely for the sink (via `@mugenlabs/logtape-devtools/sink`) without installing the DevTools shell.
 
 ## Demo
 

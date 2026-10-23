@@ -328,6 +328,13 @@ export const DocsPage = () => (
           <code className="text-text-primary">@mugenlabs/logtape-devtools/sink</code> subpath
           instead — it exports the sink, the store and the types with no React dependency.
         </p>
+        <p className="mb-4 text-sm text-text-muted leading-relaxed">
+          With React Server Components (Next.js App Router), the package root is marked{" "}
+          <code className="text-text-primary">"use client"</code>, so a Server Component can render
+          the panel. Anything server code imports from the root is a client reference, not a
+          function it can call, so configure LogTape on the server from{" "}
+          <code className="text-text-primary">/sink</code>.
+        </p>
         <CodeBlock code={ADVANCED_CODE} lang="tsx" />
       </section>
 

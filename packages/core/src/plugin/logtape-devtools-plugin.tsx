@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type { LogStore } from "../store";
 import type { DevtoolsLogRecord, LogLevel } from "../types";
 import { LogList } from "./components/log-list";
@@ -90,6 +90,16 @@ export const LogTapeDevtoolsPlugin = ({ store }: Props) => {
   const [searchText, setSearchText] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+
+  // A collapsed sidebar is 0px wide but its controls are still in the DOM, so
+  // keep them out of the Tab order and the accessibility tree. Set through the
+  // DOM property because React 18 does not know the `inert` attribute.
+  useEffect(() => {
+    if (sidebarRef.current) {
+      sidebarRef.current.inert = !sidebarOpen;
+    }
+  }, [sidebarOpen]);
 
   // While paused, subscribe a listener that ignores changes, so coalesced store
   // flushes do not re-render the panel/toolbar/virtualizer. It still counts as a
@@ -155,6 +165,8 @@ export const LogTapeDevtoolsPlugin = ({ store }: Props) => {
   return (
     <div style={rootStyle}>
       <div
+        data-testid="logtape-sidebar"
+        ref={sidebarRef}
         style={{
           ...sidebarStyle,
           borderRight: sidebarOpen ? `1px solid ${theme.colors.border}` : "none",
@@ -210,7 +222,7 @@ export const LogTapeDevtoolsPlugin = ({ store }: Props) => {
                   background: paused
                     ? theme.colors.levels.warning.badge
                     : compactButtonStyle.background,
-                  color: paused ? theme.colors.white : compactButtonStyle.color,
+                  color: paused ? theme.colors.levels.warning.text : compactButtonStyle.color,
                 }}
                 title={paused ? "Resume" : "Pause"}
                 type="button"

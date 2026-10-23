@@ -144,3 +144,23 @@ export const FilterByLevel: Story = {
     });
   },
 };
+
+export const CollapsedSidebarIsInert: Story = {
+  decorators: [withLogStore(typicalRecords)],
+  name: "Collapsed Sidebar Is Inert",
+  play: async ({ canvas, userEvent, step }) => {
+    const sidebar = canvas.getByTestId("logtape-sidebar");
+    await step("Open sidebar is reachable", async () => {
+      await expect(sidebar.inert).toBe(false);
+    });
+    await step("Hiding the controls takes them out of the Tab order", async () => {
+      await userEvent.click(canvas.getByRole("button", { name: /Hide controls/ }));
+      await waitFor(() => expect(sidebar.inert).toBe(true));
+      // Shift+Tab from the toggle would land on the search box if it were reachable.
+      await userEvent.tab({ shift: true });
+      await expect(sidebar.contains(document.activeElement)).toBe(false);
+      await userEvent.click(canvas.getByRole("button", { name: /Show controls/ }));
+      await waitFor(() => expect(sidebar.inert).toBe(false));
+    });
+  },
+};

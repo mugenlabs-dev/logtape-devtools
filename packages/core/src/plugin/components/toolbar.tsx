@@ -1,5 +1,5 @@
-import { Combobox } from "@base-ui-components/react/combobox";
-import { Popover } from "@base-ui-components/react/popover";
+import { Combobox } from "@base-ui/react/combobox";
+import { Popover } from "@base-ui/react/popover";
 import { Debouncer } from "@tanstack/pacer";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { LOG_LEVELS, type LogLevel } from "../../types";
@@ -115,14 +115,13 @@ const LevelToggle = ({
         background: active ? colors.badge : "transparent",
         border: `1px solid ${active ? colors.badge : theme.colors.border}`,
         borderRadius: theme.radius.sm,
-        color: active ? theme.colors.white : colors.color,
+        color: active ? colors.text : colors.color,
         cursor: "pointer",
         fontFamily: theme.fontFamily.mono,
         fontSize: theme.fontSize.sm,
         fontWeight: 600,
         lineHeight: 1,
         minWidth: "30px",
-        opacity: active ? 1 : 0.5,
         padding: "3px 0",
         textAlign: "center" as const,
         transition: "all 0.15s",
@@ -221,7 +220,7 @@ export const Toolbar = ({
           style={{
             ...buttonStyle,
             background: paused ? theme.colors.levels.warning.badge : buttonStyle.background,
-            color: paused ? theme.colors.white : buttonStyle.color,
+            color: paused ? theme.colors.levels.warning.text : buttonStyle.color,
           }}
           title={paused ? "Resume live updates" : "Pause live updates"}
           type="button"
@@ -401,7 +400,6 @@ export const Toolbar = ({
                       cursor: "pointer",
                       fontSize: "7px",
                       lineHeight: 1,
-                      opacity: 0.7,
                       padding: 0,
                       transition: "color 0.1s, opacity 0.1s",
                     }}

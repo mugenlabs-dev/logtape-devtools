@@ -60,6 +60,20 @@ const DetailRow = ({ label, children }: { label: string; children: React.ReactNo
   </div>
 );
 
+// Records do not change after they are logged, so build each one's JSON once,
+// not on every mount: the virtual list remounts an open row as it scrolls back
+// into view.
+const propertiesJson = new WeakMap<DevtoolsLogRecord, string>();
+
+function getPropertiesJson(record: DevtoolsLogRecord): string {
+  let json = propertiesJson.get(record);
+  if (json === undefined) {
+    json = safeStringify(record.properties, 2);
+    propertiesJson.set(record, json);
+  }
+  return json;
+}
+
 export const LogDetail = ({ record }: { record: DevtoolsLogRecord }) => {
   const levelColors = getLevelColors(record.level);
   const hasProperties = Object.keys(record.properties).length > 0;
@@ -84,7 +98,7 @@ export const LogDetail = ({ record }: { record: DevtoolsLogRecord }) => {
 
       {hasProperties && (
         <DetailRow label="Data">
-          <pre style={propertiesStyle}>{safeStringify(record.properties, 2)}</pre>
+          <pre style={propertiesStyle}>{getPropertiesJson(record)}</pre>
         </DetailRow>
       )}
     </div>
