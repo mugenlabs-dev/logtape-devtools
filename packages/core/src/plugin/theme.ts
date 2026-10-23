@@ -1,20 +1,20 @@
 export const theme = {
   colors: {
-    accent: "#6366f1",
-    accentHover: "#818cf8",
+    accent: "#818cf8",
+    accentHover: "#a5b4fc",
     background: "#1e1e1e",
     border: "#333",
     borderFocus: "#6366f1",
     borderInput: "#444",
 
     levels: {
-      // Badge colours keep at least 4.5:1 contrast against white badge text.
-      debug: { badge: "#2f7a2f", bg: "#1a2a1a", color: "#88bb88" },
-      error: { badge: "#dc2626", bg: "#2a1a1a", color: "#ef4444" },
-      fatal: { badge: "#b91c1c", bg: "#3a0a0a", color: "#ff6b6b" },
-      info: { badge: "#2563eb", bg: "#1a2a3a", color: "#60a5fa" },
-      trace: { badge: "#5555aa", bg: "#1a1a2e", color: "#8888bb" },
-      warning: { badge: "#eab308", bg: "#2a2a1a", color: "#facc15" },
+      // `text` sits on `badge` and keeps at least 4.5:1 contrast against it.
+      debug: { badge: "#2f7a2f", bg: "#1a2a1a", color: "#88bb88", text: "#fff" },
+      error: { badge: "#dc2626", bg: "#2a1a1a", color: "#f87171", text: "#fff" },
+      fatal: { badge: "#b91c1c", bg: "#3a0a0a", color: "#ff6b6b", text: "#fff" },
+      info: { badge: "#2563eb", bg: "#1a2a3a", color: "#60a5fa", text: "#fff" },
+      trace: { badge: "#5555aa", bg: "#1a1a2e", color: "#8888bb", text: "#fff" },
+      warning: { badge: "#eab308", bg: "#2a2a1a", color: "#facc15", text: "#1a1a1a" },
     },
 
     scrollbar: "#444",
@@ -22,11 +22,12 @@ export const theme = {
     surface: "#1a1a1a",
     surfaceHover: "#2a2a2a",
     surfaceSelected: "#2a2a3a",
-    textDimmed: "#555",
-    textMuted: "#666",
+    // Text colours keep at least 4.5:1 contrast on every panel background, including the level row tints.
+    textDimmed: "#949494",
+    textMuted: "#999",
 
     textPrimary: "#e0e0e0",
-    textSecondary: "#888",
+    textSecondary: "#a3a3a3",
     white: "#fff",
   },
 

@@ -1,5 +1,5 @@
 import type { LogRecord } from "@logtape/logtape";
-import { createDevtoolsSink } from "./sink";
+import { createDevtoolsSink, parseCallerFrame } from "./sink";
 import { createLogStore } from "./store";
 
 function makeLogRecord(overrides: Partial<LogRecord> = {}): LogRecord {
@@ -268,5 +268,52 @@ describe("createDevtoolsSink", () => {
     sink(makeLogRecord());
 
     expect(store.getSnapshot()).toHaveLength(1);
+  });
+});
+
+describe("parseCallerFrame", () => {
+  const stack = (...frames: string[]) => ["Error", ...frames].join("\n");
+
+  it("skips LogTape and devtools frames, in V8 and Firefox/Safari formats", () => {
+    expect(
+      parseCallerFrame(
+        stack(
+          "    at captureCallerInfo (http://localhost:5173/node_modules/.vite/deps/@mugenlabs_logtape-devtools.js?v=1:2:3)",
+          "    at LoggerImpl.emit (/app/node_modules/.pnpm/@logtape+logtape@2.3.2/node_modules/@logtape/logtape/dist/logger.js:10:5)",
+          "    at checkout (http://localhost:5173/src/cart.ts?t=1:42:7)"
+        )
+      )
+    ).toBe("cart.ts:42:7");
+    expect(
+      parseCallerFrame(
+        stack(
+          "emit@http://localhost:5173/node_modules/.vite/deps/@logtape_logtape.js?v=1:5:6",
+          "checkout@http://localhost:5173/src/cart.ts:42:7"
+        )
+      )
+    ).toBe("cart.ts:42:7");
+  });
+
+  it("keeps user files and functions that mention logtape", () => {
+    expect(
+      parseCallerFrame(stack("    at setupLogtape (http://localhost:5173/src/logtape.ts:3:1)"))
+    ).toBe("logtape.ts:3:1");
+  });
+
+  it("skips this repo's own package source and build", () => {
+    expect(
+      parseCallerFrame(
+        stack(
+          "    at sink (/@fs/home/me/logtape-devtools/packages/core/dist/index.mjs:1:9)",
+          "    at main (http://localhost:3001/src/main.tsx:8:2)"
+        )
+      )
+    ).toBe("main.tsx:8:2");
+  });
+
+  it("returns undefined when every frame is internal or unparseable", () => {
+    expect(
+      parseCallerFrame(stack("    at <anonymous>", "    at x (/n/@logtape/logtape/a.js:1:1)"))
+    ).toBe(undefined);
   });
 });

@@ -58,7 +58,6 @@ const callerStyle = {
   fontFamily: theme.fontFamily.mono,
   fontSize: theme.fontSize.sm,
   maxWidth: "200px",
-  opacity: 0.7,
   overflow: "hidden",
   textOverflow: "ellipsis",
   whiteSpace: "nowrap",

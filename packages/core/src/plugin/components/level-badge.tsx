@@ -19,7 +19,7 @@ export const LevelBadge = ({ level }: { level: LogLevel }) => {
       style={{
         background: colors.badge,
         borderRadius: theme.radius.sm,
-        color: theme.colors.white,
+        color: colors.text,
         display: "inline-block",
         fontFamily: theme.fontFamily.mono,
         fontSize: theme.fontSize.sm,
