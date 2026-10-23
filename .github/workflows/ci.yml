@@ -60,11 +60,20 @@ jobs:
       - name: Lint & Format
         run: pnpm lint
 
-      - name: Audit dependencies
-        run: pnpm audit --audit-level=moderate
+      # pnpm audit has no --filter; --dir does not limit a workspace audit.
+      # scripts/audit-published.sh keeps only packages/core production paths.
+      - name: Audit published package
+        run: pnpm audit:published
+
+      - name: Audit workspace (non-blocking)
+        continue-on-error: true
+        run: pnpm audit:workspace
 
       - name: Run unit tests
         run: pnpm test:ci
+
+      - name: Script tests
+        run: bash scripts/audit-published.test.sh
 
   storybook:
     name: Storybook Tests
