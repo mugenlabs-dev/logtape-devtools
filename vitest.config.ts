@@ -9,6 +9,15 @@ export default defineConfig({
     },
   },
   test: {
+    coverage: {
+      exclude: ["**/*.stories.tsx", "**/*.test.{ts,tsx}", "**/index.ts"],
+      include: ["packages/core/src/**/*.{ts,tsx}"],
+      provider: "v8",
+      reporter: ["text-summary", "html"],
+      // Floors just under the combined unit + Storybook coverage, so CI fails
+      // if a change drops it noticeably.
+      thresholds: { branches: 86, functions: 95, lines: 95, statements: 95 },
+    },
     projects: [
       {
         extends: true,

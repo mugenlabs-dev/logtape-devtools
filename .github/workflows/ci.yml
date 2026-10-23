@@ -80,7 +80,12 @@ jobs:
     needs: changes
     if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    container:
+      # Ships Chromium and its system dependencies. Keep the tag in sync with
+      # the Playwright version in pnpm-lock.yaml.
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --user 1001
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
@@ -92,11 +97,9 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium
-
-      - name: Run Storybook tests
-        run: pnpm test-storybook
+      # Runs the unit tests too, so coverage covers both projects
+      - name: Run Storybook tests with coverage
+        run: pnpm test:coverage
 
   build:
     name: Build & Typecheck

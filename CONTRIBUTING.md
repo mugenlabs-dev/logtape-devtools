@@ -40,6 +40,7 @@ All of these run from the repo root:
 | `pnpm typecheck` | Builds, then typechecks `packages/core` and `apps/demo` |
 | `pnpm test` / `pnpm test:ci` | Unit tests (Vitest, jsdom), in watch mode or once |
 | `pnpm test-storybook` | Storybook component tests (Vitest browser mode, Chromium) |
+| `pnpm test:coverage` | Unit and Storybook tests with a coverage report in `coverage/`; CI fails if coverage drops below the thresholds in `vitest.config.ts` |
 | `pnpm test:e2e` | Playwright end-to-end tests against the demo |
 | `pnpm lint` / `pnpm lint:fix` | Biome check, with or without `--write` |
 | `pnpm lint:package` | Checks the built package's `exports` and types with publint and are-the-types-wrong (run `pnpm build` first) |
