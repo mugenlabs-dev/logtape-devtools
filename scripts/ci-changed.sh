@@ -2,12 +2,14 @@
 set -euo pipefail
 
 # true: run CI and allow a deploy. false: every path is *.md or docs/.
+# Changesets are .md files but drive the next release, so they count as code.
 should_run_ci() {
   local f any=false
   while IFS= read -r f; do
     [ -z "$f" ] && continue
     any=true
     case "$f" in
+      .changeset/*) printf 'true\n'; return ;;
       docs/*|*.md) ;;
       *) printf 'true\n'; return ;;
     esac
@@ -42,6 +44,8 @@ cmd_test() {
   check mixed "$(printf 'README.md\npackages/core/src/sink.ts')" true
   check workflow ".github/workflows/ci.yml" true
   check vercel "vercel.json" true
+  check changeset ".changeset/quiet-cats-dance.md" true
+  check changeset-and-docs "$(printf 'README.md\n.changeset/quiet-cats-dance.md')" true
   check empty "" true
 
   if git rev-parse --verify ef9fa09 >/dev/null 2>&1; then
