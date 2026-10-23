@@ -19,7 +19,10 @@ export interface DevtoolsLogRecord {
   id: string;
   /** Severity of the record. */
   level: LogLevel;
-  /** Raw message parts, alternating literals and interpolated values. */
+  /**
+   * Message parts, alternating literals and interpolated values. Values are
+   * copied at log time, within size limits.
+   */
   message: unknown[];
   /**
    * Cached lowercase {@link messageText} for search.
@@ -28,7 +31,7 @@ export interface DevtoolsLogRecord {
   messageSearchText?: string;
   /** Message parts rendered into a single searchable string. */
   messageText: string;
-  /** Structured properties attached to the log call, deep-cloned for safety. */
+  /** Structured properties attached to the log call, copied at log time within size limits. */
   properties: Record<string, unknown>;
   /** Creation time in milliseconds since the Unix epoch. */
   timestamp: number;

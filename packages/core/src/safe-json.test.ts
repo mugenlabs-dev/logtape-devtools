@@ -1,4 +1,4 @@
-import { safeCloneProperties, safeStringify } from "./safe-json";
+import { safeStringify } from "./safe-json";
 
 const parse = (value: unknown) => JSON.parse(safeStringify(value)) as unknown;
 
@@ -81,20 +81,5 @@ describe("safeStringify", () => {
 
   it("supports indentation", () => {
     expect(safeStringify({ a: 1 }, 2)).toBe('{\n  "a": 1\n}');
-  });
-});
-
-describe("safeCloneProperties", () => {
-  it("deep-clones plain objects", () => {
-    const source = { nested: { list: [1, 2] } };
-    const clone = safeCloneProperties(source);
-    expect(clone).toStrictEqual(source);
-    expect(clone.nested).not.toBe(source.nested);
-  });
-
-  it("falls back per entry when structuredClone rejects a value", () => {
-    const clone = safeCloneProperties({ fn: () => 1, ok: "yes" });
-    expect(clone.ok).toBe("yes");
-    expect(clone.fn).toBe("[Function fn]");
   });
 });

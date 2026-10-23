@@ -373,7 +373,7 @@ export const DocsPage = () => (
               </strong>{" "}
               The sink checks <code className="text-text-primary">store.hasListeners()</code> per
               record and does no stack work while nothing is subscribed, and message text is
-              rendered lazily, so an unmounted panel costs one property clone per record.
+              rendered lazily, so an unmounted panel costs one size-limited copy per record.
             </span>
           </li>
         </ul>
@@ -382,6 +382,20 @@ export const DocsPage = () => (
           either, keep the sink out of your production LogTape configuration, or pass{" "}
           <code className="text-text-primary">createLogStore(&#123; maxRecords: 0 &#125;)</code>,
           which makes the sink return before doing any work.
+        </p>
+        <p className="mt-4 text-sm text-text-muted leading-relaxed">
+          <strong className="text-text-primary">
+            Records are copied when they are logged, within size limits.
+          </strong>{" "}
+          The sink copies each record&apos;s properties and interpolated message values, so changing
+          an object after logging it does not change what the panel shows, and the store holds no
+          references into your app. Dates, Maps, Sets, RegExps and Errors (with custom fields such
+          as <code className="text-text-primary">code</code>) keep their types; objects with a{" "}
+          <code className="text-text-primary">toJSON</code> method are stored as what it returns;
+          functions, DOM nodes and binary data become short descriptions. Nesting deeper than 8
+          levels, entries past the first 100 of an object, array, Map or Set, strings past 10,000
+          characters, and anything past 5,000 values in one record become{" "}
+          <code className="text-text-primary">[Truncated: …]</code> markers.
         </p>
       </section>
 

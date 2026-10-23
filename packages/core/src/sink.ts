@@ -1,5 +1,6 @@
 import type { LogRecord, Sink } from "@logtape/logtape";
-import { safeCloneProperties, safeStringify } from "./safe-json";
+import { createRecordCloner } from "./clone";
+import { safeStringify } from "./safe-json";
 import { defaultLogStore, type LogStore } from "./store";
 import type { DevtoolsLogRecord, LogLevel } from "./types";
 
@@ -70,7 +71,11 @@ function captureCallerInfo(): string | undefined {
 }
 
 function normalizeRecord(record: LogRecord, captureStack: boolean, id: string): DevtoolsLogRecord {
-  const message = [...record.message];
+  // Copy interpolated values too, not just properties: the app may mutate them
+  // after logging, and holding them would keep large objects (DOM nodes,
+  // stores) alive for as long as the record is buffered.
+  const clone = createRecordCloner();
+  const message = record.message.map((part) => clone(part));
   const category = [...record.category];
   const normalized = {
     category,
@@ -79,7 +84,7 @@ function normalizeRecord(record: LogRecord, captureStack: boolean, id: string): 
     id,
     level: record.level as LogLevel,
     message,
-    properties: safeCloneProperties(record.properties),
+    properties: clone(record.properties) as Record<string, unknown>,
     timestamp: record.timestamp,
   } as DevtoolsLogRecord;
 

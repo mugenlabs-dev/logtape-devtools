@@ -134,9 +134,16 @@ With webpack or other bundlers, `process.env.NODE_ENV !== "production"` works th
 Two related behaviours make the sink itself cheap to leave in place:
 
 - **Stack capture auto-disables in production.** When `process.env.NODE_ENV === "production"`, `captureStackTrace` is ignored (minified bundles produce meaningless file and line references, and browsers do not apply source maps to `Error.stack`). Set `forceStackTrace: true` to override.
-- **Stack capture is skipped while no panel is open.** The sink checks `store.hasListeners()` on every record and does no stack work while nothing is subscribed. Message text is rendered lazily, so an unmounted panel costs one property clone per record.
+- **Stack capture is skipped while no panel is open.** The sink checks `store.hasListeners()` on every record and does no stack work while nothing is subscribed. Message text is rendered lazily, so an unmounted panel costs one size-limited copy per record.
 
 Records are still buffered in memory when no panel is mounted. If you do not want that in production either, keep the sink out of your production LogTape configuration, or pass `createLogStore({ maxRecords: 0 })` — the sink then returns before doing any work at all.
+
+**Records are copied when they are logged, within size limits.** The sink copies each record's properties and interpolated message values, so changing an object after logging it does not change what the panel shows, and the store holds no references into your app. The copy keeps `Date`, `Map`, `Set`, `RegExp` and `Error` values, including an error's custom fields such as `code`. Objects with a `toJSON` method are stored as what `toJSON` returns. Functions, DOM nodes and binary data become short descriptions such as `[HTMLButtonElement]`. To bound memory, these are replaced with `[Truncated: …]` markers:
+
+- nesting deeper than 8 levels
+- entries past the first 100 of an object, array, `Map` or `Set`
+- strings past 10,000 characters
+- anything past 5,000 values in one record
 
 ## API
 
@@ -214,10 +221,10 @@ The shared `LogStore` instance (created with the default `maxRecords: 1000`) use
 | `level` | `LogLevel` | Severity of the record |
 | `category` | `string[]` | Logger category path, e.g. `["app", "auth"]` |
 | `categoryKey` | `string \| undefined` | Precomputed `category.join(".")` for filter/search (set by the sink) |
-| `message` | `unknown[]` | Raw message parts, alternating literals and interpolated values |
+| `message` | `unknown[]` | Message parts, alternating literals and interpolated values. Values are copied at log time, within size limits |
 | `messageText` | `string` | Message parts rendered into one searchable string (computed lazily on first access) |
 | `messageSearchText` | `string \| undefined` | Cached lowercase `messageText` for search (lazy; set by the sink) |
-| `properties` | `Record<string, unknown>` | Structured properties, deep-cloned for safety |
+| `properties` | `Record<string, unknown>` | Structured properties, copied at log time within size limits |
 | `caller` | `string \| undefined` | Source location, present only when stack capture ran |
 
 `LogLevel` — `"trace" | "debug" | "info" | "warning" | "error" | "fatal"`, also available as the ordered array `LOG_LEVELS`.

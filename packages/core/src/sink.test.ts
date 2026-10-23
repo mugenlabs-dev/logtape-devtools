@@ -109,6 +109,20 @@ describe("createDevtoolsSink", () => {
     store.addRecord = originalAdd;
   });
 
+  it("snapshots interpolated message values at log time", () => {
+    const store = createLogStore();
+    const sink = createDevtoolsSink({ store });
+    const state = { count: 1 };
+    sink(makeLogRecord({ message: ["state ", state, ""] }));
+
+    state.count = 2;
+
+    const [record] = store.getSnapshot();
+    expect(record.message[1]).toStrictEqual({ count: 1 });
+    expect(record.message[1]).not.toBe(state);
+    expect(record.messageText).toBe('state {"count":1}');
+  });
+
   it("copies category array (no shared references)", () => {
     const store = createLogStore();
     const sink = createDevtoolsSink({ store });
@@ -213,10 +227,14 @@ describe("createDevtoolsSink", () => {
     const heavy = { toJSON: vi.fn(() => "rendered") };
     sink(makeLogRecord({ message: ["value: ", heavy] }));
 
+    // toJSON runs once at log time, to snapshot the value. Turning the message
+    // into text is still deferred to the first read.
+    expect(heavy.toJSON).toHaveBeenCalledTimes(1);
     const [record] = store.getSnapshot();
-    expect(heavy.toJSON).not.toHaveBeenCalled();
-    expect(record.messageText).toBe('value: "rendered"');
-    expect(record.messageText).toBe('value: "rendered"');
+    const descriptor = Object.getOwnPropertyDescriptor(record, "messageText");
+    expect(descriptor?.get).toBeTypeOf("function");
+    expect(record.messageText).toBe("value: rendered");
+    expect(record.messageText).toBe("value: rendered");
     expect(heavy.toJSON).toHaveBeenCalledTimes(1);
     expect(Object.keys(record)).toContain("messageText");
   });
@@ -229,11 +247,15 @@ describe("createDevtoolsSink", () => {
 
     const [record] = store.getSnapshot();
     expect(record.categoryKey).toBe("app.auth");
-    expect(heavy.toJSON).not.toHaveBeenCalled();
-    expect(record.messageSearchText).toBe('hello "rendered"');
-    expect(record.messageText).toBe('Hello "Rendered"');
+    // Snapshotted at log time; the lowercased search text is still built lazily.
     expect(heavy.toJSON).toHaveBeenCalledTimes(1);
-    expect(record.messageSearchText).toBe('hello "rendered"');
+    expect(Object.getOwnPropertyDescriptor(record, "messageSearchText")?.get).toBeTypeOf(
+      "function"
+    );
+    expect(record.messageSearchText).toBe("hello rendered");
+    expect(record.messageText).toBe("Hello Rendered");
+    expect(heavy.toJSON).toHaveBeenCalledTimes(1);
+    expect(record.messageSearchText).toBe("hello rendered");
     expect(heavy.toJSON).toHaveBeenCalledTimes(1);
   });
 
