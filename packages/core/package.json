@@ -20,7 +20,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mugenlabs-dev/logtape-devtools.git",
+    "url": "git+https://github.com/mugenlabs-dev/logtape-devtools.git",
     "directory": "packages/core"
   },
   "license": "MIT",
@@ -83,7 +83,7 @@
     }
   },
   "engines": {
-    "node": ">=24.0.0"
+    "node": ">=20.0.0"
   },
   "publishConfig": {
     "access": "public",
