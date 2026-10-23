@@ -187,13 +187,16 @@ jobs:
           url=$(vercel deploy --prebuilt --prod --skip-domain)
           echo "preview-url=$url" >> "$GITHUB_OUTPUT"
 
+  # Main pushes test the deployed preview instead (e2e-preview).
   e2e:
     name: E2E Tests
     needs: changes
-    if: needs.changes.outputs.code == 'true'
+    if: needs.changes.outputs.code == 'true' && (github.event_name == 'pull_request' || github.event_name == 'schedule')
     runs-on: ubuntu-latest
     timeout-minutes: 4
     container:
+      # Ships Chromium and its system dependencies. Keep the tag in sync with
+      # the Playwright version in pnpm-lock.yaml.
       image: mcr.microsoft.com/playwright:v1.62.1-noble
       options: --user 1001
     steps:
@@ -258,7 +261,7 @@ jobs:
   promote:
     name: Promote to Production
     runs-on: ubuntu-latest
-    needs: [changes, e2e, e2e-preview, deploy-preview]
+    needs: [changes, e2e-preview, deploy-preview]
     if: needs.changes.outputs.code == 'true' && github.ref == 'refs/heads/main' && github.event_name == 'push'
     timeout-minutes: 2
     steps:
