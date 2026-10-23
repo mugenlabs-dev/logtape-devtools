@@ -27,4 +27,9 @@ body:
     id: environment
     attributes:
       label: Environment
-      description: Versions of @logtape/logtape, @tanstack/react-devtools and React, plus your browser.
+      description: Versions of @logtape/logtape, @tanstack/react-devtools and React, your framework and browser.
+      placeholder: |
+        @logtape/logtape 2.4.0, @tanstack/react-devtools 0.9.13, react 19.2.0
+        Vite 7, Chrome 141
+    validations:
+      required: true
